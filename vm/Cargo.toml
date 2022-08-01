@@ -7,4 +7,4 @@ edition = "2021"
 
 [dependencies]
 rhexdump = "0.1"
-getargs = "0.5"
+gumdrop = "0.8"
