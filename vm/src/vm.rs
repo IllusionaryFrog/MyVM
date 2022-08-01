@@ -1485,27 +1485,27 @@ impl VM {
                 }
                 251 => {
                     let val = u8::from_le_bytes(self.pop()?);
-                    println!("Debug8: 0x{:x} | {}", val, val);
+                    println!("Debug8: 0x{:x}", val);
                     self.pc.inc_by(1)?;
                 }
                 252 => {
                     let val = u16::from_le_bytes(self.pop()?);
-                    println!("Debug16: 0x{:x} | {}", val, val);
+                    println!("Debug16: 0x{:x}", val);
                     self.pc.inc_by(1)?;
                 }
                 253 => {
                     let val = u32::from_le_bytes(self.pop()?);
-                    println!("Debug32: 0x{:x} | {}", val, val);
+                    println!("Debug32: 0x{:x}", val);
                     self.pc.inc_by(1)?;
                 }
                 254 => {
                     let val = u64::from_le_bytes(self.pop()?);
-                    println!("Debug64: 0x{:x} | {}", val, val);
+                    println!("Debug64: 0x{:x}", val);
                     self.pc.inc_by(1)?;
                 }
                 255 => {
                     let val = u128::from_le_bytes(self.pop()?);
-                    println!("Debug128: 0x{:x} | {}", val, val);
+                    println!("Debug128: 0x{:x}", val);
                     self.pc.inc_by(1)?;
                 }
             }
