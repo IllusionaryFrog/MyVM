@@ -1,0 +1,51 @@
+fun{inline, asm} dup(: u64) {
+    "dup64"
+}
+
+fun{inline, asm} alloc(u64 : u64) {
+    "alloc"
+}
+
+fun{inline, asm} add(u64, u64 : u64) {
+    "addU64"
+}
+
+fun{inline, asm} popSp(u64 :) {
+    "popSp"
+}
+
+fun{inline, asm} popCs(u64 :) {
+    "popCs"
+}
+
+fun{inline, asm} debug(:) {
+    "debug"
+}
+
+fun{inline, asm} halt(:) {
+    "halt"
+}
+
+fun __start(:) {
+    4000 dup(: u64)
+    alloc(u64 : u64)
+    add(u64, u64 : u64)
+    popSp(u64 :)
+
+    1000 dup(: u64)
+    alloc(u64 : u64)
+    add(u64, u64 : u64)
+    popCs(u64 :)
+
+    main(:)
+
+    halt(:)
+}
+
+fun main(:) {
+    test(:)
+}
+
+fun test(:) {
+    debug(:)
+}
