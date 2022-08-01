@@ -104,7 +104,7 @@
 - 091: `jumpF`      (u64 :)
 - 092: `jumpB`      (u64 :)
 - 093: -
-- 094: `sleep`      (u64: )
+- 094: `sleep`      (u64 : )
 - 095: `branch`     (u64, u8 :)
 - 096: `branchF`    (u64, u8 :)
 - 097: `branchB`    (u64, u8 :)
