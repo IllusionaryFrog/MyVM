@@ -1,25 +1,22 @@
 package main
 
 import (
+	"bootstrap/compiler"
 	"bootstrap/lexer"
 	"bootstrap/parser"
-	"fmt"
+	"io/fs"
+	"os"
 )
 
 func main() {
-	l := lexer.New(`
-	
-	fun{inline, asm} nop(:) {
-		"nop"
+	dat, err := os.ReadFile(os.Args[1])
+	if err != nil {
+		panic("invalid input")
 	}
-	
-	fun{inline, asm} readFile(u64, u64, u64, u64 : u64) {
-		"readFile"
-	}
-
-	`)
+	l := lexer.New(string(dat))
 	ast := parser.Parse(l)
-	for i := 0; i < len(ast.Funs); i++ {
-		fmt.Println(ast.Funs[i])
+	bytes := compiler.Compile(ast)
+	if os.WriteFile(os.Args[2], bytes, fs.FileMode(os.O_TRUNC|os.O_CREATE|os.O_RDWR)) != nil {
+		panic("invalid output")
 	}
 }
