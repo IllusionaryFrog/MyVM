@@ -1,24 +1,30 @@
 package parser
 
 type Ast struct {
-	Funs []Fun
+	Funs []*Fun
 }
 
 type Fun struct {
-	Opts    []Ident
-	Ident   Ident
+	Opts    []*Ident
+	Ident   *Ident
 	Inputs  []Typ
 	Outputs []Typ
-	Block   Block
+	Block   *Block
 }
 
 type Ident struct {
 	Content string
 }
 
-type Typ interface{}
+type Typ interface {
+	String() string
+}
 
 type Builtin string
+
+func (b *Builtin) String() string {
+	return string(*b)
+}
 
 const (
 	U8   Builtin = "U8"
@@ -34,26 +40,139 @@ const (
 )
 
 type Block struct {
-	Lets  []Let
+	Lets  []*Let
 	Exprs []Expr
 }
 
 type Let struct {
-	Ident Ident
+	Ident *Ident
 	Typ   Typ
 	Exprs []Expr
 }
 
-type Expr interface{}
+type Expr interface {
+	GetIdent() *Ident
+	GetCall() *Call
+	GetNumber() *Number
+	GetString() *String
+	GetChar() *Char
+}
+
+func (e *Ident) GetIdent() *Ident {
+	return e
+}
+
+func (e *Ident) GetCall() *Call {
+	return nil
+}
+
+func (e *Ident) GetNumber() *Number {
+	return nil
+}
+
+func (e *Ident) GetString() *String {
+	return nil
+}
+
+func (e *Ident) GetChar() *Char {
+	return nil
+}
+
+type Call struct {
+	Ident   *Ident
+	Inputs  []Typ
+	Outputs []Typ
+}
+
+func (e *Call) GetIdent() *Ident {
+	return nil
+}
+
+func (e *Call) GetCall() *Call {
+	return e
+}
+
+func (e *Call) GetNumber() *Number {
+	return nil
+}
+
+func (e *Call) GetString() *String {
+	return nil
+}
+
+func (e *Call) GetChar() *Char {
+	return nil
+}
 
 type Number struct {
 	Content string
+	Size    uint64
+}
+
+func (e *Number) GetIdent() *Ident {
+	return nil
+}
+
+func (e *Number) GetCall() *Call {
+	return nil
+}
+
+func (e *Number) GetNumber() *Number {
+	return e
+}
+
+func (e *Number) GetString() *String {
+	return nil
+}
+
+func (e *Number) GetChar() *Char {
+	return nil
 }
 
 type String struct {
 	Content string
 }
 
+func (e *String) GetIdent() *Ident {
+	return nil
+}
+
+func (e *String) GetCall() *Call {
+	return nil
+}
+
+func (e *String) GetNumber() *Number {
+	return nil
+}
+
+func (e *String) GetString() *String {
+	return e
+}
+
+func (e *String) GetChar() *Char {
+	return nil
+}
+
 type Char struct {
 	Content string
+}
+
+func (e *Char) GetIdent() *Ident {
+	return nil
+}
+
+func (e *Char) GetCall() *Call {
+	return nil
+}
+
+func (e *Char) GetNumber() *Number {
+	return nil
+}
+
+func (e *Char) GetString() *String {
+	return nil
+}
+
+func (e *Char) GetChar() *Char {
+	return e
 }
