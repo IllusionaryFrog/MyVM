@@ -12,7 +12,7 @@ func Parse(l *lexer.Lexer) Ast {
 		case lexer.FUN:
 			funs = append(funs, parseFun(l))
 		default:
-			fmt.Println("error in parsing")
+			fmt.Println("error in parsing", token)
 			l.ConsumePeek()
 		}
 	}
