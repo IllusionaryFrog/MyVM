@@ -92,6 +92,10 @@ func (l *Lexer) char() string {
 	panic("unimplemented")
 }
 
+func (l *Lexer) ConsumePeek() {
+	l.peeked = nil
+}
+
 func (l *Lexer) RawNext() Token {
 	if l.peeked != nil {
 		token := *l.peeked
@@ -138,22 +142,14 @@ func (l *Lexer) RawNext() Token {
 		l.skipComment()
 	case "\"":
 		token.Typ = STRING
-		content = l.string()
+		token.Content = l.string()
 	case "'":
 		token.Typ = CHAR
-		content = l.char()
+		token.Content = l.char()
 	case "fun":
 		token.Typ = FUN
-	case "type":
-		token.Typ = TYPE
 	case "let":
 		token.Typ = LET
-	case "if":
-		token.Typ = IF
-	case "else":
-		token.Typ = ELSE
-	case "while":
-		token.Typ = WHILE
 	default:
 		if isNumber(content) {
 			token.Typ = NUMBER
@@ -183,6 +179,7 @@ func (l *Lexer) Next() Token {
 func (l *Lexer) Peek() *Token {
 	var token *Token
 	for token = l.RawPeek(); token.Typ == IGNORED; token = l.RawPeek() {
+		l.ConsumePeek()
 	}
 	return token
 }
