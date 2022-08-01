@@ -139,6 +139,7 @@ func (l *Lexer) RawNext() Token {
 	case "}":
 		token.Typ = RBRACE
 	case "#":
+		token.Typ = IGNORED
 		l.skipComment()
 	case "\"":
 		token.Typ = STRING
