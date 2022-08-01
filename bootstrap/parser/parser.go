@@ -6,7 +6,7 @@ import (
 )
 
 func Parse(l *lexer.Lexer) Ast {
-	var funs []Fun
+	var funs []*Fun
 	for token := l.Peek(); token.Typ != lexer.EOF; token = l.Peek() {
 		switch token.Typ {
 		case lexer.FUN:
@@ -29,9 +29,9 @@ func expect(l *lexer.Lexer, typ lexer.Typ) lexer.Token {
 	return token
 }
 
-func parseFun(l *lexer.Lexer) Fun {
+func parseFun(l *lexer.Lexer) *Fun {
 	expect(l, lexer.FUN)
-	var opts []Ident
+	var opts []*Ident
 	if l.Peek().Typ == lexer.LBRACE {
 		opts = parseOpts(l)
 	}
@@ -42,18 +42,18 @@ func parseFun(l *lexer.Lexer) Fun {
 	outputs := parseTyps(l)
 	expect(l, lexer.RPAREN)
 	block := parseBlock(l)
-	return Fun{Opts: opts, Ident: ident, Inputs: inputs, Outputs: outputs, Block: block}
+	return &Fun{Opts: opts, Ident: ident, Inputs: inputs, Outputs: outputs, Block: block}
 }
 
-func parseOpts(l *lexer.Lexer) []Ident {
+func parseOpts(l *lexer.Lexer) []*Ident {
 	expect(l, lexer.LBRACE)
 	idents := parseIdents(l)
 	expect(l, lexer.RBRACE)
 	return idents
 }
 
-func parseIdents(l *lexer.Lexer) []Ident {
-	var idents []Ident
+func parseIdents(l *lexer.Lexer) []*Ident {
+	var idents []*Ident
 	for {
 		if l.Peek().Typ == lexer.IDENT {
 			idents = append(idents, parseIdent(l))
@@ -68,9 +68,9 @@ func parseIdents(l *lexer.Lexer) []Ident {
 	}
 }
 
-func parseIdent(l *lexer.Lexer) Ident {
+func parseIdent(l *lexer.Lexer) *Ident {
 	ident := expect(l, lexer.IDENT)
-	return Ident{Content: ident.Content}
+	return &Ident{Content: ident.Content}
 }
 
 func parseTyps(l *lexer.Lexer) []Typ {
@@ -91,43 +91,45 @@ func parseTyps(l *lexer.Lexer) []Typ {
 
 func parseTyp(l *lexer.Lexer) Typ {
 	ident := expect(l, lexer.IDENT)
+	var typ Builtin
 	switch ident.Content {
 	case "u8":
-		return U8
+		typ = U8
 	case "u16":
-		return U16
+		typ = U16
 	case "u32":
-		return U32
+		typ = U32
 	case "u64":
-		return U64
+		typ = U64
 	case "u128":
-		return U128
+		typ = U128
 	case "i8":
-		return I8
+		typ = I8
 	case "i16":
-		return I16
+		typ = I16
 	case "i32":
-		return I32
+		typ = I32
 	case "i64":
-		return I64
+		typ = I64
 	case "i128":
-		return I128
+		typ = I128
 	default:
 		fmt.Println(ident)
 		panic("unknown type")
 	}
+	return &typ
 }
 
-func parseBlock(l *lexer.Lexer) Block {
+func parseBlock(l *lexer.Lexer) *Block {
 	expect(l, lexer.LBRACE)
 	lets := parseLets(l)
 	exprs := parseExprs(l)
 	expect(l, lexer.RBRACE)
-	return Block{Lets: lets, Exprs: exprs}
+	return &Block{Lets: lets, Exprs: exprs}
 }
 
-func parseLets(l *lexer.Lexer) []Let {
-	var lets []Let
+func parseLets(l *lexer.Lexer) []*Let {
+	var lets []*Let
 	for {
 		if l.Peek().Typ == lexer.LET {
 			lets = append(lets, parseLet(l))
@@ -137,7 +139,7 @@ func parseLets(l *lexer.Lexer) []Let {
 	}
 }
 
-func parseLet(l *lexer.Lexer) Let {
+func parseLet(l *lexer.Lexer) *Let {
 	expect(l, lexer.LET)
 	ident := parseIdent(l)
 	expect(l, lexer.COLON)
@@ -145,7 +147,7 @@ func parseLet(l *lexer.Lexer) Let {
 	expect(l, lexer.EQUALS)
 	exprs := parseExprs(l)
 	expect(l, lexer.SEMICOLON)
-	return Let{Ident: ident, Typ: typ, Exprs: exprs}
+	return &Let{Ident: ident, Typ: typ, Exprs: exprs}
 }
 
 func parseExprs(l *lexer.Lexer) []Expr {
@@ -154,7 +156,7 @@ func parseExprs(l *lexer.Lexer) []Expr {
 		peek := l.Peek()
 		switch peek.Typ {
 		case lexer.IDENT:
-			exprs = append(exprs, parseIdent(l))
+			exprs = append(exprs, parseIdentExpr(l))
 		case lexer.NUMBER:
 			exprs = append(exprs, parseNumber(l))
 		case lexer.STRING:
@@ -168,17 +170,31 @@ func parseExprs(l *lexer.Lexer) []Expr {
 	}
 }
 
-func parseNumber(l *lexer.Lexer) Number {
+func parseIdentExpr(l *lexer.Lexer) Expr {
+	ident := parseIdent(l)
+	if l.Peek().Typ == lexer.LPAREN {
+		l.ConsumePeek()
+		inputs := parseTyps(l)
+		expect(l, lexer.COLON)
+		outputs := parseTyps(l)
+		expect(l, lexer.RPAREN)
+		return &Call{Ident: ident, Inputs: inputs, Outputs: outputs}
+	} else {
+		return ident
+	}
+}
+
+func parseNumber(l *lexer.Lexer) *Number {
 	number := expect(l, lexer.NUMBER)
-	return Number{Content: number.Content}
+	return &Number{Content: number.Content, Size: 1}
 }
 
-func parseString(l *lexer.Lexer) String {
+func parseString(l *lexer.Lexer) *String {
 	str := expect(l, lexer.STRING)
-	return String{Content: str.Content}
+	return &String{Content: str.Content}
 }
 
-func parseChar(l *lexer.Lexer) Char {
+func parseChar(l *lexer.Lexer) *Char {
 	char := expect(l, lexer.CHAR)
-	return Char{Content: char.Content}
+	return &Char{Content: char.Content}
 }
