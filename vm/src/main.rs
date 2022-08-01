@@ -13,20 +13,23 @@ struct Args {
     #[options(help = "prints this help message")]
     help: bool,
 
-    #[options(help = "uses input file instead of stdin")]
-    input: Option<PathBuf>,
+    #[options(help = "uses file instead of stdin")]
+    file: Option<PathBuf>,
 }
 
 fn main() {
     let args = Args::parse_args_default_or_exit();
 
-    let bytes = if let Some(input) = args.input {
-        read(input).expect("read")
+    let bytes_res = if let Some(input) = args.file {
+        read(input)
     } else {
         let mut buf = vec![];
-        stdin().lock().read_to_end(&mut buf).expect("read");
-        buf
+        stdin().lock().read_to_end(&mut buf).map(|_| buf)
     };
 
-    vm::VM::new(bytes).run()
+    if let Ok(bytes) = bytes_res {
+        vm::VM::new(bytes).run()
+    } else {
+        eprintln!("Error: Unable to read input");
+    }
 }
