@@ -164,7 +164,6 @@ func parseExprs(l *lexer.Lexer) []Expr {
 		default:
 			return exprs
 		}
-		l.ConsumePeek()
 	}
 }
 
