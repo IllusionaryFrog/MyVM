@@ -3,27 +3,30 @@ package compiler
 import (
 	"bootstrap/parser"
 	"bytes"
-	"encoding/binary"
 	"fmt"
 	"strconv"
 	"strings"
 )
 
-func Compile(ast parser.Ast) []byte {
+func Compile(ast parser.Ast) []uint8 {
 	funs := make(map[funIdent]*Fun)
 	for i := 0; i < len(ast.Funs); i++ {
 		fun := ast.Funs[i]
 		ident := makeFunIdent(fun.Ident.Content, fun.Inputs, fun.Outputs)
 		if funs[ident] != nil {
-			panic("fun already exists")
+			panic(fmt.Sprintf("the fun '%s' already exists", ident))
 		}
 		funs[ident] = &Fun{fun: fun}
 	}
-	c := ctx{funs: funs}
+	c := Ctx{funs: funs}
 	return c.compile()
 }
 
 type funIdent string
+
+func (f *Fun) makeFunIdent() funIdent {
+	return makeFunIdent(f.fun.Ident.Content, f.fun.Inputs, f.fun.Outputs)
+}
 
 func makeFunIdent(ident string, inputs []parser.Typ, outputs []parser.Typ) funIdent {
 	var buffer bytes.Buffer
@@ -59,7 +62,7 @@ type Fun struct {
 	fun  *parser.Fun
 }
 
-func (f *Fun) getInfo(c *ctx) *Info {
+func (f *Fun) getInfo(c *Ctx) *Info {
 	if f.info == nil {
 		f.comInfo(c)
 	}
@@ -75,7 +78,7 @@ func containsOpt(opts []*parser.Ident, opt string) bool {
 	return false
 }
 
-func (f *Fun) comInfo(c *ctx) {
+func (f *Fun) comInfo(c *Ctx) {
 	if f.info != nil {
 		return
 	}
@@ -89,7 +92,7 @@ func (f *Fun) comInfo(c *ctx) {
 	f.info.asm = containsOpt(f.fun.Opts, "asm")
 	f.info.inline = containsOpt(f.fun.Opts, "inline")
 	if f.info.asm && !f.info.inline {
-		panic("non inlined asm")
+		panic(fmt.Sprintf("the asm fun '%s' needs to also be inline", f.makeFunIdent()))
 	}
 	last := f.fun.Block.Exprs[len(f.fun.Block.Exprs)-1].GetCall()
 	if last != nil {
@@ -113,8 +116,7 @@ func (f *Fun) comInfo(c *ctx) {
 				ident := makeFunIdent(call.Ident.Content, call.Inputs, call.Outputs)
 				fun := c.funs[ident]
 				if fun == nil {
-					fmt.Println(ident)
-					panic("unkown function")
+					panic(fmt.Sprintf("unknown fun '%s'", ident))
 				}
 				finfo := fun.getInfo(c)
 				if finfo.inline {
@@ -125,7 +127,7 @@ func (f *Fun) comInfo(c *ctx) {
 			}
 			number := expr.GetNumber()
 			if number != nil {
-				f.info.size += 1 + 8
+				f.info.size += 1 + uint64(number.Size)
 			}
 			str := expr.GetString()
 			if str != nil {
@@ -147,51 +149,52 @@ func (f *Fun) comInfo(c *ctx) {
 	}
 }
 
-type ctx struct {
+type Ctx struct {
 	size uint64
 	strs string
 	funs map[funIdent]*Fun
 }
 
-func initialBytes() []byte {
-	return []byte{220, 0, 0, 0, 0, 0, 0, 0, 0}
+func initialBytes() []uint8 {
+	return []uint8{220, 0, 0, 0, 0, 0, 0, 0, 0}
 }
 
-func finalBytes() []byte {
-	return []byte{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+func finalBytes() []uint8 {
+	return []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 }
 
-func (c *ctx) compile() []byte {
+func (c *Ctx) compile() []uint8 {
 	bytes := initialBytes()
 	c.size = uint64(len(bytes))
 
 	start := c.funs[makeFunIdent("__start", []parser.Typ{}, []parser.Typ{})]
 
 	if start == nil {
-		panic("no __start(:)")
+		panic("no __start(:) fun")
 	}
 
 	info := start.getInfo(c)
-
 	if info.inline || info.asm {
-		panic("wrong __start(:)")
+		panic("__start(:) can't be a inline or asm fun")
 	}
 
-	binary.PutUvarint(bytes[1:9], start.info.pos)
+	start.typeCheck(c)
+
+	putUvarint(bytes[1:9], info.pos)
 	bytes = append(bytes, start.compile(c)...)
-	bytes = append(bytes, []byte(c.strs)...)
+	bytes = append(bytes, []uint8(c.strs)...)
 
 	return append(bytes, finalBytes()...)
 }
 
-func (c *ctx) getNextPos(size uint64) uint64 {
+func (c *Ctx) getNextPos(size uint64) uint64 {
 	res := c.size
 	c.size += size
 	return res
 }
 
-func (f *Fun) compile(c *ctx) []byte {
-	bytes := []byte{}
+func (f *Fun) compile(c *Ctx) []uint8 {
+	bytes := []uint8{}
 
 	if len(f.fun.Block.Lets) != 0 {
 		panic("unimplemented")
@@ -200,7 +203,7 @@ func (f *Fun) compile(c *ctx) []byte {
 	info := f.getInfo(c)
 
 	if info.asm {
-		bytes = append(bytes, compileAsm(f.fun.Block.Exprs)...)
+		bytes = append(bytes, f.compileAsm()...)
 		if !info.inline {
 			bytes = append(bytes, 3)
 		}
@@ -231,37 +234,49 @@ func (f *Fun) compile(c *ctx) []byte {
 				if finfo.inline {
 					bytes = append(bytes, fun.compile(c)...)
 				} else {
-					buf := []byte{229, 0, 0, 0, 0, 0, 0, 0, 0}
+					buf := []uint8{229, 0, 0, 0, 0, 0, 0, 0, 0}
 					if info.tailCall {
 						buf[0] = 220
 					}
-					binary.PutUvarint(buf[1:], finfo.pos)
+					putUvarint(buf[1:], finfo.pos)
 					bytes = append(bytes, buf...)
 
 				}
 			}
 			number := expr.GetNumber()
 			if number != nil {
-				num, err := strconv.ParseUint(number.Content, 10, 64)
+				num, err := strconv.ParseUint(number.Content, number.Base, number.Size*8)
 				if err != nil {
-					panic("invalid number")
+					panic(fmt.Sprintf("unable to convert '%s' to a number", number.Content))
 				}
-				buf := []byte{13, 0, 0, 0, 0, 0, 0, 0, 0}
-				binary.PutUvarint(buf[1:], num)
+				var buf []uint8
+				switch number.Size {
+				case 1:
+					buf = []uint8{10, 0}
+				case 2:
+					buf = []uint8{11, 0, 0}
+				case 4:
+					buf = []uint8{12, 0, 0, 0, 0}
+				case 8:
+					buf = []uint8{13, 0, 0, 0, 0, 0, 0, 0, 0}
+				default:
+					panic("invalid size")
+				}
+				putUvarint(buf[1:], num)
 				bytes = append(bytes, buf...)
 			}
 			str := expr.GetString()
 			if str != nil {
 				ptr := c.getStr(str.Content)
-				buf := []byte{13, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0}
-				binary.PutUvarint(buf[1:9], ptr)
-				binary.PutUvarint(buf[10:], uint64(len(str.Content)))
+				buf := []uint8{13, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0}
+				putUvarint(buf[1:9], ptr)
+				putUvarint(buf[10:], uint64(len(str.Content)))
 				bytes = append(bytes, buf...)
 			}
 			char := expr.GetChar()
 			if char != nil {
 				if len(char.Content) != 1 {
-					panic("char has to contain exactly one byte")
+					panic(fmt.Sprintf("the char '%s' can only contain one byte", char.Content))
 				}
 				bytes = append(bytes, 10, char.Content[0])
 			}
@@ -275,12 +290,22 @@ func (f *Fun) compile(c *ctx) []byte {
 	return bytes
 }
 
-func (c *ctx) pushStr(s string) {
+func (c *Ctx) pushStr(s string) {
 	if strings.Index(c.strs, s) == -1 {
 		c.strs += s
 	}
 }
 
-func (c *ctx) getStr(s string) uint64 {
+func (c *Ctx) getStr(s string) uint64 {
 	return uint64(strings.Index(c.strs, s)) + c.size
+}
+
+func putUvarint(buf []uint8, x uint64) {
+	i := 0
+	for x > 0xff {
+		buf[i] = uint8(x)
+		x >>= 8
+		i++
+	}
+	buf[i] = uint8(x)
 }
