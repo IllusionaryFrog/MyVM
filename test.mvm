@@ -1,6 +1,6 @@
 
 # alloc(size:ptr)
-fun{inline, asm} alloc(u64:u64) {
+fun{inline, asm} allocAndGetEnd(u64:u64) {
     "dup64"
     "alloc"
     "addU64"
@@ -31,10 +31,10 @@ fun{inline, asm} drop(u64:) {
 }
 
 fun __start(:) {
-    4000u64 alloc(u64:u64)
+    4000u64 allocAndGetEnd(u64:u64)
     popSp(u64:)
 
-    1000u64 alloc(u64:u64)
+    1000u64 allocAndGetEnd(u64:u64)
     popCs(u64:)
 
     main(:)
