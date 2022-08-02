@@ -3,6 +3,7 @@ package parser
 import (
 	"bootstrap/lexer"
 	"fmt"
+	"strings"
 )
 
 func Parse(l *lexer.Lexer) Ast {
@@ -12,7 +13,6 @@ func Parse(l *lexer.Lexer) Ast {
 		case lexer.FUN:
 			funs = append(funs, parseFun(l))
 		default:
-			fmt.Println("error in parsing", token)
 			l.ConsumePeek()
 		}
 	}
@@ -23,8 +23,7 @@ func Parse(l *lexer.Lexer) Ast {
 func expect(l *lexer.Lexer, typ lexer.Typ) lexer.Token {
 	token := l.Next()
 	if token.Typ != typ {
-		fmt.Println(token)
-		panic("unexpected token")
+		panic(fmt.Sprintf("unexpected token '%s' expected '%s'", token.Typ, typ))
 	}
 	return token
 }
@@ -114,7 +113,6 @@ func parseTyp(l *lexer.Lexer) Typ {
 	case "i128":
 		typ = I128
 	default:
-		fmt.Println(ident)
 		panic("unknown type")
 	}
 	return &typ
@@ -186,7 +184,37 @@ func parseIdentExpr(l *lexer.Lexer) Expr {
 
 func parseNumber(l *lexer.Lexer) *Number {
 	number := expect(l, lexer.NUMBER)
-	return &Number{Content: number.Content}
+	var end int
+	var size int
+
+	base := 10
+	start := 0
+
+	if strings.HasPrefix(number.Content, "0x") {
+		base = 16
+		start = 2
+	} else if strings.HasPrefix(number.Content, "0b") {
+		base = 2
+		start = 2
+	}
+
+	if strings.HasSuffix(number.Content, "u8") {
+		end = 2
+		size = 1
+	} else if strings.HasSuffix(number.Content, "u16") {
+		end = 3
+		size = 2
+	} else if strings.HasSuffix(number.Content, "u32") {
+		end = 3
+		size = 4
+	} else if strings.HasSuffix(number.Content, "u64") {
+		end = 3
+		size = 8
+	} else {
+		panic(fmt.Sprintf("number '%s' is missing a type", number.Content))
+	}
+	content := number.Content[start : len(number.Content)-end]
+	return &Number{Content: content, Base: base, Size: size}
 }
 
 func parseString(l *lexer.Lexer) *String {
