@@ -186,7 +186,7 @@ func parseIdentExpr(l *lexer.Lexer) Expr {
 
 func parseNumber(l *lexer.Lexer) *Number {
 	number := expect(l, lexer.NUMBER)
-	return &Number{Content: number.Content, Size: 1}
+	return &Number{Content: number.Content}
 }
 
 func parseString(l *lexer.Lexer) *String {

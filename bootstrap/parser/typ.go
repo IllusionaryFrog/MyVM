@@ -106,7 +106,6 @@ func (e *Call) GetChar() *Char {
 
 type Number struct {
 	Content string
-	Size    uint64
 }
 
 func (e *Number) GetIdent() *Ident {
