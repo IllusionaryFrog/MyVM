@@ -22,6 +22,10 @@ fun{inline, asm} halt(:) {
     "halt"
 }
 
+fun{inline, asm} write(u64, u64 : u64) {
+    "write"
+}
+
 fun __start(:) {
     4000 alloc(u64 : u64)
     popSp(u64 :)
@@ -39,5 +43,6 @@ fun main(:) {
 }
 
 fun test(:) {
+    "hello\n" write(u64, u64 : u64)
     debug(:)
 }
