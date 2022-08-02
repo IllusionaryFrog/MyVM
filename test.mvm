@@ -1,16 +1,16 @@
 
-# alloc(size : ptr)
-fun{inline, asm} alloc(u64 : u64) {
+# alloc(size:ptr)
+fun{inline, asm} alloc(u64:u64) {
     "dup64"
     "alloc"
     "addU64"
 }
 
-fun{inline, asm} popSp(u64 :) {
+fun{inline, asm} popSp(u64:) {
     "popSp"
 }
 
-fun{inline, asm} popCs(u64 :) {
+fun{inline, asm} popCs(u64:) {
     "popCs"
 }
 
@@ -22,16 +22,20 @@ fun{inline, asm} halt(:) {
     "halt"
 }
 
-fun{inline, asm} write(u64, u64 : u64) {
+fun{inline, asm} write(u64,u64:u64) {
     "write"
 }
 
-fun __start(:) {
-    4000 alloc(u64 : u64)
-    popSp(u64 :)
+fun{inline, asm} drop(u64:) {
+    "drop64"
+}
 
-    1000 alloc(u64 : u64)
-    popCs(u64 :)
+fun __start(:) {
+    4000u64 alloc(u64:u64)
+    popSp(u64:)
+
+    1000u64 alloc(u64:u64)
+    popCs(u64:)
 
     main(:)
 
@@ -43,6 +47,6 @@ fun main(:) {
 }
 
 fun test(:) {
-    "hello\n" write(u64, u64 : u64)
-    debug(:)
+    "hello\n" write(u64,u64:u64)
+    drop(u64:)
 }
