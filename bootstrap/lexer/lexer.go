@@ -61,35 +61,77 @@ func (l *Lexer) skipComment() {
 }
 
 func (l *Lexer) string() string {
+	var buf string
 	start := l.cursor
 	for ; l.cursor < len(l.input); l.cursor++ {
 		char := l.input[l.cursor]
 		switch char {
 		case '"':
 			l.cursor++
-			return l.input[start : l.cursor-1]
+			return buf + l.input[start:l.cursor-1]
 		case '\\':
-			panic("unimplemented")
+			if l.cursor+2 >= len(l.input) {
+				panic("no end of string")
+			}
+			buf += l.input[start:l.cursor]
+			l.cursor++
+			start = l.cursor + 1
+			escaped := l.input[l.cursor]
+			switch escaped {
+			case '\\':
+				buf += "\\"
+			case 'n':
+				buf += "\n"
+			case 'r':
+				buf += "\r"
+			case 't':
+				buf += "\t"
+			case '"':
+				buf += "\""
+			default:
+				panic("can't escape this")
+			}
 		default:
 		}
 	}
-	panic("unimplemented")
+	panic("no end of string")
 }
 
 func (l *Lexer) char() string {
+	var buf string
 	start := l.cursor
 	for ; l.cursor < len(l.input); l.cursor++ {
 		char := l.input[l.cursor]
 		switch char {
 		case '\'':
 			l.cursor++
-			return l.input[start : l.cursor-1]
+			return buf + l.input[start:l.cursor-1]
 		case '\\':
-			panic("unimplemented")
+			if l.cursor+2 >= len(l.input) {
+				panic("no end of char")
+			}
+			buf += l.input[start:l.cursor]
+			l.cursor++
+			start = l.cursor + 1
+			escaped := l.input[l.cursor]
+			switch escaped {
+			case '\\':
+				buf += "\\"
+			case 'n':
+				buf += "\n"
+			case 'r':
+				buf += "\r"
+			case 't':
+				buf += "\t"
+			case '\'':
+				buf += "'"
+			default:
+				panic("can't escape this")
+			}
 		default:
 		}
 	}
-	panic("unimplemented")
+	panic("no end of char")
 }
 
 func (l *Lexer) ConsumePeek() {
