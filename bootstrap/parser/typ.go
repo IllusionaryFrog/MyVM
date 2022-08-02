@@ -18,12 +18,40 @@ type Ident struct {
 
 type Typ interface {
 	String() string
+	Size() int
 }
 
 type Builtin string
 
 func (b *Builtin) String() string {
 	return string(*b)
+}
+
+func (b *Builtin) Size() int {
+	switch *b {
+	case U8:
+		return 1
+	case U16:
+		return 2
+	case U32:
+		return 4
+	case U64:
+		return 8
+	case U128:
+		return 16
+	case I8:
+		return 1
+	case I16:
+		return 2
+	case I32:
+		return 4
+	case I64:
+		return 8
+	case I128:
+		return 16
+	default:
+		panic("unreachable")
+	}
 }
 
 const (
@@ -106,6 +134,8 @@ func (e *Call) GetChar() *Char {
 
 type Number struct {
 	Content string
+	Size    int
+	Base    int
 }
 
 func (e *Number) GetIdent() *Ident {
