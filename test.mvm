@@ -43,10 +43,6 @@ fun __start(:) {
 }
 
 fun main(:) {
-    test(:)
-}
-
-fun test(:) {
-    "hello\n" write(u64,u64:u64)
+    "Hello World!\n" write
     drop(u64:)
 }
