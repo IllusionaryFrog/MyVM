@@ -6,6 +6,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 func Compile(ast parser.Ast) []byte {
@@ -13,6 +14,9 @@ func Compile(ast parser.Ast) []byte {
 	for i := 0; i < len(ast.Funs); i++ {
 		fun := ast.Funs[i]
 		ident := makeFunIdent(fun.Ident.Content, fun.Inputs, fun.Outputs)
+		if funs[ident] != nil {
+			panic("fun already exists")
+		}
 		funs[ident] = &Fun{fun: fun}
 	}
 	c := ctx{funs: funs}
@@ -121,15 +125,16 @@ func (f *Fun) comInfo(c *ctx) {
 			}
 			number := expr.GetNumber()
 			if number != nil {
-				f.info.size += 1 + number.Size
+				f.info.size += 1 + 8
 			}
 			str := expr.GetString()
 			if str != nil {
-				panic("unimplemented")
+				c.pushStr(str.Content)
+				f.info.size += 1 + 8 + 1 + 8
 			}
-			c := expr.GetChar()
-			if c != nil {
-				panic("unimplemented")
+			char := expr.GetChar()
+			if char != nil {
+				f.info.size += 1 + 1
 			}
 		}
 	}
@@ -144,6 +149,7 @@ func (f *Fun) comInfo(c *ctx) {
 
 type ctx struct {
 	size uint64
+	strs string
 	funs map[funIdent]*Fun
 }
 
@@ -171,9 +177,9 @@ func (c *ctx) compile() []byte {
 		panic("wrong __start(:)")
 	}
 
-	bytes = append(bytes, start.compile(c)...)
-
 	binary.PutUvarint(bytes[1:9], start.info.pos)
+	bytes = append(bytes, start.compile(c)...)
+	bytes = append(bytes, []byte(c.strs)...)
 
 	return append(bytes, finalBytes()...)
 }
@@ -246,11 +252,18 @@ func (f *Fun) compile(c *ctx) []byte {
 			}
 			str := expr.GetString()
 			if str != nil {
-				panic("unimplemented")
+				ptr := c.getStr(str.Content)
+				buf := []byte{13, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0}
+				binary.PutUvarint(buf[1:9], ptr)
+				binary.PutUvarint(buf[10:], uint64(len(str.Content)))
+				bytes = append(bytes, buf...)
 			}
-			c := expr.GetChar()
-			if c != nil {
-				panic("unimplemented")
+			char := expr.GetChar()
+			if char != nil {
+				if len(char.Content) != 1 {
+					panic("char has to contain exactly one byte")
+				}
+				bytes = append(bytes, 10, char.Content[0])
 			}
 		}
 	}
@@ -260,4 +273,14 @@ func (f *Fun) compile(c *ctx) []byte {
 	}
 
 	return bytes
+}
+
+func (c *ctx) pushStr(s string) {
+	if strings.Index(c.strs, s) == -1 {
+		c.strs += s
+	}
+}
+
+func (c *ctx) getStr(s string) uint64 {
+	return uint64(strings.Index(c.strs, s)) + c.size
 }
