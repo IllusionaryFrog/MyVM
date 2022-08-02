@@ -1,6 +1,7 @@
 package lexer
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -11,9 +12,8 @@ var splitters = [...]string{
 }
 
 var num = [...]string{
-	"-", "0", "1", "2",
-	"3", "4", "5", "6",
-	"7", "8", "9",
+	"0", "1", "2", "3", "4",
+	"5", "6", "7", "8", "9",
 }
 
 type Lexer struct {
@@ -89,7 +89,7 @@ func (l *Lexer) string() string {
 			case '"':
 				buf += "\""
 			default:
-				panic("can't escape this")
+				panic(fmt.Sprintf("can't escape '%s' in a string", string(char)))
 			}
 		default:
 		}
@@ -126,7 +126,7 @@ func (l *Lexer) char() string {
 			case '\'':
 				buf += "'"
 			default:
-				panic("can't escape this")
+				panic(fmt.Sprintf("can't escape '%s' in a char", string(char)))
 			}
 		default:
 		}
