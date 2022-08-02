@@ -77,7 +77,6 @@ impl MEM {
 impl fmt::Debug for MEM {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut rhx = rhexdump::Rhexdump::default();
-        rhx.set_format("#[OFFSET]: #[RAW]").unwrap();
         rhx.display_duplicate_lines(false);
         writeln!(f, "{}", rhx.hexdump(&self.bytes))
     }
