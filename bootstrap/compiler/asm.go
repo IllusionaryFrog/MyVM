@@ -1,14 +1,31 @@
 package compiler
 
-import "bootstrap/parser"
+import (
+	"bootstrap/parser"
+	"fmt"
+)
 
-func compileAsm(exprs []parser.Expr) []uint8 {
+func (f *Fun) stackDiffAsm() int {
+	stackDiff := 0
+
+	for i := 0; i < len(f.fun.Block.Exprs); i++ {
+		str := f.fun.Block.Exprs[i].GetString()
+		if str == nil {
+			panic(fmt.Sprintf("the asm fun '%s' can only contain strings", f.makeFunIdent()))
+		}
+		stackDiff += stackDiffInst(str.Content)
+	}
+
+	return stackDiff
+}
+
+func (f *Fun) compileAsm() []uint8 {
 	bytes := []uint8{}
 
-	for i := 0; i < len(exprs); i++ {
-		str := exprs[i].GetString()
+	for i := 0; i < len(f.fun.Block.Exprs); i++ {
+		str := f.fun.Block.Exprs[i].GetString()
 		if str == nil {
-			panic("asm function only strings")
+			panic(fmt.Sprintf("the asm fun '%s' can only contain strings", f.makeFunIdent()))
 		}
 		bytes = append(bytes, parseInst(str.Content))
 	}
@@ -481,6 +498,496 @@ func parseInst(inst string) uint8 {
 	case "debug128":
 		return 255
 	default:
-		panic("invalid instruction")
+		panic(fmt.Sprintf("invalid asm instruction '%s'", inst))
+	}
+}
+
+func stackDiffInst(inst string) int {
+	inputs, outputs := argsInst(inst)
+	inps := 0
+	for i := 0; i < len(inputs.typs); i++ {
+		inps += inputs.typs[i].Size()
+	}
+	outs := 0
+	for i := 0; i < len(outputs.typs); i++ {
+		outs += outputs.typs[i].Size()
+	}
+	return outs - inps
+}
+
+type Args struct {
+	typs []parser.Builtin
+}
+
+func args(args ...parser.Builtin) Args {
+	return Args{typs: []parser.Builtin(args)}
+}
+
+func argsInst(inst string) (Args, Args) {
+	switch inst {
+	case "nop":
+		return args(), args()
+	case "halt":
+		return args(), args()
+	case "call":
+		return args(parser.U64), args()
+	case "return":
+		return args(), args()
+	case "inter":
+		return args(), args()
+	case "alloc":
+		return args(parser.U64), args(parser.U64)
+	case "read":
+		return args(parser.U64, parser.U64), args(parser.U64)
+	case "write":
+		return args(parser.U64, parser.U64), args(parser.U64)
+	case "readFile":
+		return args(parser.U64, parser.U64, parser.U64, parser.U64), args(parser.U64)
+	case "writeFile":
+		return args(parser.U64, parser.U64, parser.U64, parser.U64), args(parser.U64)
+	case "pushImm8":
+		return args(), args(parser.U8)
+	case "pushImm16":
+		return args(), args(parser.U16)
+	case "pushImm32":
+		return args(), args(parser.U32)
+	case "pushImm64":
+		return args(), args(parser.U64)
+	case "pushImm128":
+		return args(), args(parser.U128)
+	case "popSp":
+		return args(parser.U64), args()
+	case "popCs":
+		return args(parser.U64), args()
+	case "popIh":
+		return args(parser.U64), args()
+	case "popIr":
+		return args(parser.I8), args()
+	case "pushIr":
+		return args(), args(parser.I8)
+	case "drop8":
+		return args(parser.U8), args()
+	case "drop16":
+		return args(parser.U16), args()
+	case "drop32":
+		return args(parser.U32), args()
+	case "drop64":
+		return args(parser.U64), args()
+	case "drop128":
+		return args(parser.U128), args()
+	case "negate8":
+		return args(parser.U8), args(parser.U8)
+	case "negate16":
+		return args(parser.U16), args(parser.U16)
+	case "negate32":
+		return args(parser.U32), args(parser.U32)
+	case "negate64":
+		return args(parser.U64), args(parser.U64)
+	case "negate128":
+		return args(parser.U128), args(parser.U128)
+	case "swap8":
+		return args(), args()
+	case "swap16":
+		return args(), args()
+	case "swap32":
+		return args(), args()
+	case "swap64":
+		return args(), args()
+	case "swap128":
+		return args(), args()
+	case "rotate8":
+		return args(), args()
+	case "rotate16":
+		return args(), args()
+	case "rotate32":
+		return args(), args()
+	case "rotate64":
+		return args(), args()
+	case "rotate128":
+		return args(), args()
+	case "dup8":
+		return args(), args(parser.U8)
+	case "dup16":
+		return args(), args(parser.U16)
+	case "dup32":
+		return args(), args(parser.U32)
+	case "dup64":
+		return args(), args(parser.U64)
+	case "dup128":
+		return args(), args(parser.U128)
+	case "over8":
+		return args(), args(parser.U8)
+	case "over16":
+		return args(), args(parser.U16)
+	case "over32":
+		return args(), args(parser.U32)
+	case "over64":
+		return args(), args(parser.U64)
+	case "over128":
+		return args(), args(parser.U128)
+	case "and8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "and16":
+		return args(parser.U16, parser.U16), args(parser.U16)
+	case "and32":
+		return args(parser.U32, parser.U32), args(parser.U32)
+	case "and64":
+		return args(parser.U64, parser.U64), args(parser.U64)
+	case "and128":
+		return args(parser.U128, parser.U128), args(parser.U128)
+	case "or8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "or16":
+		return args(parser.U16, parser.U16), args(parser.U16)
+	case "or32":
+		return args(parser.U32, parser.U32), args(parser.U32)
+	case "or64":
+		return args(parser.U64, parser.U64), args(parser.U64)
+	case "or128":
+		return args(parser.U128, parser.U128), args(parser.U128)
+	case "shiftL8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "shiftL16":
+		return args(parser.U16, parser.U8), args(parser.U16)
+	case "shiftL32":
+		return args(parser.U32, parser.U8), args(parser.U32)
+	case "shiftL64":
+		return args(parser.U64, parser.U8), args(parser.U64)
+	case "shiftL128":
+		return args(parser.U128, parser.U8), args(parser.U128)
+	case "shiftR8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "shiftR16":
+		return args(parser.U16, parser.U8), args(parser.U16)
+	case "shiftR32":
+		return args(parser.U32, parser.U8), args(parser.U32)
+	case "shiftR64":
+		return args(parser.U64, parser.U8), args(parser.U64)
+	case "shiftR128":
+		return args(parser.U128, parser.U8), args(parser.U128)
+	case "rotateL8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "rotateL16":
+		return args(parser.U16, parser.U8), args(parser.U16)
+	case "rotateL32":
+		return args(parser.U32, parser.U8), args(parser.U32)
+	case "rotateL64":
+		return args(parser.U64, parser.U8), args(parser.U64)
+	case "rotateL128":
+		return args(parser.U128, parser.U8), args(parser.U128)
+	case "rotateR8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "rotateR16":
+		return args(parser.U16, parser.U8), args(parser.U16)
+	case "rotateR32":
+		return args(parser.U32, parser.U8), args(parser.U32)
+	case "rotateR64":
+		return args(parser.U64, parser.U8), args(parser.U64)
+	case "rotateR128":
+		return args(parser.U128, parser.U8), args(parser.U128)
+	case "equal8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "equal16":
+		return args(parser.U16, parser.U16), args(parser.U8)
+	case "equal32":
+		return args(parser.U32, parser.U32), args(parser.U8)
+	case "equal64":
+		return args(parser.U64, parser.U64), args(parser.U8)
+	case "equal128":
+		return args(parser.U128, parser.U128), args(parser.U8)
+	case "notEq8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "notEq16":
+		return args(parser.U16, parser.U16), args(parser.U8)
+	case "notEq32":
+		return args(parser.U32, parser.U32), args(parser.U8)
+	case "notEq64":
+		return args(parser.U64, parser.U64), args(parser.U8)
+	case "notEq128":
+		return args(parser.U128, parser.U128), args(parser.U8)
+	case "jump":
+		return args(parser.U64), args()
+	case "jumpF":
+		return args(parser.U64), args()
+	case "jumpB":
+		return args(parser.U64), args()
+	case "sleep":
+		return args(parser.U64), args()
+	case "branch":
+		return args(parser.U64, parser.U8), args()
+	case "branchF":
+		return args(parser.U64, parser.U8), args()
+	case "branchB":
+		return args(parser.U64, parser.U8), args()
+	case "addU8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "addU16":
+		return args(parser.U16, parser.U16), args(parser.U16)
+	case "addU32":
+		return args(parser.U32, parser.U32), args(parser.U32)
+	case "addU64":
+		return args(parser.U64, parser.U64), args(parser.U64)
+	case "addU128":
+		return args(parser.U128, parser.U128), args(parser.U128)
+	case "addI8":
+		return args(parser.I8, parser.I8), args(parser.I8)
+	case "addI16":
+		return args(parser.I16, parser.I16), args(parser.I16)
+	case "addI32":
+		return args(parser.I32, parser.I32), args(parser.I32)
+	case "addI64":
+		return args(parser.I64, parser.I64), args(parser.I64)
+	case "addI128":
+		return args(parser.I128, parser.I128), args(parser.I128)
+	case "subU8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "subU16":
+		return args(parser.U16, parser.U16), args(parser.U16)
+	case "subU32":
+		return args(parser.U32, parser.U32), args(parser.U32)
+	case "subU64":
+		return args(parser.U64, parser.U64), args(parser.U64)
+	case "subU128":
+		return args(parser.U128, parser.U128), args(parser.U128)
+	case "subI8":
+		return args(parser.I8, parser.I8), args(parser.I8)
+	case "subI16":
+		return args(parser.I16, parser.I16), args(parser.I16)
+	case "subI32":
+		return args(parser.I32, parser.I32), args(parser.I32)
+	case "subI64":
+		return args(parser.I64, parser.I64), args(parser.I64)
+	case "subI128":
+		return args(parser.I128, parser.I128), args(parser.I128)
+	case "mulU8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "mulU16":
+		return args(parser.U16, parser.U16), args(parser.U16)
+	case "mulU32":
+		return args(parser.U32, parser.U32), args(parser.U32)
+	case "mulU64":
+		return args(parser.U64, parser.U64), args(parser.U64)
+	case "mulU128":
+		return args(parser.U128, parser.U128), args(parser.U128)
+	case "mulI8":
+		return args(parser.I8, parser.I8), args(parser.I8)
+	case "mulI16":
+		return args(parser.I16, parser.I16), args(parser.I16)
+	case "mulI32":
+		return args(parser.I32, parser.I32), args(parser.I32)
+	case "mulI64":
+		return args(parser.I64, parser.I64), args(parser.I64)
+	case "mulI128":
+		return args(parser.I128, parser.I128), args(parser.I128)
+	case "divU8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "divU16":
+		return args(parser.U16, parser.U16), args(parser.U16)
+	case "divU32":
+		return args(parser.U32, parser.U32), args(parser.U32)
+	case "divU64":
+		return args(parser.U64, parser.U64), args(parser.U64)
+	case "divU128":
+		return args(parser.U128, parser.U128), args(parser.U128)
+	case "divI8":
+		return args(parser.I8, parser.I8), args(parser.I8)
+	case "divI16":
+		return args(parser.I16, parser.I16), args(parser.I16)
+	case "divI32":
+		return args(parser.I32, parser.I32), args(parser.I32)
+	case "divI64":
+		return args(parser.I64, parser.I64), args(parser.I64)
+	case "divI128":
+		return args(parser.I128, parser.I128), args(parser.I128)
+	case "modU8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "modU16":
+		return args(parser.U16, parser.U16), args(parser.U16)
+	case "modU32":
+		return args(parser.U32, parser.U32), args(parser.U32)
+	case "modU64":
+		return args(parser.U64, parser.U64), args(parser.U64)
+	case "modU128":
+		return args(parser.U128, parser.U128), args(parser.U128)
+	case "modI8":
+		return args(parser.I8, parser.I8), args(parser.I8)
+	case "modI16":
+		return args(parser.I16, parser.I16), args(parser.I16)
+	case "modI32":
+		return args(parser.I32, parser.I32), args(parser.I32)
+	case "modI64":
+		return args(parser.I64, parser.I64), args(parser.I64)
+	case "modI128":
+		return args(parser.I128, parser.I128), args(parser.I128)
+	case "lessU8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "lessU16":
+		return args(parser.U16, parser.U16), args(parser.U8)
+	case "lessU32":
+		return args(parser.U32, parser.U32), args(parser.U8)
+	case "lessU64":
+		return args(parser.U64, parser.U64), args(parser.U8)
+	case "lessU128":
+		return args(parser.U128, parser.U128), args(parser.U8)
+	case "lessI8":
+		return args(parser.I8, parser.I8), args(parser.U8)
+	case "lessI16":
+		return args(parser.I16, parser.I16), args(parser.U8)
+	case "lessI32":
+		return args(parser.I32, parser.I32), args(parser.U8)
+	case "lessI64":
+		return args(parser.I64, parser.I64), args(parser.U8)
+	case "lessI128":
+		return args(parser.I128, parser.I128), args(parser.U8)
+	case "lessEqU8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "lessEqU16":
+		return args(parser.U16, parser.U16), args(parser.U8)
+	case "lessEqU32":
+		return args(parser.U32, parser.U32), args(parser.U8)
+	case "lessEqU64":
+		return args(parser.U64, parser.U64), args(parser.U8)
+	case "lessEqU128":
+		return args(parser.U128, parser.U128), args(parser.U8)
+	case "lessEqI8":
+		return args(parser.I8, parser.I8), args(parser.U8)
+	case "lessEqI16":
+		return args(parser.I16, parser.I16), args(parser.U8)
+	case "lessEqI32":
+		return args(parser.I32, parser.I32), args(parser.U8)
+	case "lessEqI64":
+		return args(parser.I64, parser.I64), args(parser.U8)
+	case "lessEqI128":
+		return args(parser.I128, parser.I128), args(parser.U8)
+	case "greatU8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "greatU16":
+		return args(parser.U16, parser.U16), args(parser.U8)
+	case "greatU32":
+		return args(parser.U32, parser.U32), args(parser.U8)
+	case "greatU64":
+		return args(parser.U64, parser.U64), args(parser.U8)
+	case "greatU128":
+		return args(parser.U128, parser.U128), args(parser.U8)
+	case "greatI8":
+		return args(parser.I8, parser.I8), args(parser.U8)
+	case "greatI16":
+		return args(parser.I16, parser.I16), args(parser.U8)
+	case "greatI32":
+		return args(parser.I32, parser.I32), args(parser.U8)
+	case "greatI64":
+		return args(parser.I64, parser.I64), args(parser.U8)
+	case "greatI128":
+		return args(parser.I128, parser.I128), args(parser.U8)
+	case "greatEqU8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	case "greatEqU16":
+		return args(parser.U16, parser.U16), args(parser.U8)
+	case "greatEqU32":
+		return args(parser.U32, parser.U32), args(parser.U8)
+	case "greatEqU64":
+		return args(parser.U64, parser.U64), args(parser.U8)
+	case "greatEqU128":
+		return args(parser.U128, parser.U128), args(parser.U8)
+	case "greatEqI8":
+		return args(parser.I8, parser.I8), args(parser.U8)
+	case "greatEqI16":
+		return args(parser.I16, parser.I16), args(parser.U8)
+	case "greatEqI32":
+		return args(parser.I32, parser.I32), args(parser.U8)
+	case "greatEqI64":
+		return args(parser.I64, parser.I64), args(parser.U8)
+	case "greatEqI128":
+		return args(parser.I128, parser.I128), args(parser.U8)
+	case "8to16":
+		return args(parser.U8), args(parser.U16)
+	case "8to32":
+		return args(parser.U8), args(parser.U32)
+	case "8to64":
+		return args(parser.U8), args(parser.U64)
+	case "8to128":
+		return args(parser.U8), args(parser.U128)
+	case "16to8":
+		return args(parser.U16), args(parser.U8)
+	case "16to32":
+		return args(parser.U16), args(parser.U32)
+	case "16to64":
+		return args(parser.U16), args(parser.U64)
+	case "16to128":
+		return args(parser.U16), args(parser.U128)
+	case "32to8":
+		return args(parser.U32), args(parser.U8)
+	case "32to16":
+		return args(parser.U32), args(parser.U16)
+	case "32to64":
+		return args(parser.U32), args(parser.U64)
+	case "32to128":
+		return args(parser.U32), args(parser.U128)
+	case "64to8":
+		return args(parser.U64), args(parser.U8)
+	case "64to16":
+		return args(parser.U64), args(parser.U16)
+	case "64to32":
+		return args(parser.U64), args(parser.U32)
+	case "64to128":
+		return args(parser.U64), args(parser.U128)
+	case "128to8":
+		return args(parser.U128), args(parser.U8)
+	case "128to16":
+		return args(parser.U128), args(parser.U16)
+	case "128to32":
+		return args(parser.U128), args(parser.U32)
+	case "128to64":
+		return args(parser.U128), args(parser.U64)
+	case "load8":
+		return args(parser.U64), args(parser.U8)
+	case "load16":
+		return args(parser.U64), args(parser.U16)
+	case "load32":
+		return args(parser.U64), args(parser.U32)
+	case "load64":
+		return args(parser.U64), args(parser.U64)
+	case "load128":
+		return args(parser.U64), args(parser.U128)
+	case "store8":
+		return args(parser.U64, parser.U8), args()
+	case "store16":
+		return args(parser.U64, parser.U16), args()
+	case "store32":
+		return args(parser.U64, parser.U32), args()
+	case "store64":
+		return args(parser.U64, parser.U64), args()
+	case "store128":
+		return args(parser.U64, parser.U128), args()
+	case "jumpImm":
+		return args(), args()
+	case "jumpImmF":
+		return args(), args()
+	case "jumpImmB":
+		return args(), args()
+	case "sleepImm":
+		return args(), args()
+	case "branchImm":
+		return args(parser.U8), args()
+	case "branchImmF":
+		return args(parser.U8), args()
+	case "branchImmB":
+		return args(parser.U8), args()
+	case "callImm":
+		return args(), args()
+	case "debug":
+		return args(), args()
+	case "debug8":
+		return args(parser.U8), args()
+	case "debug16":
+		return args(parser.U16), args()
+	case "debug32":
+		return args(parser.U32), args()
+	case "debug64":
+		return args(parser.U64), args()
+	case "debug128":
+		return args(parser.U128), args()
+	default:
+		panic(fmt.Sprintf("invalid asm instruction '%s'", inst))
 	}
 }
