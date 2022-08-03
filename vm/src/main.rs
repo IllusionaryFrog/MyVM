@@ -28,7 +28,11 @@ fn main() {
     };
 
     if let Ok(bytes) = bytes_res {
-        vm::VM::new(bytes).run()
+        #[cfg(feature = "debug")]
+        let vm = vm::VM::<true>::new(bytes);
+        #[cfg(not(feature = "debug"))]
+        let vm = vm::VM::<false>::new(bytes);
+        vm.run()
     } else {
         eprintln!("Error: Unable to read input");
     }

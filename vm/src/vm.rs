@@ -70,7 +70,7 @@ impl Reg {
     }
 }
 
-pub struct VM {
+pub struct VM<const DEBUG: bool> {
     pc: Reg,
     sp: Reg,
     cs: Reg,
@@ -79,7 +79,7 @@ pub struct VM {
     mem: MEM,
 }
 
-impl VM {
+impl<const DEBUG: bool> VM<DEBUG> {
     pub fn new(code: Vec<u8>) -> Self {
         Self {
             pc: Reg(0),
@@ -96,6 +96,13 @@ impl VM {
             if let Err(inter) = self._run() {
                 self.ir = inter as i8;
                 self.pc.set(self.ih.as_u64());
+                if DEBUG {
+                    println!("inter '{}'", inter as i8);
+                    println!("continue...");
+                    io::stdin()
+                        .read_line(&mut String::new())
+                        .expect("continue");
+                }
             } else {
                 break;
             }
@@ -105,6 +112,12 @@ impl VM {
     fn _run(&mut self) -> Result<()> {
         loop {
             let bytes = self.mem.read(self.pc.as_usize())?;
+            if DEBUG {
+                println!("continue...");
+                io::stdin().read_line(&mut String::new()).expect("continue");
+                println!("inst '{}'", u8::from_le_bytes(bytes));
+                println!("{:?}", self);
+            }
             match u8::from_le_bytes(bytes) {
                 000 => self.pc.inc_by(1)?,
                 001 => break Ok(()),
@@ -1603,7 +1616,7 @@ impl VM {
     }
 }
 
-impl fmt::Debug for VM {
+impl<const DEBUG: bool> fmt::Debug for VM<DEBUG> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(
             f,
