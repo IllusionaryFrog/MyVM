@@ -485,6 +485,26 @@ func parseInst(inst string) uint8 {
 		return 227
 	case "callImm":
 		return 229
+	case "load8Imm":
+		return 230
+	case "load16Imm":
+		return 231
+	case "load32Imm":
+		return 232
+	case "load64Imm":
+		return 233
+	case "load128Imm":
+		return 234
+	case "store8Imm":
+		return 235
+	case "store16Imm":
+		return 236
+	case "store32Imm":
+		return 237
+	case "store64Imm":
+		return 238
+	case "store128Imm":
+		return 239
 	case "debug":
 		return 250
 	case "debug8":
@@ -975,6 +995,26 @@ func argsInst(inst string) (Args, Args) {
 		return args(parser.U8), args()
 	case "callImm":
 		return args(), args()
+	case "load8Imm":
+		return args(), args(parser.U8)
+	case "load16Imm":
+		return args(), args(parser.U16)
+	case "load32Imm":
+		return args(), args(parser.U32)
+	case "load64Imm":
+		return args(), args(parser.U64)
+	case "load128Imm":
+		return args(), args(parser.U128)
+	case "store8Imm":
+		return args(parser.U8), args()
+	case "store16Imm":
+		return args(parser.U16), args()
+	case "store32Imm":
+		return args(parser.U32), args()
+	case "store64Imm":
+		return args(parser.U64), args()
+	case "store128Imm":
+		return args(parser.U128), args()
 	case "debug":
 		return args(), args()
 	case "debug8":
