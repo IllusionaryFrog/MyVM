@@ -1,5 +1,4 @@
 
-# alloc(size:ptr)
 fun{inline, asm} allocAndGetEnd(u64:u64) {
     "dup64"
     "alloc"
@@ -14,8 +13,8 @@ fun{inline, asm} popCs(u64:) {
     "popCs"
 }
 
-fun{inline, asm} debug(:) {
-    "debug"
+fun{inline, asm} debug(u64:) {
+    "debug64"
 }
 
 fun{inline, asm} halt(:) {
@@ -24,10 +23,6 @@ fun{inline, asm} halt(:) {
 
 fun{inline, asm} write(u64,u64:u64) {
     "write"
-}
-
-fun{inline, asm} drop(u64:) {
-    "drop64"
 }
 
 fun __start(:) {
@@ -42,7 +37,10 @@ fun __start(:) {
     halt(:)
 }
 
+let message1: u64 = 5u64;
+
 fun main(:) {
-    "Hello World!\n" write(u64,u64:u64)
-    drop(u64:)
+    let message2: u64 = "Hello World!\n" write(u64,u64:u64);
+
+    "Hello World!\n" write(u64,u64:u64) debug(u64:)
 }
