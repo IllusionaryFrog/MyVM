@@ -1475,7 +1475,86 @@ impl VM {
                     self.pc.set(u64::from_le_bytes(bytes));
                 }
 
-                230..=239 => break Err(Inter::InvalidInst),
+                230 => {
+                    let pc = self.pc.add(1)?;
+                    let bytes = self.mem.read(pc.as_usize())?;
+                    let ptr = u64::from_le_bytes(bytes) as usize;
+                    let val = self.mem.read(ptr)?;
+                    self.push::<1>(val)?;
+                    self.pc.inc_by(9)?;
+                }
+                231 => {
+                    let pc = self.pc.add(1)?;
+                    let bytes = self.mem.read(pc.as_usize())?;
+                    let ptr = u64::from_le_bytes(bytes) as usize;
+                    let val = self.mem.read(ptr)?;
+                    self.push::<2>(val)?;
+                    self.pc.inc_by(9)?;
+                }
+                232 => {
+                    let pc = self.pc.add(1)?;
+                    let bytes = self.mem.read(pc.as_usize())?;
+                    let ptr = u64::from_le_bytes(bytes) as usize;
+                    let val = self.mem.read(ptr)?;
+                    self.push::<4>(val)?;
+                    self.pc.inc_by(9)?;
+                }
+                233 => {
+                    let pc = self.pc.add(1)?;
+                    let bytes = self.mem.read(pc.as_usize())?;
+                    let ptr = u64::from_le_bytes(bytes) as usize;
+                    let val = self.mem.read(ptr)?;
+                    self.push::<8>(val)?;
+                    self.pc.inc_by(9)?;
+                }
+                234 => {
+                    let pc = self.pc.add(1)?;
+                    let bytes = self.mem.read(pc.as_usize())?;
+                    let ptr = u64::from_le_bytes(bytes) as usize;
+                    let val = self.mem.read(ptr)?;
+                    self.push::<16>(val)?;
+                    self.pc.inc_by(9)?;
+                }
+                235 => {
+                    let val = self.pop::<1>()?;
+                    let pc = self.pc.add(1)?;
+                    let bytes = self.mem.read(pc.as_usize())?;
+                    let ptr = u64::from_le_bytes(bytes) as usize;
+                    self.mem.write(ptr, val)?;
+                    self.pc.inc_by(9)?;
+                }
+                236 => {
+                    let val = self.pop::<2>()?;
+                    let pc = self.pc.add(1)?;
+                    let bytes = self.mem.read(pc.as_usize())?;
+                    let ptr = u64::from_le_bytes(bytes) as usize;
+                    self.mem.write(ptr, val)?;
+                    self.pc.inc_by(9)?;
+                }
+                237 => {
+                    let val = self.pop::<4>()?;
+                    let pc = self.pc.add(1)?;
+                    let bytes = self.mem.read(pc.as_usize())?;
+                    let ptr = u64::from_le_bytes(bytes) as usize;
+                    self.mem.write(ptr, val)?;
+                    self.pc.inc_by(9)?;
+                }
+                238 => {
+                    let val = self.pop::<8>()?;
+                    let pc = self.pc.add(1)?;
+                    let bytes = self.mem.read(pc.as_usize())?;
+                    let ptr = u64::from_le_bytes(bytes) as usize;
+                    self.mem.write(ptr, val)?;
+                    self.pc.inc_by(9)?;
+                }
+                239 => {
+                    let val = self.pop::<16>()?;
+                    let pc = self.pc.add(1)?;
+                    let bytes = self.mem.read(pc.as_usize())?;
+                    let ptr = u64::from_le_bytes(bytes) as usize;
+                    self.mem.write(ptr, val)?;
+                    self.pc.inc_by(9)?;
+                }
 
                 240..=249 => break Err(Inter::InvalidInst),
 
