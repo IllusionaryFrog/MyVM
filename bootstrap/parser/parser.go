@@ -7,9 +7,12 @@ import (
 )
 
 func Parse(l *lexer.Lexer) Ast {
+	var lets []*Let
 	var funs []*Fun
 	for token := l.Peek(); token.Typ != lexer.EOF; token = l.Peek() {
 		switch token.Typ {
+		case lexer.LET:
+			lets = append(lets, parseLet(l))
 		case lexer.FUN:
 			funs = append(funs, parseFun(l))
 		default:
@@ -17,7 +20,7 @@ func Parse(l *lexer.Lexer) Ast {
 		}
 	}
 	expect(l, lexer.EOF)
-	return Ast{Funs: funs}
+	return Ast{Funs: funs, Lets: lets}
 }
 
 func expect(l *lexer.Lexer, typ lexer.Typ) lexer.Token {

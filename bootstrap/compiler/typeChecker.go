@@ -6,7 +6,7 @@ func (f *Fun) typeCheck(c *Ctx) {
 	stackDiff := 0
 	desiredSD := f.stackDiff()
 
-	if f.getInfo(c).asm {
+	if f.info.asm {
 		stackDiff += f.stackDiffAsm()
 	} else {
 		if len(f.fun.Block.Lets) != 0 {
@@ -17,7 +17,9 @@ func (f *Fun) typeCheck(c *Ctx) {
 			expr := f.fun.Block.Exprs[i]
 			ident := expr.GetIdent()
 			if ident != nil {
-				panic("unimplemented")
+				ident := Ident(ident.Content)
+				let := c.lets[ident]
+				stackDiff += int(let.info.size)
 			}
 			call := expr.GetCall()
 			if call != nil {

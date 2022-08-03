@@ -1,6 +1,7 @@
 package parser
 
 type Ast struct {
+	Lets []*Let
 	Funs []*Fun
 }
 
