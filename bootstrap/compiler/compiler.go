@@ -263,7 +263,23 @@ func (c *Ctx) compile() []uint8 {
 		panic(fmt.Sprintln("__start(:) can't be an inline fun"))
 	}
 
-	start.typeCheck(c)
+	funs := []*Fun{}
+	for _, fun := range c.funs {
+		funs = append(funs, fun)
+	}
+
+	sort.Slice(funs, func(i, j int) bool {
+		if funs[i].info == nil || funs[j].info == nil {
+			return funs[i].info == nil
+		}
+		return funs[i].info.pos < funs[j].info.pos
+	})
+
+	for _, f := range funs {
+		if f.info != nil {
+			f.typeCheck(c)
+		}
+	}
 
 	lets := []*Let{}
 	for _, let := range c.lets {
@@ -277,18 +293,6 @@ func (c *Ctx) compile() []uint8 {
 	}
 
 	putUvarint(bytes[saddr:saddr+8], sinfo.pos)
-
-	funs := []*Fun{}
-	for _, fun := range c.funs {
-		funs = append(funs, fun)
-	}
-
-	sort.Slice(funs, func(i, j int) bool {
-		if funs[i].info == nil || funs[j].info == nil {
-			return funs[i].info == nil
-		}
-		return funs[i].info.pos < funs[j].info.pos
-	})
 
 	for _, f := range funs {
 		if f.info != nil && !f.info.inline {

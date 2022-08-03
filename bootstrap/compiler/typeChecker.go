@@ -45,7 +45,6 @@ func (f *Fun) stackDiffExprs(c *Ctx, exprs []parser.Expr) int {
 		if call != nil {
 			ident := makeFunIdent(call.Ident.Content, call.Inputs, call.Outputs)
 			fun := c.funs[ident]
-			fun.typeCheck(c)
 			stackDiff += fun.stackDiff()
 		}
 		number := expr.AsNumber()
