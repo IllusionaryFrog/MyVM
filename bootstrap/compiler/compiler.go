@@ -198,8 +198,8 @@ func (f *Fun) sizeOfExprs(c *Ctx, exprs []parser.Expr) uint64 {
 		ifel := expr.AsIf()
 		if ifel != nil {
 			size += f.sizeOfExprs(c, ifel.Con) + 1 + 8
+			size += f.sizeOfExprs(c, ifel.Else) + 1 + 8
 			size += f.sizeOfExprs(c, ifel.Exprs)
-			size += f.sizeOfExprs(c, ifel.Else)
 		}
 	}
 	return size
@@ -492,11 +492,16 @@ func (f *Fun) compileExprs(c *Ctx, exprs []parser.Expr) []uint8 {
 		ifel := expr.AsIf()
 		if ifel != nil {
 			bytes = append(bytes, f.compileExprs(c, ifel.Con)...)
+
 			buf := []uint8{226, 0, 0, 0, 0, 0, 0, 0, 0}
-			putUvarint(buf[1:], f.sizeOfExprs(c, ifel.Exprs))
+			putUvarint(buf[1:], f.sizeOfExprs(c, ifel.Else)+18)
+			bytes = append(bytes, buf...)
+			bytes = append(bytes, f.compileExprs(c, ifel.Else)...)
+
+			buf = []uint8{221, 0, 0, 0, 0, 0, 0, 0, 0}
+			putUvarint(buf[1:], f.sizeOfExprs(c, ifel.Exprs)+9)
 			bytes = append(bytes, buf...)
 			bytes = append(bytes, f.compileExprs(c, ifel.Exprs)...)
-			bytes = append(bytes, f.compileExprs(c, ifel.Else)...)
 		}
 	}
 

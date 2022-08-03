@@ -62,7 +62,7 @@ func (f *Fun) stackDiffExprs(c *Ctx, exprs []parser.Expr) int {
 		}
 		ifel := expr.AsIf()
 		if ifel != nil {
-			stackDiff += f.stackDiffExprs(c, ifel.Con)
+			stackDiff += f.stackDiffExprs(c, ifel.Con) - 1
 			diff := f.stackDiffExprs(c, ifel.Exprs)
 			if diff != f.stackDiffExprs(c, ifel.Else) {
 				panic(fmt.Sprintf("invalid exprs in if in '%s'", f.fun.Ident.Content))
