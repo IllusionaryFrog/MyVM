@@ -13,16 +13,24 @@ fun{inline, asm} popCs(u64:) {
     "popCs"
 }
 
+fun{inline, asm} debug(:) {
+    "debug"
+}
+
 fun{inline, asm} debug(u64:) {
     "debug64"
 }
 
-fun{inline, asm} halt(:) {
-    "halt"
-}
-
 fun{inline, asm} write(u64,u64:u64) {
     "write"
+}
+
+fun{inline,asm} equal(u64,u64:u8) {
+    "equal64"
+}
+
+fun{inline,asm} notEqual(u64,u64:u8) {
+    "notEq64"
 }
 
 fun __start(:) {
@@ -33,14 +41,30 @@ fun __start(:) {
     popCs(u64:)
 
     main(:)
-
-    halt(:)
 }
 
-let message1: u64 = 5u64;
+let message1: u64 = 0xfu64;
 
 fun main(:) {
     let message2: u64 = "Hello World!\n" write(u64,u64:u64);
 
+    message1 debug(u64:)
+    message2 debug(u64:)
+    message1 debug(u64:)
+    message2 debug(u64:)
+
+    1u64 1u64 isEq(u64,u64:)
+
     "Hello World!\n" write(u64,u64:u64) debug(u64:)
+}
+
+fun isEq(u64,u64:) {
+    let v1: u64;
+    let v2: u64;
+
+    if (v1 v2 equal(u64,u64:u8)) "Equal YEP \n" write(u64,u64:u64) debug(u64:);
+    if (v1 v2 notEqual(u64,u64:u8)) "Not Equal YEP \n" write(u64,u64:u64) debug(u64:);
+
+    if (v1 v2 equal(u64,u64:u8)) "Equal YEP \n" write(u64,u64:u64) debug(u64:)
+    else "Not Equal YEP \n" write(u64,u64:u64) debug(u64:);
 }
