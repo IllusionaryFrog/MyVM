@@ -159,18 +159,13 @@ func (e *Char) AsChar() *Char {
 	return e
 }
 
-func (e *Char) GetCall() *Call {
-	return nil
+type If struct {
+	DefaultExpr
+	Con   []Expr
+	Exprs []Expr
+	Else  []Expr
 }
 
-func (e *Char) GetNumber() *Number {
-	return nil
-}
-
-func (e *Char) GetString() *String {
-	return nil
-}
-
-func (e *Char) GetChar() *Char {
+func (e *If) AsIf() *If {
 	return e
 }
