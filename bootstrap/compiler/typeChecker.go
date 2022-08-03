@@ -32,7 +32,7 @@ func (f *Fun) stackDiffExprs(c *Ctx, exprs []parser.Expr) int {
 	stackDiff := 0
 	for i := 0; i < len(exprs); i++ {
 		expr := exprs[i]
-		ident := expr.GetIdent()
+		ident := expr.AsIdent()
 		if ident != nil {
 			ident := Ident(ident.Content)
 			let := f.info.lets[ident]
@@ -41,24 +41,33 @@ func (f *Fun) stackDiffExprs(c *Ctx, exprs []parser.Expr) int {
 			}
 			stackDiff += int(let.info.size)
 		}
-		call := expr.GetCall()
+		call := expr.AsCall()
 		if call != nil {
 			ident := makeFunIdent(call.Ident.Content, call.Inputs, call.Outputs)
 			fun := c.funs[ident]
 			fun.typeCheck(c)
 			stackDiff += fun.stackDiff()
 		}
-		number := expr.GetNumber()
+		number := expr.AsNumber()
 		if number != nil {
 			stackDiff += number.Size
 		}
-		str := expr.GetString()
+		str := expr.AsString()
 		if str != nil {
 			stackDiff += 8 + 8
 		}
-		char := expr.GetChar()
+		char := expr.AsChar()
 		if char != nil {
 			stackDiff += 1
+		}
+		ifel := expr.AsIf()
+		if ifel != nil {
+			stackDiff += f.stackDiffExprs(c, ifel.Con)
+			diff := f.stackDiffExprs(c, ifel.Exprs)
+			if diff != f.stackDiffExprs(c, ifel.Else) {
+				panic(fmt.Sprintf("invalid exprs in if in '%s'", f.fun.Ident.Content))
+			}
+			stackDiff += diff
 		}
 	}
 	return stackDiff

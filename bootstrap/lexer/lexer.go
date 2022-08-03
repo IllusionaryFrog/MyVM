@@ -193,6 +193,10 @@ func (l *Lexer) RawNext() Token {
 		token.Typ = FUN
 	case "let":
 		token.Typ = LET
+	case "if":
+		token.Typ = IF
+	case "else":
+		token.Typ = ELSE
 	default:
 		if isNumber(content) {
 			token.Typ = NUMBER

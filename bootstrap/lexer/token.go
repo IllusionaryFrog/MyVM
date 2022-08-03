@@ -20,8 +20,10 @@ const (
 	STRING Typ = "STRING"
 	NUMBER Typ = "NUMBER"
 
-	FUN Typ = "FUN"
-	LET Typ = "LET"
+	FUN  Typ = "FUN"
+	LET  Typ = "LET"
+	IF   Typ = "IF"
+	ELSE Typ = "ELSE"
 
 	IDENT Typ = "IDENT"
 )

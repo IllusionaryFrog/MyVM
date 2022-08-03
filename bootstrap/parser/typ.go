@@ -14,7 +14,12 @@ type Fun struct {
 }
 
 type Ident struct {
+	DefaultExpr
 	Content string
+}
+
+func (e *Ident) AsIdent() *Ident {
+	return e
 }
 
 type Typ interface {
@@ -80,115 +85,78 @@ type Let struct {
 }
 
 type Expr interface {
-	GetIdent() *Ident
-	GetCall() *Call
-	GetNumber() *Number
-	GetString() *String
-	GetChar() *Char
+	AsIdent() *Ident
+	AsCall() *Call
+	AsNumber() *Number
+	AsString() *String
+	AsChar() *Char
+	AsIf() *If
 }
 
-func (e *Ident) GetIdent() *Ident {
-	return e
-}
+type DefaultExpr struct{}
 
-func (e *Ident) GetCall() *Call {
+func (e DefaultExpr) AsIdent() *Ident {
 	return nil
 }
 
-func (e *Ident) GetNumber() *Number {
+func (e DefaultExpr) AsCall() *Call {
 	return nil
 }
 
-func (e *Ident) GetString() *String {
+func (e DefaultExpr) AsNumber() *Number {
 	return nil
 }
 
-func (e *Ident) GetChar() *Char {
+func (e DefaultExpr) AsString() *String {
+	return nil
+}
+
+func (e DefaultExpr) AsChar() *Char {
+	return nil
+}
+
+func (e *DefaultExpr) AsIf() *If {
 	return nil
 }
 
 type Call struct {
+	DefaultExpr
 	Ident   *Ident
 	Inputs  []Typ
 	Outputs []Typ
 }
 
-func (e *Call) GetIdent() *Ident {
-	return nil
-}
-
-func (e *Call) GetCall() *Call {
+func (e *Call) AsCall() *Call {
 	return e
 }
 
-func (e *Call) GetNumber() *Number {
-	return nil
-}
-
-func (e *Call) GetString() *String {
-	return nil
-}
-
-func (e *Call) GetChar() *Char {
-	return nil
-}
-
 type Number struct {
+	DefaultExpr
 	Content string
 	Size    int
 	Base    int
 }
 
-func (e *Number) GetIdent() *Ident {
-	return nil
-}
-
-func (e *Number) GetCall() *Call {
-	return nil
-}
-
-func (e *Number) GetNumber() *Number {
+func (e *Number) AsNumber() *Number {
 	return e
-}
-
-func (e *Number) GetString() *String {
-	return nil
-}
-
-func (e *Number) GetChar() *Char {
-	return nil
 }
 
 type String struct {
+	DefaultExpr
 	Content string
 }
 
-func (e *String) GetIdent() *Ident {
-	return nil
-}
-
-func (e *String) GetCall() *Call {
-	return nil
-}
-
-func (e *String) GetNumber() *Number {
-	return nil
-}
-
-func (e *String) GetString() *String {
+func (e *String) AsString() *String {
 	return e
 }
 
-func (e *String) GetChar() *Char {
-	return nil
-}
-
 type Char struct {
+	DefaultExpr
 	Content string
 }
 
-func (e *Char) GetIdent() *Ident {
-	return nil
+func (e *Char) AsChar() *Char {
+	return e
 }
 
 func (e *Char) GetCall() *Call {

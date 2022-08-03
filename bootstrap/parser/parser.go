@@ -145,8 +145,11 @@ func parseLet(l *lexer.Lexer) *Let {
 	ident := parseIdent(l)
 	expect(l, lexer.COLON)
 	typ := parseTyp(l)
-	expect(l, lexer.EQUALS)
-	exprs := parseExprs(l)
+	exprs := []Expr{}
+	if l.Peek().Typ == lexer.EQUALS {
+		l.ConsumePeek()
+		exprs = parseExprs(l)
+	}
 	expect(l, lexer.SEMICOLON)
 	return &Let{Ident: ident, Typ: typ, Exprs: exprs}
 }
@@ -156,6 +159,8 @@ func parseExprs(l *lexer.Lexer) []Expr {
 	for {
 		peek := l.Peek()
 		switch peek.Typ {
+		case lexer.IF:
+			exprs = append(exprs, parseIf(l))
 		case lexer.IDENT:
 			exprs = append(exprs, parseIdentExpr(l))
 		case lexer.NUMBER:
@@ -168,6 +173,21 @@ func parseExprs(l *lexer.Lexer) []Expr {
 			return exprs
 		}
 	}
+}
+
+func parseIf(l *lexer.Lexer) *If {
+	expect(l, lexer.IF)
+	expect(l, lexer.LPAREN)
+	con := parseExprs(l)
+	expect(l, lexer.RPAREN)
+	exprs := parseExprs(l)
+	els := []Expr{}
+	if l.Peek().Typ == lexer.ELSE {
+		l.ConsumePeek()
+		els = parseExprs(l)
+	}
+	expect(l, lexer.SEMICOLON)
+	return &If{Con: con, Exprs: exprs, Else: els}
 }
 
 func parseIdentExpr(l *lexer.Lexer) Expr {

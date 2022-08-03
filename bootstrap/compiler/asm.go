@@ -9,7 +9,7 @@ func (f *Fun) stackDiffAsm() int {
 	stackDiff := 0
 
 	for i := 0; i < len(f.fun.Block.Exprs); i++ {
-		str := f.fun.Block.Exprs[i].GetString()
+		str := f.fun.Block.Exprs[i].AsString()
 		if str == nil {
 			panic(fmt.Sprintf("the asm fun '%s' can only contain strings", f.makeFunIdent()))
 		}
@@ -23,7 +23,7 @@ func (f *Fun) compileAsm() []uint8 {
 	bytes := []uint8{}
 
 	for i := 0; i < len(f.fun.Block.Exprs); i++ {
-		str := f.fun.Block.Exprs[i].GetString()
+		str := f.fun.Block.Exprs[i].AsString()
 		if str == nil {
 			panic(fmt.Sprintf("the asm fun '%s' can only contain strings", f.makeFunIdent()))
 		}
