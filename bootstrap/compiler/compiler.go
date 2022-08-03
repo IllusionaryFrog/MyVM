@@ -63,8 +63,10 @@ type FInfo struct {
 	asm      bool
 	inline   bool
 	tailCall bool
+	letSize  uint64
 	size     uint64
 	pos      uint64
+	lets     map[Ident]*Let
 }
 
 type Fun struct {
@@ -93,10 +95,6 @@ func (f *Fun) comInfo(c *Ctx) {
 		return
 	}
 
-	if len(f.fun.Block.Lets) != 0 {
-		panic("unimplemented")
-	}
-
 	f.info = &FInfo{}
 
 	f.info.asm = containsOpt(f.fun.Opts, "asm")
@@ -114,50 +112,38 @@ func (f *Fun) comInfo(c *Ctx) {
 		}
 	}
 
+	if len(f.fun.Block.Lets) != 0 {
+		if f.info.inline {
+			panic(fmt.Sprintf("the inline fun '%s' can't have lets", f.makeFunIdent()))
+		}
+		if f.info.asm {
+			panic(fmt.Sprintf("the asm fun '%s' can't have lets", f.makeFunIdent()))
+		}
+
+		f.info.lets = make(map[Ident]*Let)
+		for _, let := range f.fun.Block.Lets {
+			ident := Ident(let.Ident.Content)
+			if f.info.lets[ident] != nil {
+				panic(fmt.Sprintf("the let '%s' already exists", ident))
+			}
+			f.info.lets[ident] = &Let{let: let}
+		}
+	}
+
 	if f.info.asm {
 		f.info.size += uint64(len(f.fun.Block.Exprs))
 	} else {
-		for i := 0; i < len(f.fun.Block.Exprs); i++ {
-			expr := f.fun.Block.Exprs[i]
-			ident := expr.GetIdent()
-			if ident != nil {
-				ident := Ident(ident.Content)
-				let := c.lets[ident]
-				if let == nil {
-					panic(fmt.Sprintf("unknown ident '%s'", ident))
-				}
-				let.getInfo(c)
-				f.info.size += 1 + 8
-			}
-			call := expr.GetCall()
-			if call != nil {
-				ident := makeFunIdent(call.Ident.Content, call.Inputs, call.Outputs)
-				fun := c.funs[ident]
-				if fun == nil {
-					panic(fmt.Sprintf("unknown fun '%s'", ident))
-				}
-				finfo := fun.getInfo(c)
-				if finfo.inline {
-					f.info.size += finfo.size
-				} else {
-					f.info.size += 1 + 8
-				}
-			}
-			number := expr.GetNumber()
-			if number != nil {
-				f.info.size += 1 + uint64(number.Size)
-			}
-			str := expr.GetString()
-			if str != nil {
-				c.pushStr(str.Content)
-				f.info.size += 1 + 8 + 1 + 8
-			}
-			char := expr.GetChar()
-			if char != nil {
-				f.info.size += 1 + 1
-			}
+		f.info.size += f.sizeOfExprs(c, f.fun.Block.Exprs)
+	}
+
+	for _, let := range f.info.lets {
+		if let.info != nil {
+			f.info.size += f.sizeOfExprs(c, let.let.Exprs)
+			f.info.size += 1 + 8
 		}
 	}
+
+	f.info.size += f.info.letSize
 
 	if !f.info.inline {
 		if !f.info.tailCall {
@@ -167,9 +153,65 @@ func (f *Fun) comInfo(c *Ctx) {
 	}
 }
 
+func (f *Fun) sizeOfExprs(c *Ctx, exprs []parser.Expr) uint64 {
+	var size uint64 = 0
+	for i := 0; i < len(exprs); i++ {
+		expr := exprs[i]
+		ident := expr.GetIdent()
+		if ident != nil {
+			ident := Ident(ident.Content)
+			let := f.info.lets[ident]
+			if let != nil {
+				if !let.getInfo(c).expanded {
+					let.info.expanded = true
+					pos := f.info.letSize
+					f.info.letSize += f.sizeOfExprs(c, let.let.Exprs)
+					let.info.pos = pos
+				}
+			} else {
+				let = c.lets[ident]
+				if let == nil {
+					panic(fmt.Sprintf("unknown ident '%s'", ident))
+				}
+				let.getInfo(c)
+			}
+			size += 1 + 8
+		}
+		call := expr.GetCall()
+		if call != nil {
+			ident := makeFunIdent(call.Ident.Content, call.Inputs, call.Outputs)
+			fun := c.funs[ident]
+			if fun == nil {
+				panic(fmt.Sprintf("unknown fun '%s'", ident))
+			}
+			finfo := fun.getInfo(c)
+			if finfo.inline {
+				size += finfo.size
+			} else {
+				size += 1 + 8
+			}
+		}
+		number := expr.GetNumber()
+		if number != nil {
+			size += 1 + uint64(number.Size)
+		}
+		str := expr.GetString()
+		if str != nil {
+			c.pushStr(str.Content)
+			size += 1 + 8 + 1 + 8
+		}
+		char := expr.GetChar()
+		if char != nil {
+			size += 1 + 1
+		}
+	}
+	return size
+}
+
 type LInfo struct {
-	size uint64
-	pos  uint64
+	size     uint64
+	pos      uint64
+	expanded bool
 }
 
 type Let struct {
@@ -213,30 +255,14 @@ func (c *Ctx) compile() []uint8 {
 	saddr := len(bytes)
 	c.size = uint64(saddr)
 
-	u64 := parser.U64
 	start := c.funs[makeFunIdent("__start", []parser.Typ{}, []parser.Typ{})]
-	alloc := c.funs[makeFunIdent("__alloc", []parser.Typ{&u64}, []parser.Typ{&u64})]
-	free := c.funs[makeFunIdent("__free", []parser.Typ{&u64}, []parser.Typ{})]
 
-	if start == nil || alloc == nil || free == nil {
-		msg := ""
-		if start == nil {
-			msg += fmt.Sprintln("missing __start(:) fun")
-		}
-		if alloc == nil {
-			msg += fmt.Sprintln("missing __alloc(u64:u64) fun")
-		}
-		if free == nil {
-			msg += fmt.Sprintln("missing __free(u64:) fun")
-		}
-		panic(msg)
+	if start == nil {
+		panic(fmt.Sprintln("missing __start(:) fun"))
 	}
 
 	sinfo := start.getInfo(c)
-	ainfo := alloc.getInfo(c)
-	finfo := free.getInfo(c)
-
-	if sinfo.inline || sinfo.asm || ainfo.inline || ainfo.asm || finfo.inline || finfo.asm {
+	if sinfo.inline || sinfo.asm {
 		msg := ""
 		if sinfo.inline {
 			msg += fmt.Sprintln("__start(:) can't be an inline fun")
@@ -244,24 +270,10 @@ func (c *Ctx) compile() []uint8 {
 		if sinfo.asm {
 			msg += fmt.Sprintln("__start(:) can't be an asm fun")
 		}
-		if ainfo.inline {
-			msg += fmt.Sprintln("__alloc(u64:u64) can't be an inline fun")
-		}
-		if ainfo.asm {
-			msg += fmt.Sprintln("__alloc(u64:u64) can't be an asm fun")
-		}
-		if finfo.inline {
-			msg += fmt.Sprintln("__start(:) can't be an inline fun")
-		}
-		if finfo.asm {
-			msg += fmt.Sprintln("__free(u64:) can't be an asm fun")
-		}
 		panic(msg)
 	}
 
 	start.typeCheck(c)
-	alloc.typeCheck(c)
-	free.typeCheck(c)
 
 	lets := []*Let{}
 	for _, let := range c.lets {
@@ -303,7 +315,7 @@ func (c *Ctx) compile() []uint8 {
 
 	for _, l := range lets {
 		if l.info != nil {
-			bytes = append(bytes, l.compile(c)...)
+			bytes = append(bytes, l.staticCompile(c)...)
 		}
 	}
 
@@ -311,7 +323,7 @@ func (c *Ctx) compile() []uint8 {
 	return append(bytes, finalBytes()...)
 }
 
-func (l *Let) compile(c *Ctx) []uint8 {
+func (l *Let) staticCompile(c *Ctx) []uint8 {
 	if len(l.let.Exprs) != 1 {
 		panic(fmt.Sprintf("let '%s' has to haves exactly one expr", l.let.Ident.Content))
 	}
@@ -357,93 +369,135 @@ func (c *Ctx) getNextPos(size uint64) uint64 {
 func (f *Fun) compile(c *Ctx) []uint8 {
 	bytes := []uint8{}
 
-	if len(f.fun.Block.Lets) != 0 {
-		panic("unimplemented")
-	}
-
 	if f.info.asm {
-		bytes = append(bytes, f.compileAsm()...)
+		bytes = f.compileAsm()
 	} else {
-		for i := 0; i < len(f.fun.Block.Exprs); i++ {
-			expr := f.fun.Block.Exprs[i]
-			ident := expr.GetIdent()
-			if ident != nil {
-				ident := Ident(ident.Content)
-				let := c.lets[ident]
-				buf := []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0}
-				switch let.info.size {
-				case 1:
-					buf[0] = 230
-				case 2:
-					buf[0] = 231
-				case 4:
-					buf[0] = 232
-				case 8:
-					buf[0] = 233
-				default:
-					panic("invalid size")
-				}
-				putUvarint(buf[1:], let.info.pos)
-				bytes = append(bytes, buf...)
+		if f.info.letSize != 0 {
+			lets := []*Let{}
+			for _, let := range f.info.lets {
+				lets = append(lets, let)
 			}
-			call := expr.GetCall()
-			if call != nil {
-				ident := makeFunIdent(call.Ident.Content, call.Inputs, call.Outputs)
-				fun := c.funs[ident]
-				if fun.info.inline {
-					bytes = append(bytes, fun.compile(c)...)
-				} else {
-					buf := []uint8{229, 0, 0, 0, 0, 0, 0, 0, 0}
-					if f.info.tailCall {
-						buf[0] = 220
-					}
-					putUvarint(buf[1:], fun.info.pos)
-					bytes = append(bytes, buf...)
 
+			sort.Slice(lets, func(i, j int) bool {
+				if lets[i].info == nil || lets[j].info == nil {
+					return lets[i].info == nil
 				}
-			}
-			number := expr.GetNumber()
-			if number != nil {
-				num, err := strconv.ParseUint(number.Content, number.Base, number.Size*8)
-				if err != nil {
-					panic(fmt.Sprintf("unable to convert '%s' to a number", number.Content))
+				return lets[i].info.pos < lets[j].info.pos
+			})
+
+			for _, l := range lets {
+				if l.info != nil {
+					bytes = append(bytes, f.compileExprs(c, l.let.Exprs)...)
+					buf := []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0}
+					switch l.let.Typ.Size() {
+					case 1:
+						buf[0] = 215
+					case 2:
+						buf[0] = 216
+					case 4:
+						buf[0] = 217
+					case 8:
+						buf[0] = 218
+					default:
+						panic("invalid size")
+					}
+					putUvarint(buf[1:], f.info.size-f.info.letSize+l.info.pos)
+					bytes = append(bytes, buf...)
 				}
-				var buf []uint8
-				switch number.Size {
-				case 1:
-					buf = []uint8{10, 0}
-				case 2:
-					buf = []uint8{11, 0, 0}
-				case 4:
-					buf = []uint8{12, 0, 0, 0, 0}
-				case 8:
-					buf = []uint8{13, 0, 0, 0, 0, 0, 0, 0, 0}
-				default:
-					panic("invalid size")
-				}
-				putUvarint(buf[1:], num)
-				bytes = append(bytes, buf...)
-			}
-			str := expr.GetString()
-			if str != nil {
-				ptr := c.getStr(str.Content)
-				buf := []uint8{13, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0}
-				putUvarint(buf[1:9], ptr)
-				putUvarint(buf[10:], uint64(len(str.Content)))
-				bytes = append(bytes, buf...)
-			}
-			char := expr.GetChar()
-			if char != nil {
-				if len(char.Content) != 1 {
-					panic(fmt.Sprintf("the char '%s' can only contain one byte", char.Content))
-				}
-				bytes = append(bytes, 10, char.Content[0])
 			}
 		}
+
+		bytes = append(bytes, f.compileExprs(c, f.fun.Block.Exprs)...)
+		bytes = append(bytes, make([]uint8, f.info.letSize, f.info.letSize)...)
 	}
 
 	if !f.info.inline && !f.info.tailCall {
 		bytes = append(bytes, 3)
+	}
+
+	return bytes
+}
+
+func (f *Fun) compileExprs(c *Ctx, exprs []parser.Expr) []uint8 {
+	bytes := []uint8{}
+	for i := 0; i < len(exprs); i++ {
+		expr := exprs[i]
+		ident := expr.GetIdent()
+		if ident != nil {
+			ident := Ident(ident.Content)
+			let := f.info.lets[ident]
+			if let == nil {
+				let = c.lets[ident]
+			}
+			buf := []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0}
+			switch let.info.size {
+			case 1:
+				buf[0] = 230
+			case 2:
+				buf[0] = 231
+			case 4:
+				buf[0] = 232
+			case 8:
+				buf[0] = 233
+			default:
+				panic("invalid size")
+			}
+			putUvarint(buf[1:], let.info.pos)
+			bytes = append(bytes, buf...)
+		}
+		call := expr.GetCall()
+		if call != nil {
+			ident := makeFunIdent(call.Ident.Content, call.Inputs, call.Outputs)
+			fun := c.funs[ident]
+			if fun.info.inline {
+				bytes = append(bytes, fun.compile(c)...)
+			} else {
+				buf := []uint8{229, 0, 0, 0, 0, 0, 0, 0, 0}
+				if f.info.tailCall {
+					buf[0] = 220
+				}
+				putUvarint(buf[1:], fun.info.pos)
+				bytes = append(bytes, buf...)
+
+			}
+		}
+		number := expr.GetNumber()
+		if number != nil {
+			num, err := strconv.ParseUint(number.Content, number.Base, number.Size*8)
+			if err != nil {
+				panic(fmt.Sprintf("unable to convert '%s' to a number", number.Content))
+			}
+			var buf []uint8
+			switch number.Size {
+			case 1:
+				buf = []uint8{10, 0}
+			case 2:
+				buf = []uint8{11, 0, 0}
+			case 4:
+				buf = []uint8{12, 0, 0, 0, 0}
+			case 8:
+				buf = []uint8{13, 0, 0, 0, 0, 0, 0, 0, 0}
+			default:
+				panic("invalid size")
+			}
+			putUvarint(buf[1:], num)
+			bytes = append(bytes, buf...)
+		}
+		str := expr.GetString()
+		if str != nil {
+			ptr := c.getStr(str.Content)
+			buf := []uint8{13, 0, 0, 0, 0, 0, 0, 0, 0, 13, 0, 0, 0, 0, 0, 0, 0, 0}
+			putUvarint(buf[1:9], ptr)
+			putUvarint(buf[10:], uint64(len(str.Content)))
+			bytes = append(bytes, buf...)
+		}
+		char := expr.GetChar()
+		if char != nil {
+			if len(char.Content) != 1 {
+				panic(fmt.Sprintf("the char '%s' can only contain one byte", char.Content))
+			}
+			bytes = append(bytes, 10, char.Content[0])
+		}
 	}
 
 	return bytes
