@@ -41,8 +41,6 @@ func (b Builtin) String() string {
 
 func (b Builtin) Size() int {
 	switch b {
-	case VOID:
-		return 0
 	case U8, I8, CHAR:
 		return 1
 	case U16, I16:
@@ -60,8 +58,6 @@ func (b Builtin) Size() int {
 
 func (b Builtin) Sub() (bool, []Typ) {
 	switch b {
-	case VOID:
-		return true, []Typ{}
 	case U8:
 		return false, []Typ{I8}
 	case I8:
@@ -103,7 +99,6 @@ const (
 	I64  Builtin = "I64"
 	I128 Builtin = "I128"
 
-	VOID   Builtin = "VOID"
 	STRING Builtin = "STRING"
 	CHAR   Builtin = "CHAR"
 )

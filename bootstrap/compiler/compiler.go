@@ -156,7 +156,7 @@ func (f *Fun) comInfo(c *Ctx) {
 		panic(fmt.Sprintf("the asm fun '%s' needs to also be inline", f.makeFunIdent()))
 	}
 	if f.info.asm && !(f.info.unsafe || f.info.allowUnsafe) {
-		panic(fmt.Sprintf("the asm fun '%s' needs to either be unsafe or allow_unsafe", f.makeFunIdent()))
+		panic(fmt.Sprintf("the asm fun '%s' needs to either be unsafe or allow unsafe", f.makeFunIdent()))
 	}
 	if f.makeFunIdent() != c.start && len(f.fun.Block.Exprs) != 0 {
 		last := f.fun.Block.Exprs[len(f.fun.Block.Exprs)-1].AsCall()
@@ -168,7 +168,7 @@ func (f *Fun) comInfo(c *Ctx) {
 		}
 	}
 	if f.info.simpleTypeCheck && !(f.info.unsafe || f.info.allowUnsafe) {
-		panic(fmt.Sprintf("the simple type check fun '%s' needs to either be unsafe or allow_unsafe", f.makeFunIdent()))
+		panic(fmt.Sprintf("the simple type check fun '%s' needs to either be unsafe or allow unsafe", f.makeFunIdent()))
 	}
 
 	if len(f.fun.Block.Lets) != 0 {

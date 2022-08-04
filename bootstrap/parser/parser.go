@@ -126,8 +126,6 @@ func parseTyp(l *lexer.Lexer) Typ {
 		return I64
 	case "i128":
 		return I128
-	case "void":
-		return VOID
 	case "string":
 		return STRING
 	case "char":
