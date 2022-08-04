@@ -20,10 +20,12 @@ const (
 	STRING Typ = "STRING"
 	NUMBER Typ = "NUMBER"
 
-	FUN  Typ = "FUN"
-	LET  Typ = "LET"
-	IF   Typ = "IF"
-	ELSE Typ = "ELSE"
+	FUN    Typ = "FUN"
+	LET    Typ = "LET"
+	IF     Typ = "IF"
+	ELSE   Typ = "ELSE"
+	IMPORT Typ = "IMPORT"
+	UNWRAP Typ = "UNWRAP"
 
 	IDENT Typ = "IDENT"
 )

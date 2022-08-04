@@ -6,21 +6,26 @@ import (
 	"strings"
 )
 
-func Parse(l *lexer.Lexer) Ast {
+func Parse(l *lexer.Lexer) (Ast, bool) {
+	err := false
 	var lets []*Let
 	var funs []*Fun
+	var imports []*Import
 	for token := l.Peek(); token.Typ != lexer.EOF; token = l.Peek() {
 		switch token.Typ {
 		case lexer.LET:
 			lets = append(lets, parseLet(l))
 		case lexer.FUN:
 			funs = append(funs, parseFun(l))
+		case lexer.IMPORT:
+			imports = append(imports, parseImport(l))
 		default:
+			err = true
 			l.ConsumePeek()
 		}
 	}
 	expect(l, lexer.EOF)
-	return Ast{Funs: funs, Lets: lets}
+	return Ast{Funs: funs, Lets: lets, Imports: imports}, err
 }
 
 func expect(l *lexer.Lexer, typ lexer.Typ) lexer.Token {
@@ -29,6 +34,13 @@ func expect(l *lexer.Lexer, typ lexer.Typ) lexer.Token {
 		panic(fmt.Sprintf("unexpected token '%s' expected '%s'", token.Typ, typ))
 	}
 	return token
+}
+
+func parseImport(l *lexer.Lexer) *Import {
+	expect(l, lexer.IMPORT)
+	path := parseString(l)
+	expect(l, lexer.SEMICOLON)
+	return &Import{Path: path}
 }
 
 func parseFun(l *lexer.Lexer) *Fun {
@@ -93,32 +105,36 @@ func parseTyps(l *lexer.Lexer) []Typ {
 
 func parseTyp(l *lexer.Lexer) Typ {
 	ident := expect(l, lexer.IDENT)
-	var typ Builtin
 	switch ident.Content {
 	case "u8":
-		typ = U8
+		return U8
 	case "u16":
-		typ = U16
+		return U16
 	case "u32":
-		typ = U32
+		return U32
 	case "u64":
-		typ = U64
+		return U64
 	case "u128":
-		typ = U128
+		return U128
 	case "i8":
-		typ = I8
+		return I8
 	case "i16":
-		typ = I16
+		return I16
 	case "i32":
-		typ = I32
+		return I32
 	case "i64":
-		typ = I64
+		return I64
 	case "i128":
-		typ = I128
+		return I128
+	case "void":
+		return VOID
+	case "string":
+		return STRING
+	case "char":
+		return CHAR
 	default:
 		panic("unknown type")
 	}
-	return &typ
 }
 
 func parseBlock(l *lexer.Lexer) *Block {
@@ -169,6 +185,9 @@ func parseExprs(l *lexer.Lexer) []Expr {
 			exprs = append(exprs, parseString(l))
 		case lexer.CHAR:
 			exprs = append(exprs, parseChar(l))
+		case lexer.UNWRAP:
+			l.ConsumePeek()
+			exprs = append(exprs, &Unwrap{})
 		default:
 			return exprs
 		}
@@ -207,6 +226,7 @@ func parseIdentExpr(l *lexer.Lexer) Expr {
 func parseNumber(l *lexer.Lexer) *Number {
 	number := expect(l, lexer.NUMBER)
 	var end int
+	var typ Typ
 	var size int
 
 	base := 10
@@ -222,21 +242,25 @@ func parseNumber(l *lexer.Lexer) *Number {
 
 	if strings.HasSuffix(number.Content, "u8") {
 		end = 2
+		typ = U8
 		size = 1
 	} else if strings.HasSuffix(number.Content, "u16") {
 		end = 3
+		typ = U16
 		size = 2
 	} else if strings.HasSuffix(number.Content, "u32") {
 		end = 3
+		typ = U32
 		size = 4
 	} else if strings.HasSuffix(number.Content, "u64") {
 		end = 3
+		typ = U64
 		size = 8
 	} else {
 		panic(fmt.Sprintf("number '%s' is missing a type", number.Content))
 	}
 	content := number.Content[start : len(number.Content)-end]
-	return &Number{Content: content, Base: base, Size: size}
+	return &Number{Content: content, Base: base, Size: size, Typ: typ}
 }
 
 func parseString(l *lexer.Lexer) *String {

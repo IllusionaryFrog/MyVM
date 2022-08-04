@@ -197,6 +197,10 @@ func (l *Lexer) RawNext() Token {
 		token.Typ = IF
 	case "else":
 		token.Typ = ELSE
+	case "import":
+		token.Typ = IMPORT
+	case "unwrap":
+		token.Typ = UNWRAP
 	default:
 		if isNumber(content) {
 			token.Typ = NUMBER

@@ -1,8 +1,13 @@
 package parser
 
 type Ast struct {
-	Lets []*Let
-	Funs []*Fun
+	Imports []*Import
+	Lets    []*Let
+	Funs    []*Fun
+}
+
+type Import struct {
+	Path *String
 }
 
 type Fun struct {
@@ -25,36 +30,62 @@ func (e *Ident) AsIdent() *Ident {
 type Typ interface {
 	String() string
 	Size() int
+	Sub() (bool, []Typ)
 }
 
 type Builtin string
 
-func (b *Builtin) String() string {
-	return string(*b)
+func (b Builtin) String() string {
+	return string(b)
 }
 
-func (b *Builtin) Size() int {
-	switch *b {
+func (b Builtin) Size() int {
+	switch b {
+	case VOID:
+		return 0
+	case U8, I8, CHAR:
+		return 1
+	case U16, I16:
+		return 2
+	case U32, I32:
+		return 4
+	case U64, I64:
+		return 8
+	case U128, I128, STRING:
+		return 16
+	default:
+		panic("unreachable")
+	}
+}
+
+func (b Builtin) Sub() (bool, []Typ) {
+	switch b {
+	case VOID:
+		return true, []Typ{}
 	case U8:
-		return 1
-	case U16:
-		return 2
-	case U32:
-		return 4
-	case U64:
-		return 8
-	case U128:
-		return 16
+		return false, []Typ{I8}
 	case I8:
-		return 1
+		return false, []Typ{U8}
+	case U16:
+		return false, []Typ{I16}
 	case I16:
-		return 2
+		return false, []Typ{U16}
+	case U32:
+		return false, []Typ{I32}
 	case I32:
-		return 4
+		return false, []Typ{U32}
+	case U64:
+		return false, []Typ{I64}
 	case I64:
-		return 8
+		return false, []Typ{U64}
+	case U128:
+		return false, []Typ{I128}
 	case I128:
-		return 16
+		return false, []Typ{U128}
+	case CHAR:
+		return false, []Typ{U8}
+	case STRING:
+		return false, []Typ{U64, U64}
 	default:
 		panic("unreachable")
 	}
@@ -71,6 +102,10 @@ const (
 	I32  Builtin = "I32"
 	I64  Builtin = "I64"
 	I128 Builtin = "I128"
+
+	VOID   Builtin = "VOID"
+	STRING Builtin = "STRING"
+	CHAR   Builtin = "CHAR"
 )
 
 type Block struct {
@@ -91,6 +126,7 @@ type Expr interface {
 	AsString() *String
 	AsChar() *Char
 	AsIf() *If
+	AsUnwrap() *Unwrap
 }
 
 type DefaultExpr struct{}
@@ -119,6 +155,10 @@ func (e *DefaultExpr) AsIf() *If {
 	return nil
 }
 
+func (e *DefaultExpr) AsUnwrap() *Unwrap {
+	return nil
+}
+
 type Call struct {
 	DefaultExpr
 	Ident   *Ident
@@ -133,6 +173,7 @@ func (e *Call) AsCall() *Call {
 type Number struct {
 	DefaultExpr
 	Content string
+	Typ     Typ
 	Size    int
 	Base    int
 }
@@ -167,5 +208,13 @@ type If struct {
 }
 
 func (e *If) AsIf() *If {
+	return e
+}
+
+type Unwrap struct {
+	DefaultExpr
+}
+
+func (e *Unwrap) AsUnwrap() *Unwrap {
 	return e
 }
