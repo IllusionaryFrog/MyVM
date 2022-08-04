@@ -1,47 +1,5 @@
 
-fun{inline, asm} allocAndGetEnd(u64:u64) {
-    "dup64"
-    "alloc"
-    "addU64"
-}
-
-fun{inline, asm} popSp(u64:) {
-    "popSp"
-}
-
-fun{inline, asm} popCs(u64:) {
-    "popCs"
-}
-
-fun{inline, asm} swap64(:) {
-    "swap64"
-}
-
-fun{inline, asm} debug(u64:) {
-    "debug64"
-}
-
-fun{inline,asm} less(u64,u64:u8) {
-    "lessU64"
-}
-
-fun{inline,asm} sub(u64,u64:u64) {
-    "subU64"
-}
-
-fun{inline,asm} add(u64,u64:u64) {
-    "addU64"
-}
-
-fun __start(:) {
-    4000u64 allocAndGetEnd(u64:u64)
-    popSp(u64:)
-
-    1000u64 allocAndGetEnd(u64:u64)
-    popCs(u64:)
-
-    main(:) 
-}
+import "std/prelude.mvm";
 
 fun main(:) {
     40u64 fib(u64:u64) debug(u64:)
@@ -55,7 +13,7 @@ fun fib(u64:u64) {
         n 2u64 sub(u64,u64:u64)
         n 1u64 sub(u64,u64:u64)
         fib(u64:u64)
-        swap64(:)
+        swap(u64,u64:u64,u64)
         fib(u64:u64)
         add(u64,u64:u64);
 }
