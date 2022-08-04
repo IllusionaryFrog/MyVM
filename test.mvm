@@ -1,12 +1,12 @@
 
 import "./std/prelude.mvm";
 
-fun{allow_unsafe} main(:) {
+fun main(:) {
     let msg: string = "Hello World!\n";
 
     msg dup(string:string,string)
 
-    len(string:u64) asm_debug(u64:)
+    len(string:u64) debug(u64:)
 
-    asm_write(string:u64) asm_drop(u64:)
+    write(string:u64) drop(u64:)
 }

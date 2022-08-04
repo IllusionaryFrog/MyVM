@@ -1,496 +1,496 @@
 
 # 000
-fun{unsafe, inline, asm} asm_nop(:) {
+fun{allow_unsafe, inline, asm} nop(:) {
     "nop"
 }
 
 # 001
-fun{unsafe, inline, asm} asm_halt(:) {
+fun{allow_unsafe, inline, asm} halt(:) {
     "halt"
 }
 
 # 002
-fun{unsafe, inline, asm} asm_call(u64:) {
+fun{allow_unsafe, inline, asm} call(u64:) {
     "call"
 }
 
 # 003
-fun{unsafe, inline, asm} asm_return(:) {
+fun{allow_unsafe, inline, asm} return(:) {
     "return"
 }
 
 # 004
-fun{unsafe, inline, asm} asm_inter(:) {
+fun{allow_unsafe, inline, asm} inter(:) {
     "inter"
 }
 
 # 005
-fun{unsafe, inline, asm} asm_alloc(u64:u64) {
+fun{allow_unsafe, inline, asm} alloc(u64:u64) {
     "alloc"
 }
 
 # 006
-fun{unsafe, inline, asm} asm_read(string:u64) {
+fun{allow_unsafe, inline, asm} read(string:u64) {
     "read"
 }
 
 # 007
-fun{unsafe, inline, asm} asm_write(string:u64) {
+fun{allow_unsafe, inline, asm} write(string:u64) {
     "write"
 }
 
 # 008
-fun{unsafe, inline, asm} asm_read_file(string,string:u64) {
+fun{allow_unsafe, inline, asm} read_file(string,string:u64) {
     "read_file"
 }
 
 # 009
-fun{unsafe, inline, asm} asm_write_file(string,string:u64) {
+fun{allow_unsafe, inline, asm} write_file(string,string:u64) {
     "write_file"
 }
 
 
 # 010
-fun{unsafe, inline, asm} asm_push_imm(:u8) {
+fun{allow_unsafe, inline, asm} push_imm(:u8) {
     "push_imm_u8"
 }
 
 # 011
-fun{unsafe, inline, asm} asm_push_imm(:u16) {
+fun{allow_unsafe, inline, asm} push_imm(:u16) {
     "push_imm_u16"
 }
 
 # 012
-fun{unsafe, inline, asm} asm_push_imm(:u32) {
+fun{allow_unsafe, inline, asm} push_imm(:u32) {
     "push_imm_u32"
 }
 
 # 013
-fun{unsafe, inline, asm} asm_push_imm(:u64) {
+fun{allow_unsafe, inline, asm} push_imm(:u64) {
     "push_imm_u64"
 }
 
 # 014
-fun{unsafe, inline, asm} asm_push_imm(:u128) {
+fun{allow_unsafe, inline, asm} push_imm(:u128) {
     "push_imm_u128"
 }
 
 # 015
-fun{unsafe, inline, asm} asm_pop_sp(u64:) {
+fun{allow_unsafe, inline, asm} pop_sp(u64:) {
     "pop_sp"
 }
 
 # 016
-fun{unsafe, inline, asm} asm_pop_cs(u64:) {
+fun{allow_unsafe, inline, asm} pop_cs(u64:) {
     "pop_cs"
 }
 
 # 017
-fun{unsafe, inline, asm} asm_pop_ih(u64:) {
+fun{allow_unsafe, inline, asm} pop_ih(u64:) {
     "pop_ih"
 }
 
 # 018
-fun{unsafe, inline, asm} asm_pop_ir(i8:) {
+fun{allow_unsafe, inline, asm} pop_ir(i8:) {
     "pop_ir"
 }
 
 # 019
-fun{unsafe, inline, asm} asm_push_ir(:i8) {
+fun{allow_unsafe, inline, asm} push_ir(:i8) {
     "push_ir"
 }
 
 
 # 020
-fun{unsafe, inline, asm} asm_drop(u8:) {
+fun{allow_unsafe, inline, asm} drop(u8:) {
     "drop_u8"
 }
 
 # 021
-fun{unsafe, inline, asm} asm_drop(u16:) {
+fun{allow_unsafe, inline, asm} drop(u16:) {
     "drop_u16"
 }
 
 # 022
-fun{unsafe, inline, asm} asm_drop(u32:) {
+fun{allow_unsafe, inline, asm} drop(u32:) {
     "drop_u32"
 }
 
 # 023
-fun{unsafe, inline, asm} asm_drop(u64:) {
+fun{allow_unsafe, inline, asm} drop(u64:) {
     "drop_u64"
 }
 
 # 024
-fun{unsafe, inline, asm} asm_drop(u128:) {
+fun{allow_unsafe, inline, asm} drop(u128:) {
     "drop_u128"
 }
 
 # 025
-fun{unsafe, inline, asm} asm_negate(u8:i8) {
+fun{allow_unsafe, inline, asm} negate(u8:i8) {
     "negate_u8"
 }
 
 # 026
-fun{unsafe, inline, asm} asm_negate(u16:i16) {
+fun{allow_unsafe, inline, asm} negate(u16:i16) {
     "negate_u16"
 }
 
 # 027
-fun{unsafe, inline, asm} asm_negate(u32:i32) {
+fun{allow_unsafe, inline, asm} negate(u32:i32) {
     "negate_u32"
 }
 
 # 028
-fun{unsafe, inline, asm} asm_negate(u64:i64) {
+fun{allow_unsafe, inline, asm} negate(u64:i64) {
     "negate_u64"
 }
 
 # 029
-fun{unsafe, inline, asm} asm_negate(u128:i128) {
+fun{allow_unsafe, inline, asm} negate(u128:i128) {
     "negate_u128"
 }
 
 
 # 030
-fun{unsafe, inline, asm} asm_swap(u8,u8:u8,u8) {
+fun{allow_unsafe, inline, asm} swap(u8,u8:u8,u8) {
     "swap_u8"
 }
 
 # 031
-fun{unsafe, inline, asm} asm_swap(u16,u16:u16,u16) {
+fun{allow_unsafe, inline, asm} swap(u16,u16:u16,u16) {
     "swap_u16"
 }
 
 # 032
-fun{unsafe, inline, asm} asm_swap(u32,u32:u32,u32) {
+fun{allow_unsafe, inline, asm} swap(u32,u32:u32,u32) {
     "swap_u32"
 }
 
 # 033
-fun{unsafe, inline, asm} asm_swap(u64,u64:u64,u64) {
+fun{allow_unsafe, inline, asm} swap(u64,u64:u64,u64) {
     "swap_u64"
 }
 
 # 034
-fun{unsafe, inline, asm} asm_swap(u128,u128:u128,u128) {
+fun{allow_unsafe, inline, asm} swap(u128,u128:u128,u128) {
     "swap_u128"
 }
 
 # 035
-fun{unsafe, inline, asm} asm_rotate(u8,u8,u8:u8,u8,u8) {
+fun{allow_unsafe, inline, asm} rotate(u8,u8,u8:u8,u8,u8) {
     "rotate_u8"
 }
 
 # 036
-fun{unsafe, inline, asm} asm_rotate(u16,u16,u16:u16,u16,u16) {
+fun{allow_unsafe, inline, asm} rotate(u16,u16,u16:u16,u16,u16) {
     "rotate_u16"
 }
 
 # 037
-fun{unsafe, inline, asm} asm_rotate(u32,u32,u32:u32,u32,u32) {
+fun{allow_unsafe, inline, asm} rotate(u32,u32,u32:u32,u32,u32) {
     "rotate_u32"
 }
 
 # 038
-fun{unsafe, inline, asm} asm_rotate(u64,u64,u64:u64,u64,u64) {
+fun{allow_unsafe, inline, asm} rotate(u64,u64,u64:u64,u64,u64) {
     "rotate_u64"
 }
 
 # 039
-fun{unsafe, inline, asm} asm_rotate(u128,u128,u128:u128,u128,u128) {
+fun{allow_unsafe, inline, asm} rotate(u128,u128,u128:u128,u128,u128) {
     "rotate_u128"
 }
 
 
 # 040
-fun{unsafe, inline, asm} asm_dup(u8:u8,u8) {
+fun{allow_unsafe, inline, asm} dup(u8:u8,u8) {
     "dup_u8"
 }
 
 # 041
-fun{unsafe, inline, asm} asm_dup(u16:u16,u16) {
+fun{allow_unsafe, inline, asm} dup(u16:u16,u16) {
     "dup_u16"
 }
 
 # 042
-fun{unsafe, inline, asm} asm_dup(u32:u32,u32) {
+fun{allow_unsafe, inline, asm} dup(u32:u32,u32) {
     "dup_u32"
 }
 
 # 043
-fun{unsafe, inline, asm} asm_dup(u64:u64,u64) {
+fun{allow_unsafe, inline, asm} dup(u64:u64,u64) {
     "dup_u64"
 }
 
 # 044
-fun{unsafe, inline, asm} asm_dup(u128:u128,u128) {
+fun{allow_unsafe, inline, asm} dup(u128:u128,u128) {
     "dup_u128"
 }
 
 # 045
-fun{unsafe, inline, asm} asm_over(u8,u8:u8,u8,u8) {
+fun{allow_unsafe, inline, asm} over(u8,u8:u8,u8,u8) {
     "over_u8"
 }
 
 # 046
-fun{unsafe, inline, asm} asm_over(u16,u16:u16,u16,u16) {
+fun{allow_unsafe, inline, asm} over(u16,u16:u16,u16,u16) {
     "over_u16"
 }
 
 # 047
-fun{unsafe, inline, asm} asm_over(u32,u32:u32,u32,u32) {
+fun{allow_unsafe, inline, asm} over(u32,u32:u32,u32,u32) {
     "over_u32"
 }
 
 # 048
-fun{unsafe, inline, asm} asm_over(u64,u64:u64,u64,u64) {
+fun{allow_unsafe, inline, asm} over(u64,u64:u64,u64,u64) {
     "over_u64"
 }
 
 # 049
-fun{unsafe, inline, asm} asm_over(u128,u128:u128,u128,u128) {
+fun{allow_unsafe, inline, asm} over(u128,u128:u128,u128,u128) {
     "over_u128"
 }
 
 
 # 050
-fun{unsafe, inline, asm} asm_and(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} and(u8,u8:u8) {
     "and_u8"
 }
 
 # 051
-fun{unsafe, inline, asm} asm_and(u16,u16:u16) {
+fun{allow_unsafe, inline, asm} and(u16,u16:u16) {
     "and_u16"
 }
 
 # 052
-fun{unsafe, inline, asm} asm_and(u32,u32:u32) {
+fun{allow_unsafe, inline, asm} and(u32,u32:u32) {
     "and_u32"
 }
 
 # 053
-fun{unsafe, inline, asm} asm_and(u64,u64:u64) {
+fun{allow_unsafe, inline, asm} and(u64,u64:u64) {
     "and_u64"
 }
 
 # 054
-fun{unsafe, inline, asm} asm_and(u128,u128:u128) {
+fun{allow_unsafe, inline, asm} and(u128,u128:u128) {
     "and_u128"
 }
 
 # 055
-fun{unsafe, inline, asm} asm_or(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} or(u8,u8:u8) {
     "or_u8"
 }
 
 # 056
-fun{unsafe, inline, asm} asm_or(u16,u16:u16) {
+fun{allow_unsafe, inline, asm} or(u16,u16:u16) {
     "or_u16"
 }
 
 # 057
-fun{unsafe, inline, asm} asm_or(u32,u32:u32) {
+fun{allow_unsafe, inline, asm} or(u32,u32:u32) {
     "or_u32"
 }
 
 # 058
-fun{unsafe, inline, asm} asm_or(u64,u64:u64) {
+fun{allow_unsafe, inline, asm} or(u64,u64:u64) {
     "or_u64"
 }
 
 # 059
-fun{unsafe, inline, asm} asm_or(u128,u128:u128) {
+fun{allow_unsafe, inline, asm} or(u128,u128:u128) {
     "or_u128"
 }
 
 
 # 060
-fun{unsafe, inline, asm} asm_shift_l(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} shift_l(u8,u8:u8) {
     "shift_l_u8"
 }
 
 # 061
-fun{unsafe, inline, asm} asm_shift_l(u16,u8:u16) {
+fun{allow_unsafe, inline, asm} shift_l(u16,u8:u16) {
     "shift_l_u16"
 }
 
 # 062
-fun{unsafe, inline, asm} asm_shift_l(u32,u8:u32) {
+fun{allow_unsafe, inline, asm} shift_l(u32,u8:u32) {
     "shift_l_u32"
 }
 
 # 063
-fun{unsafe, inline, asm} asm_shift_l(u64,u8:u64) {
+fun{allow_unsafe, inline, asm} shift_l(u64,u8:u64) {
     "shift_l_u64"
 }
 
 # 064
-fun{unsafe, inline, asm} asm_shift_l(u128,u8:u128) {
+fun{allow_unsafe, inline, asm} shift_l(u128,u8:u128) {
     "shift_l_u128"
 }
 
 # 065
-fun{unsafe, inline, asm} asm_shift_r(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} shift_r(u8,u8:u8) {
     "shift_r_u8"
 }
 
 # 066
-fun{unsafe, inline, asm} asm_shift_r(u16,u8:u16) {
+fun{allow_unsafe, inline, asm} shift_r(u16,u8:u16) {
     "shift_r_u16"
 }
 
 # 067
-fun{unsafe, inline, asm} asm_shift_r(u32,u8:u32) {
+fun{allow_unsafe, inline, asm} shift_r(u32,u8:u32) {
     "shift_r_u32"
 }
 
 # 068
-fun{unsafe, inline, asm} asm_shift_r(u64,u8:u64) {
+fun{allow_unsafe, inline, asm} shift_r(u64,u8:u64) {
     "shift_r_u64"
 }
 
 # 069
-fun{unsafe, inline, asm} asm_shift_r(u128,u8:u128) {
+fun{allow_unsafe, inline, asm} shift_r(u128,u8:u128) {
     "shift_r_u128"
 }
 
 
 # 070
-fun{unsafe, inline, asm} asm_rotate_l(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} rotate_l(u8,u8:u8) {
     "rotate_l_u8"
 }
 
 # 071
-fun{unsafe, inline, asm} asm_rotate_l(u16,u8:u16) {
+fun{allow_unsafe, inline, asm} rotate_l(u16,u8:u16) {
     "rotate_l_u16"
 }
 
 # 072
-fun{unsafe, inline, asm} asm_rotate_l(u32,u8:u32) {
+fun{allow_unsafe, inline, asm} rotate_l(u32,u8:u32) {
     "rotate_l_u32"
 }
 
 # 073
-fun{unsafe, inline, asm} asm_rotate_l(u64,u8:u64) {
+fun{allow_unsafe, inline, asm} rotate_l(u64,u8:u64) {
     "rotate_l_u64"
 }
 
 # 074
-fun{unsafe, inline, asm} asm_rotate_l(u128,u8:u128) {
+fun{allow_unsafe, inline, asm} rotate_l(u128,u8:u128) {
     "rotate_l_u128"
 }
 
 # 075
-fun{unsafe, inline, asm} asm_rotate_r(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} rotate_r(u8,u8:u8) {
     "rotate_r_u8"
 }
 
 # 076
-fun{unsafe, inline, asm} asm_rotate_r(u16,u8:u16) {
+fun{allow_unsafe, inline, asm} rotate_r(u16,u8:u16) {
     "rotate_r_u16"
 }
 
 # 077
-fun{unsafe, inline, asm} asm_rotate_r(u32,u8:u32) {
+fun{allow_unsafe, inline, asm} rotate_r(u32,u8:u32) {
     "rotate_r_u32"
 }
 
 # 078
-fun{unsafe, inline, asm} asm_rotate_r(u64,u8:u64) {
+fun{allow_unsafe, inline, asm} rotate_r(u64,u8:u64) {
     "rotate_r_u64"
 }
 
 # 079
-fun{unsafe, inline, asm} asm_rotate_r(u128,u8:u128) {
+fun{allow_unsafe, inline, asm} rotate_r(u128,u8:u128) {
     "rotate_r_u128"
 }
 
 
 # 080
-fun{unsafe, inline, asm} asm_eq(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} eq(u8,u8:u8) {
     "eq_u8"
 }
 
 # 081
-fun{unsafe, inline, asm} asm_eq(u16,u16:u8) {
+fun{allow_unsafe, inline, asm} eq(u16,u16:u8) {
     "eq_u16"
 }
 
 # 082
-fun{unsafe, inline, asm} asm_eq(u32,u32:u8) {
+fun{allow_unsafe, inline, asm} eq(u32,u32:u8) {
     "eq_u32"
 }
 
 # 083
-fun{unsafe, inline, asm} asm_eq(u64,u64:u8) {
+fun{allow_unsafe, inline, asm} eq(u64,u64:u8) {
     "eq_u64"
 }
 
 # 084
-fun{unsafe, inline, asm} asm_eq(u128,u128:u8) {
+fun{allow_unsafe, inline, asm} eq(u128,u128:u8) {
     "eq_u128"
 }
 
 # 085
-fun{unsafe, inline, asm} asm_not_eq(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} not_eq(u8,u8:u8) {
     "not_eq_u8"
 }
 
 # 086
-fun{unsafe, inline, asm} asm_not_eq(u16,u16:u8) {
+fun{allow_unsafe, inline, asm} not_eq(u16,u16:u8) {
     "not_eq_u16"
 }
 
 # 087
-fun{unsafe, inline, asm} asm_not_eq(u32,u32:u8) {
+fun{allow_unsafe, inline, asm} not_eq(u32,u32:u8) {
     "not_eq_u32"
 }
 
 # 088
-fun{unsafe, inline, asm} asm_not_eq(u64,u64:u8) {
+fun{allow_unsafe, inline, asm} not_eq(u64,u64:u8) {
     "not_eq_u64"
 }
 
 # 089
-fun{unsafe, inline, asm} asm_not_eq(u128,u128:u8) {
+fun{allow_unsafe, inline, asm} not_eq(u128,u128:u8) {
     "not_eq_u128"
 }
 
 
 # 090
-fun{unsafe, inline, asm} asm_jump(u64:) {
+fun{allow_unsafe, inline, asm} jump(u64:) {
     "jump"
 }
 
 # 091
-fun{unsafe, inline, asm} asm_jump_f(u64:) {
+fun{allow_unsafe, inline, asm} jump_f(u64:) {
     "jump_f"
 }
 
 # 092
-fun{unsafe, inline, asm} asm_jump_b(u64:) {
+fun{allow_unsafe, inline, asm} jump_b(u64:) {
     "jump_b"
 }
 
 # 093
 # 094
-fun{unsafe, inline, asm} asm_sleep(u64:) {
+fun{allow_unsafe, inline, asm} sleep(u64:) {
     "sleep"
 }
 
 # 095
-fun{unsafe, inline, asm} asm_branch(u64,u8:) {
+fun{allow_unsafe, inline, asm} branch(u64,u8:) {
     "branch"
 }
 
 # 096
-fun{unsafe, inline, asm} asm_branch_f(u64,u8:) {
+fun{allow_unsafe, inline, asm} branch_f(u64,u8:) {
     "branch_f"
 }
 
 # 097
-fun{unsafe, inline, asm} asm_branch_b(u64,u8:) {
+fun{allow_unsafe, inline, asm} branch_b(u64,u8:) {
     "branch_b"
 }
 
@@ -498,707 +498,707 @@ fun{unsafe, inline, asm} asm_branch_b(u64,u8:) {
 # 099
 
 # 100
-fun{unsafe, inline, asm} asm_add(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} add(u8,u8:u8) {
     "add_u8"
 }
 
 # 101
-fun{unsafe, inline, asm} asm_add(u16,u16:u16) {
+fun{allow_unsafe, inline, asm} add(u16,u16:u16) {
     "add_u16"
 }
 
 # 102
-fun{unsafe, inline, asm} asm_add(u32,u32:u32) {
+fun{allow_unsafe, inline, asm} add(u32,u32:u32) {
     "add_u32"
 }
 
 # 103
-fun{unsafe, inline, asm} asm_add(u64,u64:u64) {
+fun{allow_unsafe, inline, asm} add(u64,u64:u64) {
     "add_u64"
 }
 
 # 104
-fun{unsafe, inline, asm} asm_add(u128,u128:u128) {
+fun{allow_unsafe, inline, asm} add(u128,u128:u128) {
     "add_u128"
 }
 
 # 105
-fun{unsafe, inline, asm} asm_add(i8,i8:i8) {
+fun{allow_unsafe, inline, asm} add(i8,i8:i8) {
     "add_i8"
 }
 
 # 106
-fun{unsafe, inline, asm} asm_add(i16,i16:i16) {
+fun{allow_unsafe, inline, asm} add(i16,i16:i16) {
     "add_i16"
 }
 
 # 107
-fun{unsafe, inline, asm} asm_add(i32,i32:i32) {
+fun{allow_unsafe, inline, asm} add(i32,i32:i32) {
     "add_i32"
 }
 
 # 108
-fun{unsafe, inline, asm} asm_add(i64,i64:i64) {
+fun{allow_unsafe, inline, asm} add(i64,i64:i64) {
     "add_i64"
 }
 
 # 109
-fun{unsafe, inline, asm} asm_add(i128,i128:i128) {
+fun{allow_unsafe, inline, asm} add(i128,i128:i128) {
     "add_i128"
 }
 
 
 # 110
-fun{unsafe, inline, asm} asm_sub(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} sub(u8,u8:u8) {
     "sub_u8"
 }
 
 # 111
-fun{unsafe, inline, asm} asm_sub(u16,u16:u16) {
+fun{allow_unsafe, inline, asm} sub(u16,u16:u16) {
     "sub_u16"
 }
 
 # 112
-fun{unsafe, inline, asm} asm_sub(u32,u32:u32) {
+fun{allow_unsafe, inline, asm} sub(u32,u32:u32) {
     "sub_u32"
 }
 
 # 113
-fun{unsafe, inline, asm} asm_sub(u64,u64:u64) {
+fun{allow_unsafe, inline, asm} sub(u64,u64:u64) {
     "sub_u64"
 }
 
 # 114
-fun{unsafe, inline, asm} asm_sub(u128,u128:u128) {
+fun{allow_unsafe, inline, asm} sub(u128,u128:u128) {
     "sub_u128"
 }
 
 # 115
-fun{unsafe, inline, asm} asm_sub(i8,i8:i8) {
+fun{allow_unsafe, inline, asm} sub(i8,i8:i8) {
     "sub_i8"
 }
 
 # 116
-fun{unsafe, inline, asm} asm_sub(i16,i16:i16) {
+fun{allow_unsafe, inline, asm} sub(i16,i16:i16) {
     "sub_i16"
 }
 
 # 117
-fun{unsafe, inline, asm} asm_sub(i32,i32:i32) {
+fun{allow_unsafe, inline, asm} sub(i32,i32:i32) {
     "sub_i32"
 }
 
 # 118
-fun{unsafe, inline, asm} asm_sub(i64,i64:i64) {
+fun{allow_unsafe, inline, asm} sub(i64,i64:i64) {
     "sub_i64"
 }
 
 # 119
-fun{unsafe, inline, asm} asm_sub(i128,i128:i128) {
+fun{allow_unsafe, inline, asm} sub(i128,i128:i128) {
     "sub_i128"
 }
 
 
 # 120
-fun{unsafe, inline, asm} asm_mul(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} mul(u8,u8:u8) {
     "mul_u8"
 }
 
 # 121
-fun{unsafe, inline, asm} asm_mul(u16,u16:u16) {
+fun{allow_unsafe, inline, asm} mul(u16,u16:u16) {
     "mul_u16"
 }
 
 # 122
-fun{unsafe, inline, asm} asm_mul(u32,u32:u32) {
+fun{allow_unsafe, inline, asm} mul(u32,u32:u32) {
     "mul_u32"
 }
 
 # 123
-fun{unsafe, inline, asm} asm_mul(u64,u64:u64) {
+fun{allow_unsafe, inline, asm} mul(u64,u64:u64) {
     "mul_u64"
 }
 
 # 124
-fun{unsafe, inline, asm} asm_mul(u128,u128:u128) {
+fun{allow_unsafe, inline, asm} mul(u128,u128:u128) {
     "mul_u128"
 }
 
 # 125
-fun{unsafe, inline, asm} asm_mul(i8,i8:i8) {
+fun{allow_unsafe, inline, asm} mul(i8,i8:i8) {
     "mul_i8"
 }
 
 # 126
-fun{unsafe, inline, asm} asm_mul(i16,i16:i16) {
+fun{allow_unsafe, inline, asm} mul(i16,i16:i16) {
     "mul_i16"
 }
 
 # 127
-fun{unsafe, inline, asm} asm_mul(i32,i32:i32) {
+fun{allow_unsafe, inline, asm} mul(i32,i32:i32) {
     "mul_i32"
 }
 
 # 128
-fun{unsafe, inline, asm} asm_mul(i64,i64:i64) {
+fun{allow_unsafe, inline, asm} mul(i64,i64:i64) {
     "mul_i64"
 }
 
 # 129
-fun{unsafe, inline, asm} asm_mul(i128,i128:i128) {
+fun{allow_unsafe, inline, asm} mul(i128,i128:i128) {
     "mul_i128"
 }
 
 
 # 130
-fun{unsafe, inline, asm} asm_div(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} div(u8,u8:u8) {
     "div_u8"
 }
 
 # 131
-fun{unsafe, inline, asm} asm_div(u16,u16:u16) {
+fun{allow_unsafe, inline, asm} div(u16,u16:u16) {
     "div_u16"
 }
 
 # 132
-fun{unsafe, inline, asm} asm_div(u32,u32:u32) {
+fun{allow_unsafe, inline, asm} div(u32,u32:u32) {
     "div_u32"
 }
 
 # 133
-fun{unsafe, inline, asm} asm_div(u64,u64:u64) {
+fun{allow_unsafe, inline, asm} div(u64,u64:u64) {
     "div_u64"
 }
 
 # 134
-fun{unsafe, inline, asm} asm_div(u128,u128:u128) {
+fun{allow_unsafe, inline, asm} div(u128,u128:u128) {
     "div_u128"
 }
 
 # 135
-fun{unsafe, inline, asm} asm_div(i8,i8:i8) {
+fun{allow_unsafe, inline, asm} div(i8,i8:i8) {
     "div_i8"
 }
 
 # 136
-fun{unsafe, inline, asm} asm_div(i16,i16:i16) {
+fun{allow_unsafe, inline, asm} div(i16,i16:i16) {
     "div_i16"
 }
 
 # 137
-fun{unsafe, inline, asm} asm_div(i32,i32:i32) {
+fun{allow_unsafe, inline, asm} div(i32,i32:i32) {
     "div_i32"
 }
 
 # 138
-fun{unsafe, inline, asm} asm_div(i64,i64:i64) {
+fun{allow_unsafe, inline, asm} div(i64,i64:i64) {
     "div_i64"
 }
 
 # 139
-fun{unsafe, inline, asm} asm_div(i128,i128:i128) {
+fun{allow_unsafe, inline, asm} div(i128,i128:i128) {
     "div_i128"
 }
 
 
 # 140
-fun{unsafe, inline, asm} asm_mod(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} mod(u8,u8:u8) {
     "mod_u8"
 }
 
 # 141
-fun{unsafe, inline, asm} asm_mod(u16,u16:u16) {
+fun{allow_unsafe, inline, asm} mod(u16,u16:u16) {
     "mod_u16"
 }
 
 # 142
-fun{unsafe, inline, asm} asm_mod(u32,u32:u32) {
+fun{allow_unsafe, inline, asm} mod(u32,u32:u32) {
     "mod_u32"
 }
 
 # 143
-fun{unsafe, inline, asm} asm_mod(u64,u64:u64) {
+fun{allow_unsafe, inline, asm} mod(u64,u64:u64) {
     "mod_u64"
 }
 
 # 144
-fun{unsafe, inline, asm} asm_mod(u128,u128:u128) {
+fun{allow_unsafe, inline, asm} mod(u128,u128:u128) {
     "mod_u128"
 }
 
 # 145
-fun{unsafe, inline, asm} asm_mod(i8,i8:i8) {
+fun{allow_unsafe, inline, asm} mod(i8,i8:i8) {
     "mod_i8"
 }
 
 # 146
-fun{unsafe, inline, asm} asm_mod(i16,i16:i16) {
+fun{allow_unsafe, inline, asm} mod(i16,i16:i16) {
     "mod_i16"
 }
 
 # 147
-fun{unsafe, inline, asm} asm_mod(i32,i32:i32) {
+fun{allow_unsafe, inline, asm} mod(i32,i32:i32) {
     "mod_i32"
 }
 
 # 148
-fun{unsafe, inline, asm} asm_mod(i64,i64:i64) {
+fun{allow_unsafe, inline, asm} mod(i64,i64:i64) {
     "mod_i64"
 }
 
 # 149
-fun{unsafe, inline, asm} asm_mod(i128,i128:i128) {
+fun{allow_unsafe, inline, asm} mod(i128,i128:i128) {
     "mod_i128"
 }
 
 
 # 150
-fun{unsafe, inline, asm} asm_less(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} less(u8,u8:u8) {
     "less_u8"
 }
 
 # 151
-fun{unsafe, inline, asm} asm_less(u16,u16:u8) {
+fun{allow_unsafe, inline, asm} less(u16,u16:u8) {
     "less_u16"
 }
 
 # 152
-fun{unsafe, inline, asm} asm_less(u32,u32:u8) {
+fun{allow_unsafe, inline, asm} less(u32,u32:u8) {
     "less_u32"
 }
 
 # 153
-fun{unsafe, inline, asm} asm_less(u64,u64:u8) {
+fun{allow_unsafe, inline, asm} less(u64,u64:u8) {
     "less_u64"
 }
 
 # 154
-fun{unsafe, inline, asm} asm_less(u128,u128:u8) {
+fun{allow_unsafe, inline, asm} less(u128,u128:u8) {
     "less_u128"
 }
 
 # 155
-fun{unsafe, inline, asm} asm_less(i8,i8:u8) {
+fun{allow_unsafe, inline, asm} less(i8,i8:u8) {
     "less_i8"
 }
 
 # 156
-fun{unsafe, inline, asm} asm_less(i16,i16:u8) {
+fun{allow_unsafe, inline, asm} less(i16,i16:u8) {
     "less_i16"
 }
 
 # 157
-fun{unsafe, inline, asm} asm_less(i32,i32:u8) {
+fun{allow_unsafe, inline, asm} less(i32,i32:u8) {
     "less_i32"
 }
 
 # 158
-fun{unsafe, inline, asm} asm_less(i64,i64:u8) {
+fun{allow_unsafe, inline, asm} less(i64,i64:u8) {
     "less_i64"
 }
 
 # 159
-fun{unsafe, inline, asm} asm_less(i128,i128:u8) {
+fun{allow_unsafe, inline, asm} less(i128,i128:u8) {
     "less_i128"
 }
 
 
 # 160
-fun{unsafe, inline, asm} asm_less_eq(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} less_eq(u8,u8:u8) {
     "less_eq_u8"
 }
 
 # 161
-fun{unsafe, inline, asm} asm_less_eq(u16,u16:u8) {
+fun{allow_unsafe, inline, asm} less_eq(u16,u16:u8) {
     "less_eq_u16"
 }
 
 # 162
-fun{unsafe, inline, asm} asm_less_eq(u32,u32:u8) {
+fun{allow_unsafe, inline, asm} less_eq(u32,u32:u8) {
     "less_eq_u32"
 }
 
 # 163
-fun{unsafe, inline, asm} asm_less_eq(u64,u64:u8) {
+fun{allow_unsafe, inline, asm} less_eq(u64,u64:u8) {
     "less_eq_u64"
 }
 
 # 164
-fun{unsafe, inline, asm} asm_less_eq(u128,u128:u8) {
+fun{allow_unsafe, inline, asm} less_eq(u128,u128:u8) {
     "less_eq_u128"
 }
 
 # 165
-fun{unsafe, inline, asm} asm_less_eq(i8,i8:u8) {
+fun{allow_unsafe, inline, asm} less_eq(i8,i8:u8) {
     "less_eq_i8"
 }
 
 # 166
-fun{unsafe, inline, asm} asm_less_eq(i16,i16:u8) {
+fun{allow_unsafe, inline, asm} less_eq(i16,i16:u8) {
     "less_eq_i16"
 }
 
 # 167
-fun{unsafe, inline, asm} asm_less_eq(i32,i32:u8) {
+fun{allow_unsafe, inline, asm} less_eq(i32,i32:u8) {
     "less_eq_i32"
 }
 
 # 168
-fun{unsafe, inline, asm} asm_less_eq(i64,i64:u8) {
+fun{allow_unsafe, inline, asm} less_eq(i64,i64:u8) {
     "less_eq_i64"
 }
 
 # 169
-fun{unsafe, inline, asm} asm_less_eq(i128,i128:u8) {
+fun{allow_unsafe, inline, asm} less_eq(i128,i128:u8) {
     "less_eq_i128"
 }
 
 
 # 170
-fun{unsafe, inline, asm} asm_great(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} great(u8,u8:u8) {
     "great_u8"
 }
 
 # 171
-fun{unsafe, inline, asm} asm_great(u16,u16:u8) {
+fun{allow_unsafe, inline, asm} great(u16,u16:u8) {
     "great_u16"
 }
 
 # 172
-fun{unsafe, inline, asm} asm_great(u32,u32:u8) {
+fun{allow_unsafe, inline, asm} great(u32,u32:u8) {
     "great_u32"
 }
 
 # 173
-fun{unsafe, inline, asm} asm_great(u64,u64:u8) {
+fun{allow_unsafe, inline, asm} great(u64,u64:u8) {
     "great_u64"
 }
 
 # 174
-fun{unsafe, inline, asm} asm_great(u128,u128:u8) {
+fun{allow_unsafe, inline, asm} great(u128,u128:u8) {
     "great_u128"
 }
 
 # 175
-fun{unsafe, inline, asm} asm_great(i8,i8:u8) {
+fun{allow_unsafe, inline, asm} great(i8,i8:u8) {
     "great_i8"
 }
 
 # 176
-fun{unsafe, inline, asm} asm_great(i16,i16:u8) {
+fun{allow_unsafe, inline, asm} great(i16,i16:u8) {
     "great_i16"
 }
 
 # 177
-fun{unsafe, inline, asm} asm_great(i32,i32:u8) {
+fun{allow_unsafe, inline, asm} great(i32,i32:u8) {
     "great_i32"
 }
 
 # 178
-fun{unsafe, inline, asm} asm_great(i64,i64:u8) {
+fun{allow_unsafe, inline, asm} great(i64,i64:u8) {
     "great_i64"
 }
 
 # 179
-fun{unsafe, inline, asm} asm_great(i128,i128:u8) {
+fun{allow_unsafe, inline, asm} great(i128,i128:u8) {
     "great_i128"
 }
 
 
 # 180
-fun{unsafe, inline, asm} asm_great_eq(u8,u8:u8) {
+fun{allow_unsafe, inline, asm} great_eq(u8,u8:u8) {
     "great_eq_u8"
 }
 
 # 181
-fun{unsafe, inline, asm} asm_great_eq(u16,u16:u8) {
+fun{allow_unsafe, inline, asm} great_eq(u16,u16:u8) {
     "great_eq_u16"
 }
 
 # 182
-fun{unsafe, inline, asm} asm_great_eq(u32,u32:u8) {
+fun{allow_unsafe, inline, asm} great_eq(u32,u32:u8) {
     "great_eq_u32"
 }
 
 # 183
-fun{unsafe, inline, asm} asm_great_eq(u64,u64:u8) {
+fun{allow_unsafe, inline, asm} great_eq(u64,u64:u8) {
     "great_eq_u64"
 }
 
 # 184
-fun{unsafe, inline, asm} asm_great_eq(u128,u128:u8) {
+fun{allow_unsafe, inline, asm} great_eq(u128,u128:u8) {
     "great_eq_u128"
 }
 
 # 185
-fun{unsafe, inline, asm} asm_great_eq(i8,i8:u8) {
+fun{allow_unsafe, inline, asm} great_eq(i8,i8:u8) {
     "great_eq_i8"
 }
 
 # 186
-fun{unsafe, inline, asm} asm_great_eq(i16,i16:u8) {
+fun{allow_unsafe, inline, asm} great_eq(i16,i16:u8) {
     "great_eq_i16"
 }
 
 # 187
-fun{unsafe, inline, asm} asm_great_eq(i32,i32:u8) {
+fun{allow_unsafe, inline, asm} great_eq(i32,i32:u8) {
     "great_eq_i32"
 }
 
 # 188
-fun{unsafe, inline, asm} asm_great_eq(i64,i64:u8) {
+fun{allow_unsafe, inline, asm} great_eq(i64,i64:u8) {
     "great_eq_i64"
 }
 
 # 189
-fun{unsafe, inline, asm} asm_great_eq(i128,i128:u8) {
+fun{allow_unsafe, inline, asm} great_eq(i128,i128:u8) {
     "great_eq_i128"
 }
 
 
 # 190
-fun{unsafe, inline, asm} asm_u8_to(u8:u16) {
+fun{allow_unsafe, inline, asm} u8_to(u8:u16) {
     "u8_to_u16"
 }
 
 # 191
-fun{unsafe, inline, asm} asm_u8_to(u8:u32) {
+fun{allow_unsafe, inline, asm} u8_to(u8:u32) {
     "u8_to_u32"
 }
 
 # 192
-fun{unsafe, inline, asm} asm_u8_to(u8:u64) {
+fun{allow_unsafe, inline, asm} u8_to(u8:u64) {
     "u8_to_u64"
 }
 
 # 193
-fun{unsafe, inline, asm} asm_u8_to(u8:u128) {
+fun{allow_unsafe, inline, asm} u8_to(u8:u128) {
     "u8_to_u128"
 }
 
 # 194
-fun{unsafe, inline, asm} asm_u16_to(u16:u8) {
+fun{allow_unsafe, inline, asm} u16_to(u16:u8) {
     "u16_to_u8"
 }
 
 # 195
-fun{unsafe, inline, asm} asm_u16_to(u16:u32) {
+fun{allow_unsafe, inline, asm} u16_to(u16:u32) {
     "u16_to_u32"
 }
 
 # 196
-fun{unsafe, inline, asm} asm_u16_to(u16:u64) {
+fun{allow_unsafe, inline, asm} u16_to(u16:u64) {
     "u16_to_u64"
 }
 
 # 197
-fun{unsafe, inline, asm} asm_u16_to(u16:u128) {
+fun{allow_unsafe, inline, asm} u16_to(u16:u128) {
     "u16_to_u128"
 }
 
 # 198
-fun{unsafe, inline, asm} asm_u32_to(u32:u8) {
+fun{allow_unsafe, inline, asm} u32_to(u32:u8) {
     "u32_to_u8"
 }
 
 # 199
-fun{unsafe, inline, asm} asm_u32_to(u32:u16) {
+fun{allow_unsafe, inline, asm} u32_to(u32:u16) {
     "u32_to_u16"
 }
 
 
 # 200
-fun{unsafe, inline, asm} asm_u32_to(u32:u64) {
+fun{allow_unsafe, inline, asm} u32_to(u32:u64) {
     "u32_to_u64"
 }
 
 # 201
-fun{unsafe, inline, asm} asm_u32_to(u32:u128) {
+fun{allow_unsafe, inline, asm} u32_to(u32:u128) {
     "u32_to_u128"
 }
 
 # 202
-fun{unsafe, inline, asm} asm_u64_to(u64:u8) {
+fun{allow_unsafe, inline, asm} u64_to(u64:u8) {
     "u64_to_u8"
 }
 
 # 203
-fun{unsafe, inline, asm} asm_u64_to(u64:u16) {
+fun{allow_unsafe, inline, asm} u64_to(u64:u16) {
     "u64_to_u16"
 }
 
 # 204
-fun{unsafe, inline, asm} asm_u64_to(u64:u32) {
+fun{allow_unsafe, inline, asm} u64_to(u64:u32) {
     "u64_to_u32"
 }
 
 # 205
-fun{unsafe, inline, asm} asm_u64_to(u64:u128) {
+fun{allow_unsafe, inline, asm} u64_to(u64:u128) {
     "u64_to_u128"
 }
 
 # 206
-fun{unsafe, inline, asm} asm_u128_to(u128:u8) {
+fun{allow_unsafe, inline, asm} u128_to(u128:u8) {
     "u128_to_u8"
 }
 
 # 207
-fun{unsafe, inline, asm} asm_u128_to(u128:u16) {
+fun{allow_unsafe, inline, asm} u128_to(u128:u16) {
     "u128_to_u16"
 }
 
 # 208
-fun{unsafe, inline, asm} asm_u128_to(u128:u32) {
+fun{allow_unsafe, inline, asm} u128_to(u128:u32) {
     "u128_to_u32"
 }
 
 # 209
-fun{unsafe, inline, asm} asm_u128_to(u128:u64) {
+fun{allow_unsafe, inline, asm} u128_to(u128:u64) {
     "u128_to_u64"
 }
 
 
 # 210
-fun{unsafe, inline, asm} asm_load(u64:u8) {
+fun{allow_unsafe, inline, asm} load(u64:u8) {
     "load_u8"
 }
 
 # 211
-fun{unsafe, inline, asm} asm_load(u64:u16) {
+fun{allow_unsafe, inline, asm} load(u64:u16) {
     "load_u16"
 }
 
 # 212
-fun{unsafe, inline, asm} asm_load(u64:u32) {
+fun{allow_unsafe, inline, asm} load(u64:u32) {
     "load_u32"
 }
 
 # 213
-fun{unsafe, inline, asm} asm_load(u64:u64) {
+fun{allow_unsafe, inline, asm} load(u64:u64) {
     "load_u64"
 }
 
 # 214
-fun{unsafe, inline, asm} asm_load(u64:u128) {
+fun{allow_unsafe, inline, asm} load(u64:u128) {
     "load_u128"
 }
 
 # 215
-fun{unsafe, inline, asm} asm_store(u64,u8:) {
+fun{allow_unsafe, inline, asm} store(u64,u8:) {
     "store_u8"
 }
 
 # 216
-fun{unsafe, inline, asm} asm_store(u64,u16:) {
+fun{allow_unsafe, inline, asm} store(u64,u16:) {
     "store_u16"
 }
 
 # 217
-fun{unsafe, inline, asm} asm_store(u64,u32:) {
+fun{allow_unsafe, inline, asm} store(u64,u32:) {
     "store_u32"
 }
 
 # 218
-fun{unsafe, inline, asm} asm_store(u64,u64:) {
+fun{allow_unsafe, inline, asm} store(u64,u64:) {
     "store_u64"
 }
 
 # 219
-fun{unsafe, inline, asm} asm_store(u64,u128:) {
+fun{allow_unsafe, inline, asm} store(u64,u128:) {
     "store_u128"
 }
 
 
 # 220
-fun{unsafe, inline, asm} asm_jump_imm(:) {
+fun{allow_unsafe, inline, asm} jump_imm(:) {
     "jump_imm"
 }
 
 # 221
-fun{unsafe, inline, asm} asm_jump_imm_f(:) {
+fun{allow_unsafe, inline, asm} jump_imm_f(:) {
     "jump_imm_f"
 }
 
 # 222
-fun{unsafe, inline, asm} asm_jump_imm_b(:) {
+fun{allow_unsafe, inline, asm} jump_imm_b(:) {
     "jump_imm_b"
 }
 
 # 223
 # 224
-fun{unsafe, inline, asm} asm_sleep_imm(:) {
+fun{allow_unsafe, inline, asm} sleep_imm(:) {
     "sleep_imm"
 }
 
 # 225
-fun{unsafe, inline, asm} asm_branch_imm(u8:) {
+fun{allow_unsafe, inline, asm} branch_imm(u8:) {
     "branch_imm"
 }
 
 # 226
-fun{unsafe, inline, asm} asm_branch_imm_f(u8:) {
+fun{allow_unsafe, inline, asm} branch_imm_f(u8:) {
     "branch_imm_f"
 }
 
 # 227
-fun{unsafe, inline, asm} asm_branch_imm_b(u8:) {
+fun{allow_unsafe, inline, asm} branch_imm_b(u8:) {
     "branch_imm_b"
 }
 
 # 228
 # 229
-fun{unsafe, inline, asm} asm_call_imm(:) {
+fun{allow_unsafe, inline, asm} call_imm(:) {
     "call_imm"
 }
 
 
 # 230
-fun{unsafe, inline, asm} asm_load_imm(:u8) {
+fun{allow_unsafe, inline, asm} load_imm(:u8) {
     "load_imm_u8"
 }
 
 # 231
-fun{unsafe, inline, asm} asm_load_imm(:u16) {
+fun{allow_unsafe, inline, asm} load_imm(:u16) {
     "load_imm_u16"
 }
 
 # 232
-fun{unsafe, inline, asm} asm_load_imm(:u32) {
+fun{allow_unsafe, inline, asm} load_imm(:u32) {
     "load_imm_u32"
 }
 
 # 233
-fun{unsafe, inline, asm} asm_load_imm(:u64) {
+fun{allow_unsafe, inline, asm} load_imm(:u64) {
     "load_imm_u64"
 }
 
 # 234
-fun{unsafe, inline, asm} asm_load_imm(:u128) {
+fun{allow_unsafe, inline, asm} load_imm(:u128) {
     "load_imm_u128"
 }
 
 # 235
-fun{unsafe, inline, asm} asm_store_imm(u8:) {
+fun{allow_unsafe, inline, asm} store_imm(u8:) {
     "store_imm_u8"
 }
 
 # 236
-fun{unsafe, inline, asm} asm_store_imm(u16:) {
+fun{allow_unsafe, inline, asm} store_imm(u16:) {
     "store_imm_u16"
 }
 
 # 237
-fun{unsafe, inline, asm} asm_store_imm(u32:) {
+fun{allow_unsafe, inline, asm} store_imm(u32:) {
     "store_imm_u32"
 }
 
 # 238
-fun{unsafe, inline, asm} asm_store_imm(u64:) {
+fun{allow_unsafe, inline, asm} store_imm(u64:) {
     "store_imm_u64"
 }
 
 # 239
-fun{unsafe, inline, asm} asm_store_imm(u128:) {
+fun{allow_unsafe, inline, asm} store_imm(u128:) {
     "store_imm_u128"
 }
 
@@ -1206,31 +1206,31 @@ fun{unsafe, inline, asm} asm_store_imm(u128:) {
 # 240-249
 
 # 250
-fun{unsafe, inline, asm} asm_debug(:) {
+fun{allow_unsafe, inline, asm} debug(:) {
     "debug"
 }
 
 # 251
-fun{unsafe, inline, asm} asm_debug(u8:) {
+fun{allow_unsafe, inline, asm} debug(u8:) {
     "debug_u8"
 }
 
 # 252
-fun{unsafe, inline, asm} asm_debug(u16:) {
+fun{allow_unsafe, inline, asm} debug(u16:) {
     "debug_u16"
 }
 
 # 253
-fun{unsafe, inline, asm} asm_debug(u32:) {
+fun{allow_unsafe, inline, asm} debug(u32:) {
     "debug_u32"
 }
 
 # 254
-fun{unsafe, inline, asm} asm_debug(u64:) {
+fun{allow_unsafe, inline, asm} debug(u64:) {
     "debug_u64"
 }
 
 # 255
-fun{unsafe, inline, asm} asm_debug(u128:) {
+fun{allow_unsafe, inline, asm} debug(u128:) {
     "debug_u128"
 }
