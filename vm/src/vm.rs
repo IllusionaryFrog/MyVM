@@ -8,10 +8,10 @@ use std::{
 
 #[repr(i8)]
 pub enum Inter {
-    OutOfMem = 000,
-    RegOverflow = 001,
-    InvalidInst = 002,
-    IoError = 003,
+    OutOfMem = 001,
+    RegOverflow = 002,
+    InvalidInst = 003,
+    IoError = 004,
 }
 
 pub type Result<T> = std::result::Result<T, Inter>;
