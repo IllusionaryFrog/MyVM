@@ -83,7 +83,7 @@ impl<const DEBUG: bool> VM<DEBUG> {
     pub fn new(code: Vec<u8>) -> Self {
         Self {
             pc: Reg(0),
-            sp: Reg(code.len() as u64),
+            sp: Reg(code.len() as u64 - 16),
             cs: Reg(0),
             ih: Reg(0),
             ir: 0,

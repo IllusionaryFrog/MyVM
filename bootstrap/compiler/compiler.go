@@ -325,30 +325,26 @@ type Ctx struct {
 }
 
 func initialBytes() ([]uint8, int) {
-	return []uint8{220, 0, 0, 0, 0, 0, 0, 0, 0}, 1
-}
-
-func finalBytes() []uint8 {
-	return []uint8{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	return []uint8{250, 220, 0, 0, 0, 0, 0, 0, 0, 0}, 2
 }
 
 func (c *Ctx) compile() []uint8 {
 	bytes, saddr := initialBytes()
 	c.size = uint64(len(bytes))
 
-	c.start = c.makeFunIdent("__start", []parser.Typ{}, []parser.Typ{})
+	c.start = c.makeFunIdent("__start", []parser.Typ{parser.STRING}, []parser.Typ{})
 	start := c.funs[c.start]
 
 	if start == nil {
-		panic(fmt.Sprintln("missing __start(:) fun"))
+		panic(fmt.Sprintln("missing __start(string:) fun"))
 	}
 
 	sinfo := start.getInfo(c)
 	if sinfo.inline {
-		panic(fmt.Sprintln("__start(:) can't be an inline fun"))
+		panic(fmt.Sprintln("__start(string:) can't be an inline fun"))
 	}
 	if !sinfo.unsafe {
-		panic(fmt.Sprintln("__start(:) needs to be unsafe"))
+		panic(fmt.Sprintln("__start(string:) needs to be unsafe"))
 	}
 
 	funs := []*Fun{}
@@ -401,8 +397,7 @@ func (c *Ctx) compile() []uint8 {
 		}
 	}
 
-	bytes = append(bytes, []uint8(c.strs)...)
-	return append(bytes, finalBytes()...)
+	return append(bytes, []uint8(c.strs)...)
 }
 
 func (l *Let) staticCompile(c *Ctx) []uint8 {
@@ -491,7 +486,7 @@ func (f *Fun) compile(c *Ctx) []uint8 {
 		bytes = append(bytes, f.compileExprs(c, f.fun.Block.Exprs, true)...)
 		if f.makeFunIdent(c) == c.start {
 			bytes = append(bytes, 1)
-		} else if !f.info.inline && !f.info.tailCall {
+		} else if !(f.info.inline || f.info.tailCall) {
 			bytes = append(bytes, 3)
 		}
 		bytes = append(bytes, make([]uint8, f.info.letSize, f.info.letSize)...)

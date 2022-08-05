@@ -15,6 +15,9 @@ struct Args {
 
     #[options(help = "uses file instead of stdin")]
     file: Option<PathBuf>,
+
+    #[options(help = "argument passed to vm program")]
+    varg: Option<String>,
 }
 
 fn main() {
@@ -27,7 +30,17 @@ fn main() {
         stdin().lock().read_to_end(&mut buf).map(|_| buf)
     };
 
-    if let Ok(bytes) = bytes_res {
+    if let Ok(mut bytes) = bytes_res {
+        let ptr = bytes.len() as u64;
+        if let Some(varg) = args.varg {
+            let vbytes = varg.as_bytes();
+            bytes.extend(vbytes);
+            bytes.extend((vbytes.len() as u64).to_le_bytes());
+        } else {
+            bytes.extend(0u64.to_le_bytes());
+        }
+        bytes.extend(ptr.to_le_bytes());
+
         #[cfg(feature = "debug")]
         let vm = vm::VM::<true>::new(bytes);
         #[cfg(not(feature = "debug"))]

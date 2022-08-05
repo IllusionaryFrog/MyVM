@@ -2,7 +2,8 @@
 import "asm.mvm";
 import "string.mvm";
 
-fun{unsafe} __start(:) {
+fun{unsafe} __start(string:) {
+    let args: string;
 
     4000u64
     dup(u64:u64,u64)
