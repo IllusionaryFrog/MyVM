@@ -14,12 +14,16 @@ fun main(:) {
 
     write(string:u64) drop(u64:)
 
-    5u64 to_ptr(u64:Ptr) unwrap drop(u64:)
-    
+    5u64 to(u64:Ptr) to(Ptr:u64) drop(u64:)
+
     msg1 write(string:u64) drop(u64:)
     msg2 write(string:u64) drop(u64:)
 }
 
-fun{inline} to_ptr(u64:Ptr) {
+fun{inline} to(u64:Ptr) {
     wrap(Ptr)
+}
+
+fun{inline} to(Ptr:u64) {
+    unwrap
 }
