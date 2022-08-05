@@ -17,7 +17,7 @@ fun{unsafe} __start(string:) {
     add(u64,u64:u64)
     pop_cs(u64:)
 
-    "Args: '" write(string:u64) drop(u64:)
+    "args: '" write(string:u64) drop(u64:)
     args write(string:u64) drop(u64:)
     "'\n\n" write(string:u64) drop(u64:)
 
