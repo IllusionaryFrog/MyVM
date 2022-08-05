@@ -325,7 +325,7 @@ type Ctx struct {
 }
 
 func initialBytes() ([]uint8, int) {
-	return []uint8{250, 220, 0, 0, 0, 0, 0, 0, 0, 0}, 2
+	return []uint8{220, 0, 0, 0, 0, 0, 0, 0, 0}, 1
 }
 
 func (c *Ctx) compile() []uint8 {
