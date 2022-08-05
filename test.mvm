@@ -1,12 +1,25 @@
 
 import "./std/prelude.mvm";
 
-fun main(:) {
-    let msg: string = "Hello World!\n";
+let msg1: string = "Hey123\n";
 
-    msg dup(string:string,string)
+type Ptr(u64);
+
+fun main(:) {
+    let msg2: string = "Hey123\n";
+
+    msg2 dup(string:string,string)
 
     len(string:u64) debug(u64:)
 
     write(string:u64) drop(u64:)
+
+    5u64 to_ptr(u64:Ptr) unwrap drop(u64:)
+    
+    msg1 write(string:u64) drop(u64:)
+    msg2 write(string:u64) drop(u64:)
+}
+
+fun{inline} to_ptr(u64:Ptr) {
+    wrap(Ptr)
 }
