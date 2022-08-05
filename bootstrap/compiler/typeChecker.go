@@ -31,7 +31,7 @@ func (f *Fun) typeCheck(c *Ctx, simple bool) {
 	if simple {
 		f.typeCheckSimple(c)
 	} else {
-		stack := f.fun.Inputs
+		stack := append([]parser.Typ{}, f.fun.Inputs...)
 		if f.info.asm {
 			stack = f.checkStackAsm(c, stack)
 		} else {
