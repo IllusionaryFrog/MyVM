@@ -17,7 +17,7 @@ struct Args {
     file: Option<PathBuf>,
 
     #[options(help = "argument passed to vm program")]
-    varg: Option<String>,
+    vargs: Option<String>,
 }
 
 fn main() {
@@ -32,8 +32,8 @@ fn main() {
 
     if let Ok(mut bytes) = bytes_res {
         let ptr = bytes.len() as u64;
-        if let Some(varg) = args.varg {
-            let vbytes = varg.as_bytes();
+        if let Some(vargs) = args.vargs {
+            let vbytes = vargs.as_bytes();
             bytes.extend(vbytes);
             bytes.extend((vbytes.len() as u64).to_le_bytes());
         } else {
