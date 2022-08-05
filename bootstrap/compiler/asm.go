@@ -5,53 +5,53 @@ import (
 	"fmt"
 )
 
-func (f *Fun) checkStackAsm(stack []parser.Typ) []parser.Typ {
+func (f *Fun) checkStackAsm(c *Ctx, stack []parser.Typ) []parser.Typ {
 	for i := 0; i < len(f.fun.Block.Exprs); i++ {
 		str := f.fun.Block.Exprs[i].AsString()
 		if str == nil {
-			panic(fmt.Sprintf("the asm fun '%s' can only contain strings", f.makeFunIdent()))
+			panic(fmt.Sprintf("the asm fun '%s' can only contain strings", f.makeFunIdent(c)))
 		}
-		stack = f.checkStackInst(str.Content, stack)
+		stack = f.checkStackInst(c, str.Content, stack)
 	}
 	return stack
 }
 
-func (f *Fun) checkStackInst(inst string, stack []parser.Typ) []parser.Typ {
+func (f *Fun) checkStackInst(c *Ctx, inst string, stack []parser.Typ) []parser.Typ {
 	inp, out := argsInst(inst)
-	err, stack := stackPrefix(stack, inp...)
+	err, stack := c.stackPrefix(stack, inp...)
 	if err {
-		panic(fmt.Sprintf("the fun '%s' does not have a valid stack", f.makeFunIdent()))
+		panic(fmt.Sprintf("the fun '%s' does not have a valid stack", f.makeFunIdent(c)))
 	}
 	return append(stack, out...)
 }
 
-func (f *Fun) checkStackAsmSimple(stack int) int {
+func (f *Fun) checkStackAsmSimple(c *Ctx, stack int) int {
 	for i := 0; i < len(f.fun.Block.Exprs); i++ {
 		str := f.fun.Block.Exprs[i].AsString()
 		if str == nil {
-			panic(fmt.Sprintf("the asm fun '%s' can only contain strings", f.makeFunIdent()))
+			panic(fmt.Sprintf("the asm fun '%s' can only contain strings", f.makeFunIdent(c)))
 		}
-		stack = f.checkStackInstSimple(str.Content, stack)
+		stack = f.checkStackInstSimple(c, str.Content, stack)
 	}
 	return stack
 }
 
-func (f *Fun) checkStackInstSimple(inst string, stack int) int {
+func (f *Fun) checkStackInstSimple(c *Ctx, inst string, stack int) int {
 	inp, out := argsInst(inst)
-	err, stack := stackPrefixSimple(stack, inp...)
+	err, stack := stackPrefixSimple(c, stack, inp...)
 	if err {
-		panic(fmt.Sprintf("the fun '%s' does not have a valid stack", f.makeFunIdent()))
+		panic(fmt.Sprintf("the fun '%s' does not have a valid stack", f.makeFunIdent(c)))
 	}
-	return stack + typsSize(out)
+	return stack + c.typsSize(out)
 }
 
-func (f *Fun) compileAsm() []uint8 {
+func (f *Fun) compileAsm(c *Ctx) []uint8 {
 	bytes := []uint8{}
 
 	for i := 0; i < len(f.fun.Block.Exprs); i++ {
 		str := f.fun.Block.Exprs[i].AsString()
 		if str == nil {
-			panic(fmt.Sprintf("the asm fun '%s' can only contain strings", f.makeFunIdent()))
+			panic(fmt.Sprintf("the asm fun '%s' can only contain strings", f.makeFunIdent(c)))
 		}
 		bytes = append(bytes, parseInst(str.Content))
 	}

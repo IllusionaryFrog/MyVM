@@ -26,6 +26,8 @@ const (
 	ELSE   Typ = "ELSE"
 	IMPORT Typ = "IMPORT"
 	UNWRAP Typ = "UNWRAP"
+	TYPE   Typ = "TYPE"
+	WRAP   Typ = "WRAP"
 
 	IDENT Typ = "IDENT"
 )

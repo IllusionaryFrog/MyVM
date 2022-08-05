@@ -201,6 +201,10 @@ func (l *Lexer) RawNext() Token {
 		token.Typ = IMPORT
 	case "unwrap":
 		token.Typ = UNWRAP
+	case "type":
+		token.Typ = TYPE
+	case "wrap":
+		token.Typ = WRAP
 	default:
 		if isNumber(content) {
 			token.Typ = NUMBER

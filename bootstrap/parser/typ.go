@@ -4,6 +4,7 @@ type Ast struct {
 	Imports []*Import
 	Lets    []*Let
 	Funs    []*Fun
+	Types   []*Type
 }
 
 type Import struct {
@@ -28,18 +29,42 @@ func (e *Ident) AsIdent() *Ident {
 }
 
 type Typ interface {
-	String() string
-	Size() int
-	Sub() (bool, []Typ)
+	String(map[string]*Type) string
+	Size(map[string]*Type) int
+	Sub(map[string]*Type) []Typ
+	LoadSizes(map[string]*Type) []int
+}
+
+type Custom struct {
+	Ident string
 }
 
 type Builtin string
 
-func (b Builtin) String() string {
+func (b Builtin) LoadSizes(map[string]*Type) []int {
+	switch b {
+	case U8, I8, CHAR:
+		return []int{1}
+	case U16, I16:
+		return []int{2}
+	case U32, I32:
+		return []int{4}
+	case U64, I64:
+		return []int{8}
+	case U128, I128:
+		return []int{16}
+	case STRING:
+		return []int{8, 8}
+	default:
+		panic("unreachable")
+	}
+}
+
+func (b Builtin) String(_ map[string]*Type) string {
 	return string(b)
 }
 
-func (b Builtin) Size() int {
+func (b Builtin) Size(_ map[string]*Type) int {
 	switch b {
 	case U8, I8, CHAR:
 		return 1
@@ -56,35 +81,65 @@ func (b Builtin) Size() int {
 	}
 }
 
-func (b Builtin) Sub() (bool, []Typ) {
+func (b Builtin) Sub(_ map[string]*Type) []Typ {
 	switch b {
 	case U8:
-		return false, []Typ{I8}
+		return []Typ{I8}
 	case I8:
-		return false, []Typ{U8}
+		return []Typ{U8}
 	case U16:
-		return false, []Typ{I16}
+		return []Typ{I16}
 	case I16:
-		return false, []Typ{U16}
+		return []Typ{U16}
 	case U32:
-		return false, []Typ{I32}
+		return []Typ{I32}
 	case I32:
-		return false, []Typ{U32}
+		return []Typ{U32}
 	case U64:
-		return false, []Typ{I64}
+		return []Typ{I64}
 	case I64:
-		return false, []Typ{U64}
+		return []Typ{U64}
 	case U128:
-		return false, []Typ{I128}
+		return []Typ{I128}
 	case I128:
-		return false, []Typ{U128}
+		return []Typ{U128}
 	case CHAR:
-		return false, []Typ{U8}
+		return []Typ{U8}
 	case STRING:
-		return false, []Typ{U64, U64}
+		return []Typ{U64, U64}
 	default:
 		panic("unreachable")
 	}
+}
+
+type Type struct {
+	Opts   []*Ident
+	Ident  *Ident
+	Fields []Typ
+}
+
+func (t *Custom) String(ts map[string]*Type) string {
+	return ts[t.Ident].Ident.Content
+}
+
+func (t *Custom) LoadSizes(ts map[string]*Type) []int {
+	sizes := []int{}
+	for _, f := range ts[t.Ident].Fields {
+		sizes = append(sizes, f.LoadSizes(ts)...)
+	}
+	return sizes
+}
+
+func (t *Custom) Size(ts map[string]*Type) int {
+	size := 0
+	for _, f := range ts[t.Ident].Fields {
+		size += f.Size(ts)
+	}
+	return size
+}
+
+func (t *Custom) Sub(ts map[string]*Type) []Typ {
+	return ts[t.Ident].Fields
 }
 
 const (
@@ -122,9 +177,14 @@ type Expr interface {
 	AsChar() *Char
 	AsIf() *If
 	AsUnwrap() *Unwrap
+	AsWrap() *Wrap
 }
 
 type DefaultExpr struct{}
+
+func (e DefaultExpr) AsWrap() *Wrap {
+	return nil
+}
 
 func (e DefaultExpr) AsIdent() *Ident {
 	return nil
@@ -211,5 +271,14 @@ type Unwrap struct {
 }
 
 func (e *Unwrap) AsUnwrap() *Unwrap {
+	return e
+}
+
+type Wrap struct {
+	DefaultExpr
+	Typ Typ
+}
+
+func (e *Wrap) AsWrap() *Wrap {
 	return e
 }

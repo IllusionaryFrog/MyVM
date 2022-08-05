@@ -11,6 +11,7 @@ func Parse(l *lexer.Lexer) (Ast, bool) {
 	var lets []*Let
 	var funs []*Fun
 	var imports []*Import
+	var types []*Type
 	for token := l.Peek(); token.Typ != lexer.EOF; token = l.Peek() {
 		switch token.Typ {
 		case lexer.LET:
@@ -19,13 +20,15 @@ func Parse(l *lexer.Lexer) (Ast, bool) {
 			funs = append(funs, parseFun(l))
 		case lexer.IMPORT:
 			imports = append(imports, parseImport(l))
+		case lexer.TYPE:
+			types = append(types, parseType(l))
 		default:
 			err = true
 			l.ConsumePeek()
 		}
 	}
 	expect(l, lexer.EOF)
-	return Ast{Funs: funs, Lets: lets, Imports: imports}, err
+	return Ast{Funs: funs, Lets: lets, Imports: imports, Types: types}, err
 }
 
 func expect(l *lexer.Lexer, typ lexer.Typ) lexer.Token {
@@ -34,6 +37,20 @@ func expect(l *lexer.Lexer, typ lexer.Typ) lexer.Token {
 		panic(fmt.Sprintf("unexpected token '%s' expected '%s'", token.Typ, typ))
 	}
 	return token
+}
+
+func parseType(l *lexer.Lexer) *Type {
+	expect(l, lexer.TYPE)
+	var opts []*Ident
+	if l.Peek().Typ == lexer.LBRACE {
+		opts = parseOpts(l)
+	}
+	ident := parseIdent(l)
+	expect(l, lexer.LPAREN)
+	fields := parseTyps(l)
+	expect(l, lexer.RPAREN)
+	expect(l, lexer.SEMICOLON)
+	return &Type{Opts: opts, Ident: ident, Fields: fields}
 }
 
 func parseImport(l *lexer.Lexer) *Import {
@@ -131,7 +148,7 @@ func parseTyp(l *lexer.Lexer) Typ {
 	case "char":
 		return CHAR
 	default:
-		panic("unknown type")
+		return &Custom{Ident: ident.Content}
 	}
 }
 
@@ -186,10 +203,20 @@ func parseExprs(l *lexer.Lexer) []Expr {
 		case lexer.UNWRAP:
 			l.ConsumePeek()
 			exprs = append(exprs, &Unwrap{})
+		case lexer.WRAP:
+			exprs = append(exprs, parseWrap(l))
 		default:
 			return exprs
 		}
 	}
+}
+
+func parseWrap(l *lexer.Lexer) *Wrap {
+	expect(l, lexer.WRAP)
+	expect(l, lexer.LPAREN)
+	typ := parseTyp(l)
+	expect(l, lexer.RPAREN)
+	return &Wrap{Typ: typ}
 }
 
 func parseIf(l *lexer.Lexer) *If {
