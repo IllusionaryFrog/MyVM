@@ -1,0 +1,12 @@
+
+import "i8.mvm";
+import "i16.mvm";
+import "i32.mvm";
+import "i64.mvm";
+import "i128.mvm";
+
+import "u8.mvm";
+import "u16.mvm";
+import "u32.mvm";
+import "u64.mvm";
+import "u128.mvm";

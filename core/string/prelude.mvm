@@ -1,0 +1,12 @@
+
+fun{safe, inline} print(string:) {
+    .asm.write(string:u64) drop(u64:)
+}
+
+fun{safe, stc, inline} dup(string:string,string) {
+    .asm.dup(u128:u128,u128)
+}
+
+fun{safe, inline} len(string:u64) {
+    .unwrap .asm.swap(u64,u64:u64,u64) .asm.drop(u64:)
+}

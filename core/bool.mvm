@@ -1,0 +1,107 @@
+
+//
+// bool value true
+//
+fun{safe, stc, inline} true(:bool) {
+    255u8
+}
+
+//
+// bool value false
+//
+fun{safe, stc, inline} false(:bool) {
+    0u8
+}
+
+//
+// drops bool value
+//
+fun{safe, stc, inline} drop(bool:) {
+    .asm.drop(u8:)
+}
+
+//
+// swaps two bool values
+//
+fun{safe, stc, inline} swap(bool,bool:bool,bool) {
+    .asm.swap(u8:)
+}
+
+//
+// rotates three bool values,
+// moving the third value to the front
+//
+fun{safe, stc, inline} rotate(bool,bool,bool:bool,bool,bool) {
+    .asm.rotate(u8,u8,u8:u8,u8,u8)
+}
+
+//
+// duplicates bool value
+//
+fun{safe, stc, inline} dup(bool:bool,bool) {
+    .asm.dup(u8:u8,u8)
+}
+
+//
+// duplicates second bool to the front
+//
+fun{safe, stc, inline} over(bool,bool:bool,bool,bool) {
+    .asm.over(u8,u8:u8,u8,u8)
+}
+
+//
+// nots bool value
+//
+fun{safe, stc, inline} !(bool,bool:bool) {
+    .asm.xor(u8,u8:u8)
+}
+
+//
+// checks if two bool values are equal
+//
+fun{safe, stc, inline} ==(bool,bool:bool) {
+    .asm.eq(u8,u8:u8)
+}
+
+//
+// checks if two bool values are not equal
+//
+fun{safe, stc, inline} !=(bool,bool:bool) {
+    .asm.not.eq(u8,u8:u8)
+}
+
+//
+// checks if two bool values are true
+//
+fun{inline} &&(bool,bool:bool) {
+    if () else drop(bool:) false(:bool);
+}
+
+//
+// checks if one of the two bool values are true
+//
+fun{inline} ||(bool,bool:bool) {
+    if () drop(bool:) true(:bool) else;
+}
+
+//
+// converts a bool to a u8
+//
+fun{safe, stc, inline} to(bool:u8) {}
+
+//
+// converts a u8 to a bool
+//
+// SAFETY:
+// 0u8      is false
+// 255u8    is true
+// anything else is undefined
+//
+fun{unsafe, stc, inline} to(u8:bool) {}
+
+//
+// debugs bool value
+//
+fun{safe, stc, inline} debug(bool:) {
+    .asm.debug(u8:)
+}

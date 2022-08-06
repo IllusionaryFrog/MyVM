@@ -1,0 +1,218 @@
+
+//
+// drops i128 value
+//
+fun{safe, stc, inline} drop(i128:) {
+    .asm.drop(u128:)
+}
+
+//
+// swaps two i128 values
+//
+fun{safe, stc, inline} swap(i128,i128:i128,i128) {
+    .asm.swap(u128,u128:u128,u128)
+}
+
+//
+// rotates three i128 values,
+// moving the third value to the front
+//
+fun{safe, stc, inline} rotate(i128,i128,i128:i128,i128,i128) {
+    .asm.rotate(u128,u128,u128:u128,u128,u128)
+}
+
+//
+// duplicates i128 value
+//
+fun{safe, stc, inline} dup(i128:i128,i128) {
+    .asm.dup(u128:u128,u128)
+}
+
+//
+// duplicates second i128 to the front
+//
+fun{safe, stc, inline} over(i128,i128:i128,i128,i128) {
+    .asm.over(u128,u128:u128,u128,u128)
+}
+
+//
+// bitwise i128 and
+//
+fun{safe, stc, inline} &(i128,i128:i128) {
+    .asm.and(u128,u128:u128)
+}
+
+//
+// bitwise i128 or
+//
+fun{safe, stc, inline} |(i128,i128:i128) {
+    .asm.or(u128,u128:u128)
+}
+
+//
+// bitwise i128 xor
+//
+fun{safe, stc, inline} ^(i128,i128:i128) {
+    .asm.xor(u128,u128:u128)
+}
+
+//
+// bitwise i128 shift left
+//
+fun{safe, stc, inline} <<(i128,u8:i128) {
+    .asm.shift.l(u128,u8:u128)
+}
+
+//
+// bitwise i128 shift right
+//
+fun{safe, stc, inline} >>(i128,u8:i128) {
+    .asm.shift.r(u128,u8:u128)
+}
+
+//
+// bitwise i128 rotate left
+//
+fun{safe, stc, inline} <<<(i128,u8:i128) {
+    .asm.rotate.l(u128,u8:u128)
+}
+
+//
+// bitwise i128 rotate right
+//
+fun{safe, stc, inline} >>>(i128,u8:i128) {
+    .asm.rotate.r(u128,u8:u128)
+}
+
+//
+// checks if two i128 values are equal
+//
+fun{safe, inline} ==(i128,i128:bool) {
+    .asm.eq(i128,i128:i128)
+}
+
+//
+// checks if two i128 values are not equal
+//
+fun{safe, inline} !=(i128,i128:bool) {
+    .asm.not.eq(i128,i128:i128)
+}
+
+//
+// adds two i128 values
+//
+fun{safe, inline} +(i128,i128:i128) {
+    .asm.add(i128,i128:i128)
+}
+
+//
+// subtracts two i128 values
+//
+fun{safe, inline} -(i128,i128:i128) {
+    .asm.sub(i128,i128:i128)
+}
+
+//
+// increments i128 value by 1
+//
+fun{inline} ++(i128:i128) {
+    1i128 +(i128,i128:i128)
+}
+
+//
+// decrements i128 value by 1
+//
+fun{inline} --(i128:i128) {
+    1i128 -(i128,i128:i128)
+}
+
+//
+// multiplies two i128 values
+//
+fun{safe, inline} *(i128,i128:i128) {
+    .asm.mul(i128,i128:i128)
+}
+
+//
+// divides two i128 values
+//
+fun{safe, inline} /(i128,i128:i128) {
+    .asm.div(i128,i128:i128)
+}
+
+//
+// remainder of the division from two i128 values
+//
+fun{safe, inline} %(i128,i128:i128) {
+    .asm.mod(i128,i128:i128)
+}
+
+//
+// checks if the second i128 is less then the first
+//
+fun{safe, inline} <(i128,i128:bool) {
+    .asm.less(i128,i128:bool)
+}
+
+//
+// checks if the second i128 is less or equal then the first
+//
+fun{safe, inline} <=(i128,i128:bool) {
+    .asm.less.eq(i128,i128:bool)
+}
+
+//
+// checks if the second i128 is greater then the first
+//
+fun{safe, inline} >(i128,i128:bool) {
+    .asm.great(i128,i128:bool)
+}
+
+//
+// checks if the second i128 is greater or equal then the first
+//
+fun{safe, inline} >=(i128,i128:bool) {
+    .asm.great.eq(i128,i128:bool)
+}
+
+//
+// converts a i128 to a u128
+//
+fun{safe, inline} to(i128:u128) {
+    .unwrap
+}
+
+//
+// converts a i128 to a i8
+//
+fun{safe, inline} to(i128:i8) {
+    .asm.to(i128:i8)
+}
+
+//
+// converts a i128 to a i16
+//
+fun{safe, inline} to(i128:i16) {
+    .asm.to(i128:i16)
+}
+
+//
+// converts a i128 to a i32
+//
+fun{safe, inline} to(i128:i32) {
+    .asm.to(i128:i32)
+}
+
+//
+// converts a i128 to a i64
+//
+fun{safe, inline} to(i128:i64) {
+    .asm.to(i128:i64)
+}
+
+//
+// debugs i128 value
+//
+fun{safe, inline} debug(i128:) {
+    .asm.debug(i128:)
+}

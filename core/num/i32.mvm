@@ -1,0 +1,218 @@
+
+//
+// drops i32 value
+//
+fun{safe, stc, inline} drop(i32:) {
+    .asm.drop(u32:)
+}
+
+//
+// swaps two i32 values
+//
+fun{safe, stc, inline} swap(i32,i32:i32,i32) {
+    .asm.swap(u32,u32:u32,u32)
+}
+
+//
+// rotates three i32 values,
+// moving the third value to the front
+//
+fun{safe, stc, inline} rotate(i32,i32,i32:i32,i32,i32) {
+    .asm.rotate(u32,u32,u32:u32,u32,u32)
+}
+
+//
+// duplicates i32 value
+//
+fun{safe, stc, inline} dup(i32:i32,i32) {
+    .asm.dup(u32:u32,u32)
+}
+
+//
+// duplicates second i32 to the front
+//
+fun{safe, stc, inline} over(i32,i32:i32,i32,i32) {
+    .asm.over(u32,u32:u32,u32,u32)
+}
+
+//
+// bitwise i32 and
+//
+fun{safe, stc, inline} &(i32,i32:i32) {
+    .asm.and(u32,u32:u32)
+}
+
+//
+// bitwise i32 or
+//
+fun{safe, stc, inline} |(i32,i32:i32) {
+    .asm.or(u32,u32:u32)
+}
+
+//
+// bitwise i32 xor
+//
+fun{safe, stc, inline} ^(i32,i32:i32) {
+    .asm.xor(u32,u32:u32)
+}
+
+//
+// bitwise i32 shift left
+//
+fun{safe, stc, inline} <<(i32,u8:i32) {
+    .asm.shift.l(u32,u8:u32)
+}
+
+//
+// bitwise i32 shift right
+//
+fun{safe, stc, inline} >>(i32,u8:i32) {
+    .asm.shift.r(u32,u8:u32)
+}
+
+//
+// bitwise i32 rotate left
+//
+fun{safe, stc, inline} <<<(i32,u8:i32) {
+    .asm.rotate.l(u32,u8:u32)
+}
+
+//
+// bitwise i32 rotate right
+//
+fun{safe, stc, inline} >>>(i32,u8:i32) {
+    .asm.rotate.r(u32,u8:u32)
+}
+
+//
+// checks if two i32 values are equal
+//
+fun{safe, inline} ==(i32,i32:bool) {
+    .asm.eq(i32,i32:i32)
+}
+
+//
+// checks if two i32 values are not equal
+//
+fun{safe, inline} !=(i32,i32:bool) {
+    .asm.not.eq(i32,i32:i32)
+}
+
+//
+// adds two i32 values
+//
+fun{safe, inline} +(i32,i32:i32) {
+    .asm.add(i32,i32:i32)
+}
+
+//
+// subtracts two i32 values
+//
+fun{safe, inline} -(i32,i32:i32) {
+    .asm.sub(i32,i32:i32)
+}
+
+//
+// increments i32 value by 1
+//
+fun{inline} ++(i32:i32) {
+    1i32 +(i32,i32:i32)
+}
+
+//
+// decrements i32 value by 1
+//
+fun{inline} --(i32:i32) {
+    1i32 -(i32,i32:i32)
+}
+
+//
+// multiplies two i32 values
+//
+fun{safe, inline} *(i32,i32:i32) {
+    .asm.mul(i32,i32:i32)
+}
+
+//
+// divides two i32 values
+//
+fun{safe, inline} /(i32,i32:i32) {
+    .asm.div(i32,i32:i32)
+}
+
+//
+// remainder of the division from two i32 values
+//
+fun{safe, inline} %(i32,i32:i32) {
+    .asm.mod(i32,i32:i32)
+}
+
+//
+// checks if the second i32 is less then the first
+//
+fun{safe, inline} <(i32,i32:bool) {
+    .asm.less(i32,i32:bool)
+}
+
+//
+// checks if the second i32 is less or equal then the first
+//
+fun{safe, inline} <=(i32,i32:bool) {
+    .asm.less.eq(i32,i32:bool)
+}
+
+//
+// checks if the second i32 is greater then the first
+//
+fun{safe, inline} >(i32,i32:bool) {
+    .asm.great(i32,i32:bool)
+}
+
+//
+// checks if the second i32 is greater or equal then the first
+//
+fun{safe, inline} >=(i32,i32:bool) {
+    .asm.great.eq(i32,i32:bool)
+}
+
+//
+// converts a i32 to a u32
+//
+fun{safe, inline} to(i32:u32) {
+    .unwrap
+}
+
+//
+// converts a i32 to a i8
+//
+fun{safe, inline} to(i32:i8) {
+    .asm.to(i32:i8)
+}
+
+//
+// converts a i32 to a i16
+//
+fun{safe, inline} to(i32:i16) {
+    .asm.to(i32:i16)
+}
+
+//
+// converts a i32 to a i64
+//
+fun{safe, inline} to(i32:i64) {
+    .asm.to(i32:i64)
+}
+
+//
+// converts a i32 to a i128
+//
+fun{safe, inline} to(i32:i128) {
+    .asm.to(i32:i128)
+}
+
+//
+// debugs i32 value
+//
+fun{safe, inline} debug(i32:) {
+    .asm.debug(i32:)
+}

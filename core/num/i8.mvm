@@ -1,0 +1,218 @@
+
+//
+// drops i8 value
+//
+fun{safe, stc, inline} drop(i8:) {
+    .asm.drop(u8:)
+}
+
+//
+// swaps two i8 values
+//
+fun{safe, stc, inline} swap(i8,i8:i8,i8) {
+    .asm.swap(u8,u8:u8,u8)
+}
+
+//
+// rotates three i8 values,
+// moving the third value to the front
+//
+fun{safe, stc, inline} rotate(i8,i8,i8:i8,i8,i8) {
+    .asm.rotate(u8,u8,u8:u8,u8,u8)
+}
+
+//
+// duplicates i8 value
+//
+fun{safe, stc, inline} dup(i8:i8,i8) {
+    .asm.dup(u8:u8,u8)
+}
+
+//
+// duplicates second i8 to the front
+//
+fun{safe, stc, inline} over(i8,i8:i8,i8,i8) {
+    .asm.over(u8,u8:u8,u8,u8)
+}
+
+//
+// bitwise i8 and
+//
+fun{safe, stc, inline} &(i8,i8:i8) {
+    .asm.and(u8,u8:u8)
+}
+
+//
+// bitwise i8 or
+//
+fun{safe, stc, inline} |(i8,i8:i8) {
+    .asm.or(u8,u8:u8)
+}
+
+//
+// bitwise i8 xor
+//
+fun{safe, stc, inline} ^(i8,i8:i8) {
+    .asm.xor(u8,u8:u8)
+}
+
+//
+// bitwise i8 shift left
+//
+fun{safe, stc, inline} <<(i8,u8:i8) {
+    .asm.shift.l(u8,u8:u8)
+}
+
+//
+// bitwise i8 shift right
+//
+fun{safe, stc, inline} >>(i8,u8:i8) {
+    .asm.shift.r(u8,u8:u8)
+}
+
+//
+// bitwise i8 rotate left
+//
+fun{safe, stc, inline} <<<(i8,u8:i8) {
+    .asm.rotate.l(u8,u8:u8)
+}
+
+//
+// bitwise i8 rotate right
+//
+fun{safe, stc, inline} >>>(i8,u8:i8) {
+    .asm.rotate.r(u8,u8:u8)
+}
+
+//
+// checks if two i8 values are equal
+//
+fun{safe, inline} ==(i8,i8:bool) {
+    .asm.eq(i8,i8:i8)
+}
+
+//
+// checks if two i8 values are not equal
+//
+fun{safe, inline} !=(i8,i8:bool) {
+    .asm.not.eq(i8,i8:i8)
+}
+
+//
+// adds two i8 values
+//
+fun{safe, inline} +(i8,i8:i8) {
+    .asm.add(i8,i8:i8)
+}
+
+//
+// subtracts two i8 values
+//
+fun{safe, inline} -(i8,i8:i8) {
+    .asm.sub(i8,i8:i8)
+}
+
+//
+// increments i8 value by 1
+//
+fun{inline} ++(i8:i8) {
+    1i8 +(i8,i8:i8)
+}
+
+//
+// decrements i8 value by 1
+//
+fun{inline} --(i8:i8) {
+    1i8 -(i8,i8:i8)
+}
+
+//
+// multiplies two i8 values
+//
+fun{safe, inline} *(i8,i8:i8) {
+    .asm.mul(i8,i8:i8)
+}
+
+//
+// divides two i8 values
+//
+fun{safe, inline} /(i8,i8:i8) {
+    .asm.div(i8,i8:i8)
+}
+
+//
+// remainder of the division from two i8 values
+//
+fun{safe, inline} %(i8,i8:i8) {
+    .asm.mod(i8,i8:i8)
+}
+
+//
+// checks if the second i8 is less then the first
+//
+fun{safe, inline} <(i8,i8:bool) {
+    .asm.less(i8,i8:bool)
+}
+
+//
+// checks if the second i8 is less or equal then the first
+//
+fun{safe, inline} <=(i8,i8:bool) {
+    .asm.less.eq(i8,i8:bool)
+}
+
+//
+// checks if the second i8 is greater then the first
+//
+fun{safe, inline} >(i8,i8:bool) {
+    .asm.great(i8,i8:bool)
+}
+
+//
+// checks if the second i8 is greater or equal then the first
+//
+fun{safe, inline} >=(i8,i8:bool) {
+    .asm.great.eq(i8,i8:bool)
+}
+
+//
+// converts a i8 to a u8
+//
+fun{safe, inline} to(i8:u8) {
+    .unwrap
+}
+
+//
+// converts a i8 to a i16
+//
+fun{safe, inline} to(i8:i16) {
+    .asm.to(i8:i16)
+}
+
+//
+// converts a i8 to a i32
+//
+fun{safe, inline} to(i8:i32) {
+    .asm.to(i8:i32)
+}
+
+//
+// converts a i8 to a i64
+//
+fun{safe, inline} to(i8:i64) {
+    .asm.to(i8:i64)
+}
+
+//
+// converts a i8 to a u128
+//
+fun{safe, inline} to(i8:u128) {
+    .asm.to(i8:u128)
+}
+
+//
+// debugs i8 value
+//
+fun{safe, inline} debug(i8:) {
+    .asm.debug(i8:)
+}

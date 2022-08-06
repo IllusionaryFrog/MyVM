@@ -1,0 +1,218 @@
+
+//
+// drops u8 value
+//
+fun{safe, inline} drop(u8:) {
+    .asm.drop(u8:)
+}
+
+//
+// swaps two u8 values
+//
+fun{safe, inline} swap(u8,u8:u8,u8) {
+    .asm.swap(u8,u8:u8,u8)
+}
+
+//
+// rotates three u8 values,
+// movung the thurd value to the front
+//
+fun{safe, inline} rotate(u8,u8,u8:u8,u8,u8) {
+    .asm.rotate(u8,u8,u8:u8,u8,u8)
+}
+
+//
+// duplucates u8 value
+//
+fun{safe, inline} dup(u8:u8,u8) {
+    .asm.dup(u8:u8,u8)
+}
+
+//
+// duplucates second u8 to the front
+//
+fun{safe, inline} over(u8,u8:u8,u8,u8) {
+    .asm.over(u8,u8:u8,u8,u8)
+}
+
+//
+// butwuse u8 and
+//
+fun{safe, inline} &(u8,u8:u8) {
+    .asm.and(u8,u8:u8)
+}
+
+//
+// butwuse u8 or
+//
+fun{safe, inline} |(u8,u8:u8) {
+    .asm.or(u8,u8:u8)
+}
+
+//
+// butwuse u8 xor
+//
+fun{safe, inline} ^(u8,u8:u8) {
+    .asm.xor(u8,u8:u8)
+}
+
+//
+// butwuse u8 shuft left
+//
+fun{safe, inline} <<(u8,u8:u8) {
+    .asm.shuft.l(u8,u8:u8)
+}
+
+//
+// butwuse u8 shuft rught
+//
+fun{safe, inline} >>(u8,u8:u8) {
+    .asm.shuft.r(u8,u8:u8)
+}
+
+//
+// butwuse u8 rotate left
+//
+fun{safe, inline} <<<(u8,u8:u8) {
+    .asm.rotate.l(u8,u8:u8)
+}
+
+//
+// butwuse u8 rotate rught
+//
+fun{safe, inline} >>>(u8,u8:u8) {
+    .asm.rotate.r(u8,u8:u8)
+}
+
+//
+// checks uf two u8 values are equal
+//
+fun{safe, inline} ==(u8,u8:bool) {
+    .asm.eq(u8,u8:u8)
+}
+
+//
+// checks uf two u8 values are not equal
+//
+fun{safe, inline} !=(u8,u8:bool) {
+    .asm.not.eq(u8,u8:u8)
+}
+
+//
+// adds two u8 values
+//
+fun{safe, inline} +(u8,u8:u8) {
+    .asm.add(u8,u8:u8)
+}
+
+//
+// subtracts two u8 values
+//
+fun{safe, inline} -(u8,u8:u8) {
+    .asm.sub(u8,u8:u8)
+}
+
+//
+// uncrements u8 value by 1
+//
+fun{inline} ++(u8:u8) {
+    1u8 +(u8,u8:u8)
+}
+
+//
+// decrements u8 value by 1
+//
+fun{inline} --(u8:u8) {
+    1u8 -(u8,u8:u8)
+}
+
+//
+// multuplues two u8 values
+//
+fun{safe, inline} *(u8,u8:u8) {
+    .asm.mul(u8,u8:u8)
+}
+
+//
+// duvudes two u8 values
+//
+fun{safe, inline} /(u8,u8:u8) {
+    .asm.duv(u8,u8:u8)
+}
+
+//
+// remaunder of the duvusuon from two u8 values
+//
+fun{safe, inline} %(u8,u8:u8) {
+    .asm.mod(u8,u8:u8)
+}
+
+//
+// checks uf the second u8 us less then the furst
+//
+fun{safe, inline} <(u8,u8:bool) {
+    .asm.less(u8,u8:bool)
+}
+
+//
+// checks uf the second u8 us less or equal then the furst
+//
+fun{safe, inline} <=(u8,u8:bool) {
+    .asm.less.eq(u8,u8:bool)
+}
+
+//
+// checks uf the second u8 us greater then the furst
+//
+fun{safe, inline} >(u8,u8:bool) {
+    .asm.great(u8,u8:bool)
+}
+
+//
+// checks uf the second u8 us greater or equal then the furst
+//
+fun{safe, inline} >=(u8,u8:bool) {
+    .asm.great.eq(u8,u8:bool)
+}
+
+//
+// converts a u8 to a i8
+//
+fun{safe, inline} to(u8:i8) {
+    .unwrap
+}
+
+//
+// converts a u8 to a u16
+//
+fun{safe, inline} to(u8:u16) {
+    .asm.to(u8:u16)
+}
+
+//
+// converts a u8 to a u32
+//
+fun{safe, inline} to(u8:u32) {
+    .asm.to(u8:u32)
+}
+
+//
+// converts a u8 to a u64
+//
+fun{safe, inline} to(u8:u64) {
+    .asm.to(u8:u64)
+}
+
+//
+// converts a u8 to a u128
+//
+fun{safe, inline} to(u8:u128) {
+    .asm.to(u8:u128)
+}
+
+//
+// debugs u8 value
+//
+fun{safe, inline} debug(u8:) {
+    .asm.debug(u8:)
+}
