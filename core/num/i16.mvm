@@ -24,14 +24,14 @@ fun{safe, stc, inline} rotate(i16,i16,i16:i16,i16,i16) {
 //
 // duplicates i16 value
 //
-fun{safe, stc, inline} dup(i16:i16,i16) {
+fun{safe, stc, inline} .(i16:i16,i16) {
     .asm.dup(u16:u16,u16)
 }
 
 //
 // duplicates second i16 to the front
 //
-fun{safe, stc, inline} over(i16,i16:i16,i16,i16) {
+fun{safe, stc, inline} ..(i16,i16:i16,i16,i16) {
     .asm.over(u16,u16:u16,u16,u16)
 }
 

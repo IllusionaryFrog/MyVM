@@ -3,7 +3,7 @@ fun{safe, inline} print(string:) {
     .asm.write(string:u64) drop(u64:)
 }
 
-fun{safe, stc, inline} dup(string:string,string) {
+fun{safe, stc, inline} .(string:string,string) {
     .asm.dup(u128:u128,u128)
 }
 

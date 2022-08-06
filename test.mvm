@@ -9,13 +9,13 @@ fun{safe} main(:) {
     let msg2: string "Hey123\n";
 
     msg2
-    dup(string:string,string)
+    .(string:string,string)
     len(string:u64) debug(u64:)
     print(string:)
 
     5u64 to(u64:Ptr) to(Ptr:u64) drop(u64:)
 
-    msg1 print(string:)
+    (msg1 print(string:))
     msg2 print(string:)
 }
 

@@ -38,14 +38,14 @@ fun{safe, stc, inline} rotate(bool,bool,bool:bool,bool,bool) {
 //
 // duplicates bool value
 //
-fun{safe, stc, inline} dup(bool:bool,bool) {
+fun{safe, stc, inline} .(bool:bool,bool) {
     .asm.dup(u8:u8,u8)
 }
 
 //
 // duplicates second bool to the front
 //
-fun{safe, stc, inline} over(bool,bool:bool,bool,bool) {
+fun{safe, stc, inline} ..(bool,bool:bool,bool,bool) {
     .asm.over(u8,u8:u8,u8,u8)
 }
 

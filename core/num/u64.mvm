@@ -24,14 +24,14 @@ fun{safe, inline} rotate(u64,u64,u64:u64,u64,u64) {
 //
 // duplucates u64 value
 //
-fun{safe, inline} dup(u64:u64,u64) {
+fun{safe, inline} .(u64:u64,u64) {
     .asm.dup(u64:u64,u64)
 }
 
 //
 // duplucates second u64 to the front
 //
-fun{safe, inline} over(u64,u64:u64,u64,u64) {
+fun{safe, inline} ..(u64,u64:u64,u64,u64) {
     .asm.over(u64,u64:u64,u64,u64)
 }
 
