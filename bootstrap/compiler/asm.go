@@ -485,6 +485,16 @@ func parseInst(inst string) uint8 {
 		return 218
 	case "store_u128":
 		return 219
+	case "xor_u8":
+		return 240
+	case "xor_u16":
+		return 241
+	case "xor_u32":
+		return 242
+	case "xor_u64":
+		return 243
+	case "xor_u128":
+		return 244
 	case "debug":
 		return 250
 	case "debug_u8":
@@ -1152,6 +1162,21 @@ func argsInst(inst string) ([]parser.Typ, []parser.Typ) {
 	// 219
 	case "store_u128":
 		return args(parser.ADDR, parser.U128), args()
+	// 240
+	case "xor_u8":
+		return args(parser.U8, parser.U8), args(parser.U8)
+	// 241
+	case "xor_u16":
+		return args(parser.U16, parser.U16), args(parser.U16)
+	// 242
+	case "xor_u32":
+		return args(parser.U32, parser.U32), args(parser.U32)
+	// 243
+	case "xor_u64":
+		return args(parser.U64, parser.U64), args(parser.U64)
+	// 244
+	case "xor_u128":
+		return args(parser.U128, parser.U128), args(parser.U128)
 	// 250
 	case "debug":
 		return args(), args()

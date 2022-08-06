@@ -1569,7 +1569,38 @@ impl<const DEBUG: bool> VM<DEBUG> {
                     self.pc.inc_by(9)?;
                 }
 
-                240..=249 => break Err(Inter::InvalidInst),
+                240 => {
+                    let v2 = u8::from_le_bytes(self.pop()?);
+                    let v1 = u8::from_le_bytes(self.pop()?);
+                    self.push((v1 ^ v2).to_le_bytes())?;
+                    self.pc.inc_by(1)?;
+                }
+                241 => {
+                    let v2 = u16::from_le_bytes(self.pop()?);
+                    let v1 = u16::from_le_bytes(self.pop()?);
+                    self.push((v1 ^ v2).to_le_bytes())?;
+                    self.pc.inc_by(1)?;
+                }
+                242 => {
+                    let v2 = u32::from_le_bytes(self.pop()?);
+                    let v1 = u32::from_le_bytes(self.pop()?);
+                    self.push((v1 ^ v2).to_le_bytes())?;
+                    self.pc.inc_by(1)?;
+                }
+                243 => {
+                    let v2 = u64::from_le_bytes(self.pop()?);
+                    let v1 = u64::from_le_bytes(self.pop()?);
+                    self.push((v1 ^ v2).to_le_bytes())?;
+                    self.pc.inc_by(1)?;
+                }
+                244 => {
+                    let v2 = u128::from_le_bytes(self.pop()?);
+                    let v1 = u128::from_le_bytes(self.pop()?);
+                    self.push((v1 ^ v2).to_le_bytes())?;
+                    self.pc.inc_by(1)?;
+                }
+
+                245..=249 => break Err(Inter::InvalidInst),
 
                 250 => {
                     println!("{:?}", self);
