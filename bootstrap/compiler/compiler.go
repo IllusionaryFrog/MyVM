@@ -65,14 +65,13 @@ func getAll(ast parser.Ast, imported []string) ([]string, []*parser.Fun, []*pars
 func Compile(ast parser.Ast) []uint8 {
 	_, allFuns, allLets, allTypes := getAll(ast, []string{})
 	c := Ctx{}
-	c.types = make(map[string]*parser.Type)
+	c.types = parser.NewTypes()
 	for i := 0; i < len(allTypes); i++ {
 		typ := allTypes[i]
 		ident := typ.Ident.Content
-		if c.types[ident] != nil {
+		if c.types.Set(ident, typ) {
 			panic(fmt.Sprintf("the type '%s' already exists", ident))
 		}
-		c.types[ident] = typ
 	}
 
 	c.lets = make(map[string]*Let)
@@ -125,7 +124,6 @@ func (c *Ctx) makeFunIdent(ident string, inputs []parser.Typ, outputs []parser.T
 type FInfo struct {
 	inline          bool
 	asm             bool
-	tailCall        bool
 	unsafe          bool
 	safe            bool
 	simpleTypeCheck bool
@@ -147,15 +145,6 @@ func (f *Fun) getInfo(c *Ctx) *FInfo {
 	return f.info
 }
 
-func containsOpt(opts []*parser.Ident, opt string) bool {
-	for i := 0; i < len(opts); i++ {
-		if opts[i].Content == opt {
-			return true
-		}
-	}
-	return false
-}
-
 func (f *Fun) comInfo(c *Ctx) {
 	if f.info != nil {
 		return
@@ -163,26 +152,28 @@ func (f *Fun) comInfo(c *Ctx) {
 
 	f.info = &FInfo{}
 
-	f.info.asm = containsOpt(f.fun.Opts, "asm")
-	f.info.safe = containsOpt(f.fun.Opts, "safe")
-	f.info.unsafe = containsOpt(f.fun.Opts, "unsafe")
-	f.info.inline = containsOpt(f.fun.Opts, "inline")
-	f.info.simpleTypeCheck = containsOpt(f.fun.Opts, "stc")
+	for _, opt := range f.fun.Opts {
+		switch opt.Content {
+		case "asm":
+			f.info.asm = true
+		case "safe":
+			f.info.safe = true
+		case "unsafe":
+			f.info.unsafe = true
+		case "inline":
+			f.info.inline = true
+		case "stc":
+			f.info.simpleTypeCheck = true
+		default:
+			panic(fmt.Sprintf("unknown fun option '%s' for fun '%s'", opt.Content, f.makeFunIdent(c)))
+		}
+	}
 
 	if f.info.asm && !f.info.inline {
 		panic(fmt.Sprintf("the asm fun '%s' needs to also be inline", f.makeFunIdent(c)))
 	}
 	if f.info.asm && !(f.info.unsafe || f.info.safe) {
 		panic(fmt.Sprintf("the asm fun '%s' needs to either be unsafe or allow unsafe", f.makeFunIdent(c)))
-	}
-	if f.makeFunIdent(c) != c.start && len(f.fun.Block.Exprs) != 0 {
-		last := f.fun.Block.Exprs[len(f.fun.Block.Exprs)-1].AsCall()
-		if last != nil {
-			fun := c.funs[c.makeFunIdent(last.Ident.Content, last.Inputs, last.Outputs)]
-			if fun != nil {
-				f.info.tailCall = !fun.getInfo(c).inline
-			}
-		}
 	}
 	if f.info.simpleTypeCheck && !(f.info.unsafe || f.info.safe) {
 		panic(fmt.Sprintf("the simple type check fun '%s' needs to either be unsafe or allow unsafe", f.makeFunIdent(c)))
@@ -219,9 +210,7 @@ func (f *Fun) comInfo(c *Ctx) {
 	}
 
 	if !f.info.inline {
-		if !f.info.tailCall {
-			f.info.size += 1
-		}
+		f.info.size += 1
 		f.info.pos = c.getNextPos(f.info.size)
 	}
 }
@@ -354,7 +343,7 @@ type Ctx struct {
 	strs  string
 	lets  map[string]*Let
 	funs  map[string]*Fun
-	types map[string]*parser.Type
+	types *parser.Types
 	start string
 }
 
@@ -473,7 +462,7 @@ func (f *Fun) compile(c *Ctx) []uint8 {
 
 	if f.info.asm {
 		bytes = f.compileAsm(c)
-		if !f.info.inline && !f.info.tailCall {
+		if !f.info.inline {
 			bytes = append(bytes, 3)
 		}
 	} else {
@@ -485,7 +474,7 @@ func (f *Fun) compile(c *Ctx) []uint8 {
 			return lets[i].info.pos < lets[j].info.pos
 		})
 		for _, l := range lets {
-			bytes = append(bytes, f.compileExprs(c, l.let.Exprs, false)...)
+			bytes = append(bytes, f.compileExprs(c, l.let.Exprs)...)
 			buf := []uint8{}
 			pos := f.info.pos + f.info.size - f.info.letSize + l.info.pos
 			for off, size := range l.let.Typ.LoadSizes(c.types) {
@@ -511,10 +500,10 @@ func (f *Fun) compile(c *Ctx) []uint8 {
 			bytes = append(bytes, buf...)
 		}
 
-		bytes = append(bytes, f.compileExprs(c, f.fun.Block.Exprs, true)...)
+		bytes = append(bytes, f.compileExprs(c, f.fun.Block.Exprs)...)
 		if f.makeFunIdent(c) == c.start {
 			bytes = append(bytes, 1)
-		} else if !(f.info.inline || f.info.tailCall) {
+		} else if !f.info.inline {
 			bytes = append(bytes, 3)
 		}
 		bytes = append(bytes, make([]uint8, f.info.letSize, f.info.letSize)...)
@@ -522,7 +511,7 @@ func (f *Fun) compile(c *Ctx) []uint8 {
 	return bytes
 }
 
-func (f *Fun) compileExprs(c *Ctx, exprs []parser.Expr, canTailCall bool) []uint8 {
+func (f *Fun) compileExprs(c *Ctx, exprs []parser.Expr) []uint8 {
 	bytes := []uint8{}
 	for i := 0; i < len(exprs); i++ {
 		expr := exprs[i]
@@ -573,9 +562,6 @@ func (f *Fun) compileExprs(c *Ctx, exprs []parser.Expr, canTailCall bool) []uint
 				bytes = append(bytes, fun.compile(c)...)
 			} else {
 				buf := []uint8{229, 0, 0, 0, 0, 0, 0, 0, 0}
-				if canTailCall && f.info.tailCall {
-					buf[0] = 220
-				}
 				putUvarint(buf[1:], fun.info.pos)
 				bytes = append(bytes, buf...)
 
@@ -607,17 +593,17 @@ func (f *Fun) compileExprs(c *Ctx, exprs []parser.Expr, canTailCall bool) []uint
 			putUvarint(buf[10:], uint64(len(str.Content)))
 			bytes = append(bytes, buf...)
 		} else if ifel != nil {
-			bytes = append(bytes, f.compileExprs(c, ifel.Con, false)...)
+			bytes = append(bytes, f.compileExprs(c, ifel.Con)...)
 
 			buf := []uint8{226, 0, 0, 0, 0, 0, 0, 0, 0}
 			putUvarint(buf[1:], f.sizeOfExprs(c, ifel.Else)+18)
 			bytes = append(bytes, buf...)
-			bytes = append(bytes, f.compileExprs(c, ifel.Else, false)...)
+			bytes = append(bytes, f.compileExprs(c, ifel.Else)...)
 
 			buf = []uint8{221, 0, 0, 0, 0, 0, 0, 0, 0}
 			putUvarint(buf[1:], f.sizeOfExprs(c, ifel.Exprs)+9)
 			bytes = append(bytes, buf...)
-			bytes = append(bytes, f.compileExprs(c, ifel.Exprs, false)...)
+			bytes = append(bytes, f.compileExprs(c, ifel.Exprs)...)
 		} else if unwrap != nil {
 		} else if wrap != nil {
 		} else if addr != nil {

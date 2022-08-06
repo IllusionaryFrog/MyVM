@@ -3,7 +3,7 @@
 
 - 000: `nop`        (:)
 - 001: `halt`       (:)
-- 002: `call`       (addr:)
+- 002: `call`       (u64:)
 - 003: `return`     (:)
 - 004: `inter`      (:)
 - 005: `alloc`      (u64:u64)
@@ -100,14 +100,14 @@
 - 088: `not_eq_u64`     (u64,u64:bool)
 - 089: `not_eq_u128`    (u128,u128:bool)
 
-- 090: `jump`       (addr:)
-- 091: `jump_f`     (addr:)
-- 092: `jump_b`     (addr:)
+- 090: `jump`       (u64:)
+- 091: `jump_f`     (u64:)
+- 092: `jump_b`     (u64:)
 - 093: --
 - 094: `sleep`      (u64:)
-- 095: `branch`     (addr,bool:)
-- 096: `branch_f`   (addr,bool:)
-- 097: `branch_b`   (addr,bool:)
+- 095: `branch`     (u64,bool:)
+- 096: `branch_f`   (u64,bool:)
+- 097: `branch_b`   (u64,bool:)
 - 098: --
 - 099: --
 
@@ -232,16 +232,16 @@
 - 208: `u128_to_u32`    (u128:u32)
 - 209: `u128_to_u64`    (u128:u64)
 
-- 210: `load_u8`      (addr:u8)
-- 211: `load_u16`     (addr:u16)
-- 212: `load_u32`     (addr:u32)
-- 213: `load_u64`     (addr:u64)
-- 214: `load_u128`    (addr:u128)
-- 215: `store_u8`     (addr,u8:)
-- 216: `store_u16`    (addr,u16:)
-- 217: `store_u32`    (addr,u32:)
-- 218: `store_u64`    (addr,u64:)
-- 219: `store_u128`   (addr,u128:)
+- 210: `load_u8`      (u64:u8)
+- 211: `load_u16`     (u64:u16)
+- 212: `load_u32`     (u64:u32)
+- 213: `load_u64`     (u64:u64)
+- 214: `load_u128`    (u64:u128)
+- 215: `store_u8`     (u64,u8:)
+- 216: `store_u16`    (u64,u16:)
+- 217: `store_u32`    (u64,u32:)
+- 218: `store_u64`    (u64,u64:)
+- 219: `store_u128`   (u64,u128:)
 
 - 220: `jump_imm`       (:)
 - 221: `jump_imm_f`     (:)

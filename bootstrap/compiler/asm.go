@@ -534,7 +534,7 @@ func argsInst(inst string) ([]parser.Typ, []parser.Typ) {
 		return args(), args()
 	// 002
 	case "call":
-		return args(parser.ADDR), args()
+		return args(parser.U64), args()
 	// 003
 	case "return":
 		return args(), args()
@@ -783,25 +783,25 @@ func argsInst(inst string) ([]parser.Typ, []parser.Typ) {
 		return args(parser.U128, parser.U128), args(parser.BOOL)
 	// 090
 	case "jump":
-		return args(parser.ADDR), args()
+		return args(parser.U64), args()
 	// 091
 	case "jump_f":
-		return args(parser.ADDR), args()
+		return args(parser.U64), args()
 	// 092
 	case "jump_b":
-		return args(parser.ADDR), args()
+		return args(parser.U64), args()
 	// 094
 	case "sleep":
 		return args(parser.U64), args()
 	// 095
 	case "branch":
-		return args(parser.ADDR, parser.BOOL), args()
+		return args(parser.U64, parser.BOOL), args()
 	// 096
 	case "branch_f":
-		return args(parser.ADDR, parser.BOOL), args()
+		return args(parser.U64, parser.BOOL), args()
 	// 097
 	case "branch_b":
-		return args(parser.ADDR, parser.BOOL), args()
+		return args(parser.U64, parser.BOOL), args()
 	// 100
 	case "add_u8":
 		return args(parser.U8, parser.U8), args(parser.U8)
@@ -1134,34 +1134,34 @@ func argsInst(inst string) ([]parser.Typ, []parser.Typ) {
 		return args(parser.U128), args(parser.U64)
 	// 210
 	case "load_u8":
-		return args(parser.ADDR), args(parser.U8)
+		return args(parser.U64), args(parser.U8)
 	// 211
 	case "load_u16":
-		return args(parser.ADDR), args(parser.U16)
+		return args(parser.U64), args(parser.U16)
 	// 212
 	case "load_u32":
-		return args(parser.ADDR), args(parser.U32)
+		return args(parser.U64), args(parser.U32)
 	// 213
 	case "load_u64":
-		return args(parser.ADDR), args(parser.U64)
+		return args(parser.U64), args(parser.U64)
 	// 214
 	case "load_u128":
-		return args(parser.ADDR), args(parser.U128)
+		return args(parser.U64), args(parser.U128)
 	// 215
 	case "store_u8":
-		return args(parser.ADDR, parser.U8), args()
+		return args(parser.U64, parser.U8), args()
 	// 216
 	case "store_u16":
-		return args(parser.ADDR, parser.U16), args()
+		return args(parser.U64, parser.U16), args()
 	// 217
 	case "store_u32":
-		return args(parser.ADDR, parser.U32), args()
+		return args(parser.U64, parser.U32), args()
 	// 218
 	case "store_u64":
-		return args(parser.ADDR, parser.U64), args()
+		return args(parser.U64, parser.U64), args()
 	// 219
 	case "store_u128":
-		return args(parser.ADDR, parser.U128), args()
+		return args(parser.U64, parser.U128), args()
 	// 240
 	case "xor_u8":
 		return args(parser.U8, parser.U8), args(parser.U8)

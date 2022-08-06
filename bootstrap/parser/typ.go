@@ -1,5 +1,7 @@
 package parser
 
+import "fmt"
+
 type Ast struct {
 	Imports []*Import
 	Lets    []*Let
@@ -28,11 +30,36 @@ func (e *Ident) AsIdent() *Ident {
 	return e
 }
 
+type Types struct {
+	ts map[string]*Type
+}
+
+func NewTypes() *Types {
+	ts := make(map[string]*Type)
+	return &Types{ts: ts}
+}
+
+func (ts *Types) Set(ident string, typ *Type) bool {
+	if ts.ts[ident] != nil {
+		return true
+	}
+	ts.ts[ident] = typ
+	return false
+}
+
+func (ts *Types) Get(ident string) *Type {
+	typ := ts.ts[ident]
+	if typ == nil {
+		panic(fmt.Sprintf("unknown type '%s'", ident))
+	}
+	return typ
+}
+
 type Typ interface {
-	String(map[string]*Type) string
-	Size(map[string]*Type) int
-	Sub(map[string]*Type) []Typ
-	LoadSizes(map[string]*Type) []int
+	String(*Types) string
+	Size(*Types) int
+	Sub(*Types) []Typ
+	LoadSizes(*Types) []int
 }
 
 type Custom struct {
@@ -41,7 +68,7 @@ type Custom struct {
 
 type Builtin string
 
-func (b Builtin) LoadSizes(map[string]*Type) []int {
+func (b Builtin) LoadSizes(*Types) []int {
 	switch b {
 	case U8, I8, BOOL:
 		return []int{1}
@@ -49,7 +76,7 @@ func (b Builtin) LoadSizes(map[string]*Type) []int {
 		return []int{2}
 	case U32, I32:
 		return []int{4}
-	case U64, I64, ADDR:
+	case U64, I64:
 		return []int{8}
 	case U128, I128:
 		return []int{16}
@@ -60,11 +87,11 @@ func (b Builtin) LoadSizes(map[string]*Type) []int {
 	}
 }
 
-func (b Builtin) String(_ map[string]*Type) string {
+func (b Builtin) String(*Types) string {
 	return string(b)
 }
 
-func (b Builtin) Size(_ map[string]*Type) int {
+func (b Builtin) Size(*Types) int {
 	switch b {
 	case U8, I8, BOOL:
 		return 1
@@ -72,7 +99,7 @@ func (b Builtin) Size(_ map[string]*Type) int {
 		return 2
 	case U32, I32:
 		return 4
-	case U64, I64, ADDR:
+	case U64, I64:
 		return 8
 	case U128, I128, STRING:
 		return 16
@@ -81,7 +108,7 @@ func (b Builtin) Size(_ map[string]*Type) int {
 	}
 }
 
-func (b Builtin) Sub(_ map[string]*Type) []Typ {
+func (b Builtin) Sub(*Types) []Typ {
 	switch b {
 	case U8:
 		return []Typ{I8}
@@ -97,8 +124,6 @@ func (b Builtin) Sub(_ map[string]*Type) []Typ {
 		return []Typ{U32}
 	case U64:
 		return []Typ{I64}
-	case I64, ADDR:
-		return []Typ{U64}
 	case U128:
 		return []Typ{I128}
 	case I128:
@@ -116,28 +141,28 @@ type Type struct {
 	Fields []Typ
 }
 
-func (t *Custom) String(ts map[string]*Type) string {
-	return ts[t.Ident].Ident.Content
+func (t *Custom) String(ts *Types) string {
+	return ts.Get(t.Ident).Ident.Content
 }
 
-func (t *Custom) LoadSizes(ts map[string]*Type) []int {
+func (t *Custom) LoadSizes(ts *Types) []int {
 	sizes := []int{}
-	for _, f := range ts[t.Ident].Fields {
+	for _, f := range ts.Get(t.Ident).Fields {
 		sizes = append(sizes, f.LoadSizes(ts)...)
 	}
 	return sizes
 }
 
-func (t *Custom) Size(ts map[string]*Type) int {
+func (t *Custom) Size(ts *Types) int {
 	size := 0
-	for _, f := range ts[t.Ident].Fields {
+	for _, f := range ts.Get(t.Ident).Fields {
 		size += f.Size(ts)
 	}
 	return size
 }
 
-func (t *Custom) Sub(ts map[string]*Type) []Typ {
-	return ts[t.Ident].Fields
+func (t *Custom) Sub(ts *Types) []Typ {
+	return ts.Get(t.Ident).Fields
 }
 
 const (
@@ -154,7 +179,6 @@ const (
 
 	STRING Builtin = "STRING"
 	BOOL   Builtin = "BOOL"
-	ADDR   Builtin = "ADDR"
 )
 
 type Block struct {

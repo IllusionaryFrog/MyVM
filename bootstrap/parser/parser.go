@@ -150,8 +150,6 @@ func parseTyp(l *lexer.Lexer) Typ {
 		return STRING
 	case "bool":
 		return BOOL
-	case "addr":
-		return ADDR
 	default:
 		return &Custom{Ident: ident.Content}
 	}

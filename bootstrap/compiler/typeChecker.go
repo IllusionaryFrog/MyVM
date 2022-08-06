@@ -141,7 +141,7 @@ func (f *Fun) checkStackExprs(c *Ctx, stack []parser.Typ, exprs []parser.Expr) [
 			}
 			stack = append(nstack, wrap.Typ)
 		} else if addr != nil {
-			stack = append(stack, parser.ADDR)
+			stack = append(stack, parser.U64)
 		} else {
 			panic("unreachable")
 		}
