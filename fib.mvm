@@ -1,5 +1,5 @@
 
-import "std/prelude.mvm";
+import "core/prelude.mvm";
 
 fun main(:) {
     40u64 fib(u64:u64) debug(u64:)

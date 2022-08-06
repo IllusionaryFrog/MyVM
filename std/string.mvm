@@ -1,8 +1,0 @@
-
-fun{allow_unsafe, simple_type_check, inline} dup(string:string,string) {
-    dup(u128:u128,u128)
-}
-
-fun{inline} len(string:u64) {
-    unwrap swap(u64,u64:u64,u64) drop(u64:)
-}

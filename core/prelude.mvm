@@ -1,0 +1,35 @@
+
+import "asm.mvm";
+import "bool.mvm";
+import "num/prelude.mvm";
+import "string/prelude.mvm";
+
+fun{unsafe} .start(string:) {
+    let args: string;
+
+    .addr(.ih(:))
+    .asm.pop.ih(u64:)
+
+    4000u64
+    .asm.dup(u64:u64,u64)
+    .asm.alloc(u64:u64)
+    .asm.add(u64,u64:u64)
+    .asm.pop.sp(u64:)
+
+    1000u64
+    .asm.dup(u64:u64,u64)
+    .asm.alloc(u64:u64)
+    .asm.add(u64,u64:u64)
+    .asm.pop.cs(u64:)
+
+    "args: '"   print(string:)
+    args        print(string:)
+    "'\n\n"     print(string:)
+
+    main(:)
+}
+
+fun{unsafe} .ih(:) {
+    .asm.debug(:)
+    .asm.halt(:)
+}
