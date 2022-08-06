@@ -26,12 +26,17 @@ func getAll(ast parser.Ast, imported []string) ([]string, []*parser.Fun, []*pars
 	lets := ast.Lets
 	types := ast.Types
 	for _, imp := range ast.Imports {
+		currPath, err := filepath.Abs(".")
+		if err != nil {
+			panic(fmt.Sprintf("invalid import path '%s'", imp.Path.Content))
+		}
 		path, err := filepath.Abs(imp.Path.Content)
 		if err != nil {
 			panic(fmt.Sprintf("invalid import path '%s'", imp.Path.Content))
 		}
 		base := filepath.Dir(path)
 		if os.Chdir(base) != nil {
+			fmt.Println(path, base)
 			panic(fmt.Sprintf("invalid import path '%s'", imp.Path.Content))
 		}
 		if !containsPath(path, imported) {
@@ -49,7 +54,9 @@ func getAll(ast parser.Ast, imported []string) ([]string, []*parser.Fun, []*pars
 			funs = append(funs, newFuns...)
 			lets = append(lets, newLets...)
 			types = append(types, newTypes...)
-
+		}
+		if os.Chdir(currPath) != nil {
+			panic(fmt.Sprintf("invalid import path '%s'", imp.Path.Content))
 		}
 	}
 	return imported, funs, lets, types
@@ -120,7 +127,7 @@ type FInfo struct {
 	asm             bool
 	tailCall        bool
 	unsafe          bool
-	allowUnsafe     bool
+	safe            bool
 	simpleTypeCheck bool
 	letSize         uint64
 	size            uint64
@@ -157,15 +164,15 @@ func (f *Fun) comInfo(c *Ctx) {
 	f.info = &FInfo{}
 
 	f.info.asm = containsOpt(f.fun.Opts, "asm")
-	f.info.inline = containsOpt(f.fun.Opts, "inline")
+	f.info.safe = containsOpt(f.fun.Opts, "safe")
 	f.info.unsafe = containsOpt(f.fun.Opts, "unsafe")
-	f.info.allowUnsafe = containsOpt(f.fun.Opts, "allow_unsafe")
-	f.info.simpleTypeCheck = containsOpt(f.fun.Opts, "simple_type_check")
+	f.info.inline = containsOpt(f.fun.Opts, "inline")
+	f.info.simpleTypeCheck = containsOpt(f.fun.Opts, "stc")
 
 	if f.info.asm && !f.info.inline {
 		panic(fmt.Sprintf("the asm fun '%s' needs to also be inline", f.makeFunIdent(c)))
 	}
-	if f.info.asm && !(f.info.unsafe || f.info.allowUnsafe) {
+	if f.info.asm && !(f.info.unsafe || f.info.safe) {
 		panic(fmt.Sprintf("the asm fun '%s' needs to either be unsafe or allow unsafe", f.makeFunIdent(c)))
 	}
 	if f.makeFunIdent(c) != c.start && len(f.fun.Block.Exprs) != 0 {
@@ -177,7 +184,7 @@ func (f *Fun) comInfo(c *Ctx) {
 			}
 		}
 	}
-	if f.info.simpleTypeCheck && !(f.info.unsafe || f.info.allowUnsafe) {
+	if f.info.simpleTypeCheck && !(f.info.unsafe || f.info.safe) {
 		panic(fmt.Sprintf("the simple type check fun '%s' needs to either be unsafe or allow unsafe", f.makeFunIdent(c)))
 	}
 
@@ -227,10 +234,10 @@ func (f *Fun) sizeOfExprs(c *Ctx, exprs []parser.Expr) uint64 {
 		call := expr.AsCall()
 		number := expr.AsNumber()
 		str := expr.AsString()
-		char := expr.AsChar()
 		ifel := expr.AsIf()
 		unwrap := expr.AsUnwrap()
 		wrap := expr.AsWrap()
+		addr := expr.AsAddr()
 		if ident != nil {
 			ident := ident.Content
 			let := f.info.lets[ident]
@@ -252,7 +259,7 @@ func (f *Fun) sizeOfExprs(c *Ctx, exprs []parser.Expr) uint64 {
 				panic(fmt.Sprintf("fun '%s' can't call '%s'", f.makeFunIdent(c), c.start))
 			}
 			finfo := fun.getInfo(c)
-			if finfo.unsafe && !(f.info.unsafe || f.info.allowUnsafe) {
+			if finfo.unsafe && !(f.info.unsafe || f.info.safe) {
 				panic(fmt.Sprintf("fun '%s' can't call unsafe fun '%s'", f.makeFunIdent(c), ident))
 			}
 			if finfo.inline {
@@ -265,14 +272,41 @@ func (f *Fun) sizeOfExprs(c *Ctx, exprs []parser.Expr) uint64 {
 		} else if str != nil {
 			c.pushStr(str.Content)
 			size += 1 + 8 + 1 + 8
-		} else if char != nil {
-			size += 1 + 1
 		} else if ifel != nil {
 			size += f.sizeOfExprs(c, ifel.Con) + 1 + 8
 			size += f.sizeOfExprs(c, ifel.Else) + 1 + 8
 			size += f.sizeOfExprs(c, ifel.Exprs)
 		} else if unwrap != nil {
+			if !(f.info.unsafe || f.info.safe) {
+				panic(fmt.Sprintf("fun '%s' can't call unsafe .unwrap", f.makeFunIdent(c)))
+			}
 		} else if wrap != nil {
+			if !(f.info.unsafe || f.info.safe) {
+				panic(fmt.Sprintf("fun '%s' can't call unsafe .wrap", f.makeFunIdent(c)))
+			}
+		} else if addr != nil {
+			if !(f.info.unsafe || f.info.safe) {
+				panic(fmt.Sprintf("fun '%s' can't call unsafe .addr", f.makeFunIdent(c)))
+			}
+			if addr.Ident != nil {
+				ident := addr.Ident.Content
+				if f.info.lets[ident] == nil {
+					let := c.lets[ident]
+					if let == nil {
+						panic(fmt.Sprintf("unknown ident '%s'", ident))
+					}
+					let.getInfo(c)
+				}
+			} else {
+				call := addr.Call
+				ident := c.makeFunIdent(call.Ident.Content, call.Inputs, call.Outputs)
+				fun := c.funs[ident]
+				if fun == nil {
+					panic(fmt.Sprintf("unknown fun '%s'", ident))
+				}
+				fun.getInfo(c)
+			}
+			size += 1 + 8
 		} else {
 			panic("unreachable")
 		}
@@ -332,19 +366,19 @@ func (c *Ctx) compile() []uint8 {
 	bytes, saddr := initialBytes()
 	c.size = uint64(len(bytes))
 
-	c.start = c.makeFunIdent("__start", []parser.Typ{parser.STRING}, []parser.Typ{})
+	c.start = c.makeFunIdent(".start", []parser.Typ{parser.STRING}, []parser.Typ{})
 	start := c.funs[c.start]
 
 	if start == nil {
-		panic(fmt.Sprintln("missing __start(string:) fun"))
+		panic(fmt.Sprintln("missing .start(string:) fun"))
 	}
 
 	sinfo := start.getInfo(c)
 	if sinfo.inline {
-		panic(fmt.Sprintln("__start(string:) can't be an inline fun"))
+		panic(fmt.Sprintln(".start(string:) can't be an inline fun"))
 	}
 	if !sinfo.unsafe {
-		panic(fmt.Sprintln("__start(string:) needs to be unsafe"))
+		panic(fmt.Sprintln(".start(string:) needs to be unsafe"))
 	}
 
 	funs := []*Fun{}
@@ -406,15 +440,9 @@ func (l *Let) staticCompile(c *Ctx) []uint8 {
 	}
 	expr := l.let.Exprs[0]
 	var bytes []uint8
-	char := expr.AsChar()
 	number := expr.AsNumber()
 	str := expr.AsString()
-	if char != nil {
-		if len(char.Content) != 1 {
-			panic(fmt.Sprintf("the char '%s' can only contain one byte", char.Content))
-		}
-		bytes = []uint8{char.Content[0]}
-	} else if number != nil {
+	if number != nil {
 		num, err := strconv.ParseUint(number.Content, number.Base, number.Size*8)
 		bytes = make([]uint8, l.info.size)
 		if err != nil {
@@ -429,7 +457,7 @@ func (l *Let) staticCompile(c *Ctx) []uint8 {
 		putUvarint(buf[8:], uint64(len(str.Content)))
 		bytes = append(bytes, buf...)
 	} else {
-		panic(fmt.Sprintf("let '%s' can only have a char, string, or number expr", l.let.Ident.Content))
+		panic(fmt.Sprintf("let '%s' can only have a string or number expr", l.let.Ident.Content))
 	}
 	return bytes
 }
@@ -502,10 +530,10 @@ func (f *Fun) compileExprs(c *Ctx, exprs []parser.Expr, canTailCall bool) []uint
 		call := expr.AsCall()
 		number := expr.AsNumber()
 		str := expr.AsString()
-		char := expr.AsChar()
 		ifel := expr.AsIf()
 		unwrap := expr.AsUnwrap()
 		wrap := expr.AsWrap()
+		addr := expr.AsAddr()
 		if ident != nil {
 			ident := ident.Content
 			let := f.info.lets[ident]
@@ -578,11 +606,6 @@ func (f *Fun) compileExprs(c *Ctx, exprs []parser.Expr, canTailCall bool) []uint
 			putUvarint(buf[1:9], ptr)
 			putUvarint(buf[10:], uint64(len(str.Content)))
 			bytes = append(bytes, buf...)
-		} else if char != nil {
-			if len(char.Content) != 1 {
-				panic(fmt.Sprintf("the char '%s' can only contain one byte", char.Content))
-			}
-			bytes = append(bytes, 10, char.Content[0])
 		} else if ifel != nil {
 			bytes = append(bytes, f.compileExprs(c, ifel.Con, false)...)
 
@@ -597,6 +620,25 @@ func (f *Fun) compileExprs(c *Ctx, exprs []parser.Expr, canTailCall bool) []uint
 			bytes = append(bytes, f.compileExprs(c, ifel.Exprs, false)...)
 		} else if unwrap != nil {
 		} else if wrap != nil {
+		} else if addr != nil {
+			var pos uint64
+			if addr.Ident != nil {
+				ident := addr.Ident.Content
+				let := f.info.lets[ident]
+				if let == nil {
+					let = c.lets[ident]
+					pos = let.info.pos
+				} else {
+					pos = f.info.pos + f.info.size - f.info.letSize + let.info.pos
+				}
+			} else {
+				call = addr.Call
+				ident := c.makeFunIdent(call.Ident.Content, call.Inputs, call.Outputs)
+				pos = c.funs[ident].info.pos
+			}
+			buf := []uint8{13, 0, 0, 0, 0, 0, 0, 0, 0}
+			putUvarint(buf[1:], pos)
+			bytes = append(bytes, buf...)
 		} else {
 			panic("unreachable")
 		}

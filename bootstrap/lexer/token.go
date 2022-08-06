@@ -9,14 +9,13 @@ const (
 	COLON     Typ = ":"
 	SEMICOLON Typ = ";"
 	COMMA     Typ = ","
-	EQUALS    Typ = "="
-	COMMENT   Typ = "#"
 	LPAREN    Typ = "("
 	RPAREN    Typ = ")"
 	LBRACE    Typ = "{"
 	RBRACE    Typ = "}"
 
-	CHAR   Typ = "CHAR"
+	COMMENT Typ = "//"
+
 	STRING Typ = "STRING"
 	NUMBER Typ = "NUMBER"
 
@@ -28,6 +27,7 @@ const (
 	UNWRAP Typ = "UNWRAP"
 	TYPE   Typ = "TYPE"
 	WRAP   Typ = "WRAP"
+	ADDR   Typ = "ADDR"
 
 	IDENT Typ = "IDENT"
 )

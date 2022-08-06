@@ -81,16 +81,6 @@ func parseInst(inst string) uint8 {
 		return 8
 	case "write_file":
 		return 9
-	case "push_imm_u8":
-		return 10
-	case "push_imm_u16":
-		return 11
-	case "push_imm_u32":
-		return 12
-	case "push_imm_u64":
-		return 13
-	case "push_imm_u128":
-		return 14
 	case "pop_sp":
 		return 15
 	case "pop_cs":
@@ -111,15 +101,15 @@ func parseInst(inst string) uint8 {
 		return 23
 	case "drop_u128":
 		return 24
-	case "negate_u8":
+	case "negate_i8":
 		return 25
-	case "negate_u16":
+	case "negate_i16":
 		return 26
-	case "negate_u32":
+	case "negate_i32":
 		return 27
-	case "negate_u64":
+	case "negate_i64":
 		return 28
-	case "negate_u128":
+	case "negate_i128":
 		return 29
 	case "swap_u8":
 		return 30
@@ -495,42 +485,6 @@ func parseInst(inst string) uint8 {
 		return 218
 	case "store_u128":
 		return 219
-	case "jump_imm":
-		return 220
-	case "jump_imm_f":
-		return 221
-	case "jump_imm_b":
-		return 222
-	case "sleep_imm":
-		return 224
-	case "branch_imm":
-		return 225
-	case "branch_imm_f":
-		return 226
-	case "branch_imm_b":
-		return 227
-	case "call_imm":
-		return 229
-	case "load_imm_u8":
-		return 230
-	case "load_imm_u16":
-		return 231
-	case "load_imm_u32":
-		return 232
-	case "load_imm_u64":
-		return 233
-	case "load_imm_u128":
-		return 234
-	case "store_imm_u8":
-		return 235
-	case "store_imm_u16":
-		return 236
-	case "store_imm_u32":
-		return 237
-	case "store_imm_u64":
-		return 238
-	case "store_imm_u128":
-		return 239
 	case "debug":
 		return 250
 	case "debug_u8":
@@ -570,7 +524,7 @@ func argsInst(inst string) ([]parser.Typ, []parser.Typ) {
 		return args(), args()
 	// 002
 	case "call":
-		return args(parser.U64), args()
+		return args(parser.ADDR), args()
 	// 003
 	case "return":
 		return args(), args()
@@ -592,21 +546,6 @@ func argsInst(inst string) ([]parser.Typ, []parser.Typ) {
 	// 009
 	case "write_file":
 		return args(parser.STRING, parser.STRING), args(parser.U64)
-	// 010
-	case "push_imm_u8":
-		return args(), args(parser.U8)
-	// 011
-	case "push_imm_u16":
-		return args(), args(parser.U16)
-	// 012
-	case "push_imm_u32":
-		return args(), args(parser.U32)
-	// 013
-	case "push_imm_u64":
-		return args(), args(parser.U64)
-	// 014
-	case "push_imm_u128":
-		return args(), args(parser.U128)
 	// 015
 	case "pop_sp":
 		return args(parser.U64), args()
@@ -638,19 +577,19 @@ func argsInst(inst string) ([]parser.Typ, []parser.Typ) {
 	case "drop_u128":
 		return args(parser.U128), args()
 	// 025
-	case "negate_u8":
+	case "negate_i8":
 		return args(parser.U8), args(parser.I8)
 	// 026
-	case "negate_u16":
+	case "negate_i16":
 		return args(parser.U16), args(parser.I16)
 	// 027
-	case "negate_u32":
+	case "negate_i32":
 		return args(parser.U32), args(parser.I32)
 	// 028
-	case "negate_u64":
+	case "negate_i64":
 		return args(parser.U64), args(parser.I64)
 	// 029
-	case "negate_u128":
+	case "negate_i128":
 		return args(parser.U128), args(parser.I128)
 	// 030
 	case "swap_u8":
@@ -804,55 +743,55 @@ func argsInst(inst string) ([]parser.Typ, []parser.Typ) {
 		return args(parser.U128, parser.U8), args(parser.U128)
 	// 080
 	case "eq_u8":
-		return args(parser.U8, parser.U8), args(parser.U8)
+		return args(parser.U8, parser.U8), args(parser.BOOL)
 	// 081
 	case "eq_u16":
-		return args(parser.U16, parser.U16), args(parser.U8)
+		return args(parser.U16, parser.U16), args(parser.BOOL)
 	// 082
 	case "eq_u32":
-		return args(parser.U32, parser.U32), args(parser.U8)
+		return args(parser.U32, parser.U32), args(parser.BOOL)
 	// 083
 	case "eq_u64":
-		return args(parser.U64, parser.U64), args(parser.U8)
+		return args(parser.U64, parser.U64), args(parser.BOOL)
 	// 084
 	case "eq_u128":
-		return args(parser.U128, parser.U128), args(parser.U8)
+		return args(parser.U128, parser.U128), args(parser.BOOL)
 	// 085
 	case "not_eq_u8":
-		return args(parser.U8, parser.U8), args(parser.U8)
+		return args(parser.U8, parser.U8), args(parser.BOOL)
 	// 086
 	case "not_eq_u16":
-		return args(parser.U16, parser.U16), args(parser.U8)
+		return args(parser.U16, parser.U16), args(parser.BOOL)
 	// 087
 	case "not_eq_u32":
-		return args(parser.U32, parser.U32), args(parser.U8)
+		return args(parser.U32, parser.U32), args(parser.BOOL)
 	// 088
 	case "not_eq_u64":
-		return args(parser.U64, parser.U64), args(parser.U8)
+		return args(parser.U64, parser.U64), args(parser.BOOL)
 	// 089
 	case "not_eq_u128":
-		return args(parser.U128, parser.U128), args(parser.U8)
+		return args(parser.U128, parser.U128), args(parser.BOOL)
 	// 090
 	case "jump":
-		return args(parser.U64), args()
+		return args(parser.ADDR), args()
 	// 091
 	case "jump_f":
-		return args(parser.U64), args()
+		return args(parser.ADDR), args()
 	// 092
 	case "jump_b":
-		return args(parser.U64), args()
+		return args(parser.ADDR), args()
 	// 094
 	case "sleep":
 		return args(parser.U64), args()
 	// 095
 	case "branch":
-		return args(parser.U64, parser.U8), args()
+		return args(parser.ADDR, parser.BOOL), args()
 	// 096
 	case "branch_f":
-		return args(parser.U64, parser.U8), args()
+		return args(parser.ADDR, parser.BOOL), args()
 	// 097
 	case "branch_b":
-		return args(parser.U64, parser.U8), args()
+		return args(parser.ADDR, parser.BOOL), args()
 	// 100
 	case "add_u8":
 		return args(parser.U8, parser.U8), args(parser.U8)
@@ -1005,124 +944,124 @@ func argsInst(inst string) ([]parser.Typ, []parser.Typ) {
 		return args(parser.I128, parser.I128), args(parser.I128)
 	// 150
 	case "less_u8":
-		return args(parser.U8, parser.U8), args(parser.U8)
+		return args(parser.U8, parser.U8), args(parser.BOOL)
 	// 151
 	case "less_u16":
-		return args(parser.U16, parser.U16), args(parser.U8)
+		return args(parser.U16, parser.U16), args(parser.BOOL)
 	// 152
 	case "less_u32":
-		return args(parser.U32, parser.U32), args(parser.U8)
+		return args(parser.U32, parser.U32), args(parser.BOOL)
 	// 153
 	case "less_u64":
-		return args(parser.U64, parser.U64), args(parser.U8)
+		return args(parser.U64, parser.U64), args(parser.BOOL)
 	// 154
 	case "less_u128":
-		return args(parser.U128, parser.U128), args(parser.U8)
+		return args(parser.U128, parser.U128), args(parser.BOOL)
 	// 155
 	case "less_i8":
-		return args(parser.I8, parser.I8), args(parser.U8)
+		return args(parser.I8, parser.I8), args(parser.BOOL)
 	// 156
 	case "less_i16":
-		return args(parser.I16, parser.I16), args(parser.U8)
+		return args(parser.I16, parser.I16), args(parser.BOOL)
 	// 157
 	case "less_i32":
-		return args(parser.I32, parser.I32), args(parser.U8)
+		return args(parser.I32, parser.I32), args(parser.BOOL)
 	// 158
 	case "less_i64":
-		return args(parser.I64, parser.I64), args(parser.U8)
+		return args(parser.I64, parser.I64), args(parser.BOOL)
 	// 159
 	case "less_i128":
-		return args(parser.I128, parser.I128), args(parser.U8)
+		return args(parser.I128, parser.I128), args(parser.BOOL)
 	// 160
 	case "less_eq_u8":
-		return args(parser.U8, parser.U8), args(parser.U8)
+		return args(parser.U8, parser.U8), args(parser.BOOL)
 	// 161
 	case "less_eq_u16":
-		return args(parser.U16, parser.U16), args(parser.U8)
+		return args(parser.U16, parser.U16), args(parser.BOOL)
 	// 162
 	case "less_eq_u32":
-		return args(parser.U32, parser.U32), args(parser.U8)
+		return args(parser.U32, parser.U32), args(parser.BOOL)
 	// 163
 	case "less_eq_u64":
-		return args(parser.U64, parser.U64), args(parser.U8)
+		return args(parser.U64, parser.U64), args(parser.BOOL)
 	// 164
 	case "less_eq_u128":
-		return args(parser.U128, parser.U128), args(parser.U8)
+		return args(parser.U128, parser.U128), args(parser.BOOL)
 	// 165
 	case "less_eq_i8":
-		return args(parser.I8, parser.I8), args(parser.U8)
+		return args(parser.I8, parser.I8), args(parser.BOOL)
 	// 166
 	case "less_eq_i16":
-		return args(parser.I16, parser.I16), args(parser.U8)
+		return args(parser.I16, parser.I16), args(parser.BOOL)
 	// 167
 	case "less_eq_i32":
-		return args(parser.I32, parser.I32), args(parser.U8)
+		return args(parser.I32, parser.I32), args(parser.BOOL)
 	// 168
 	case "less_eq_i64":
-		return args(parser.I64, parser.I64), args(parser.U8)
+		return args(parser.I64, parser.I64), args(parser.BOOL)
 	// 169
 	case "less_eq_i128":
-		return args(parser.I128, parser.I128), args(parser.U8)
+		return args(parser.I128, parser.I128), args(parser.BOOL)
 	// 170
 	case "great_u8":
-		return args(parser.U8, parser.U8), args(parser.U8)
+		return args(parser.U8, parser.U8), args(parser.BOOL)
 	// 171
 	case "great_u16":
-		return args(parser.U16, parser.U16), args(parser.U8)
+		return args(parser.U16, parser.U16), args(parser.BOOL)
 	// 172
 	case "great_u32":
-		return args(parser.U32, parser.U32), args(parser.U8)
+		return args(parser.U32, parser.U32), args(parser.BOOL)
 	// 173
 	case "great_u64":
-		return args(parser.U64, parser.U64), args(parser.U8)
+		return args(parser.U64, parser.U64), args(parser.BOOL)
 	// 174
 	case "great_u128":
-		return args(parser.U128, parser.U128), args(parser.U8)
+		return args(parser.U128, parser.U128), args(parser.BOOL)
 	// 175
 	case "great_i8":
-		return args(parser.I8, parser.I8), args(parser.U8)
+		return args(parser.I8, parser.I8), args(parser.BOOL)
 	// 176
 	case "great_i16":
-		return args(parser.I16, parser.I16), args(parser.U8)
+		return args(parser.I16, parser.I16), args(parser.BOOL)
 	// 177
 	case "great_i32":
-		return args(parser.I32, parser.I32), args(parser.U8)
+		return args(parser.I32, parser.I32), args(parser.BOOL)
 	// 178
 	case "great_i64":
-		return args(parser.I64, parser.I64), args(parser.U8)
+		return args(parser.I64, parser.I64), args(parser.BOOL)
 	// 179
 	case "great_i128":
-		return args(parser.I128, parser.I128), args(parser.U8)
+		return args(parser.I128, parser.I128), args(parser.BOOL)
 	// 180
 	case "great_eq_u8":
-		return args(parser.U8, parser.U8), args(parser.U8)
+		return args(parser.U8, parser.U8), args(parser.BOOL)
 	// 181
 	case "great_eq_u16":
-		return args(parser.U16, parser.U16), args(parser.U8)
+		return args(parser.U16, parser.U16), args(parser.BOOL)
 	// 182
 	case "great_eq_u32":
-		return args(parser.U32, parser.U32), args(parser.U8)
+		return args(parser.U32, parser.U32), args(parser.BOOL)
 	// 183
 	case "great_eq_u64":
-		return args(parser.U64, parser.U64), args(parser.U8)
+		return args(parser.U64, parser.U64), args(parser.BOOL)
 	// 184
 	case "great_eq_u128":
-		return args(parser.U128, parser.U128), args(parser.U8)
+		return args(parser.U128, parser.U128), args(parser.BOOL)
 	// 185
 	case "great_eq_i8":
-		return args(parser.I8, parser.I8), args(parser.U8)
+		return args(parser.I8, parser.I8), args(parser.BOOL)
 	// 186
 	case "great_eq_i16":
-		return args(parser.I16, parser.I16), args(parser.U8)
+		return args(parser.I16, parser.I16), args(parser.BOOL)
 	// 187
 	case "great_eq_i32":
-		return args(parser.I32, parser.I32), args(parser.U8)
+		return args(parser.I32, parser.I32), args(parser.BOOL)
 	// 188
 	case "great_eq_i64":
-		return args(parser.I64, parser.I64), args(parser.U8)
+		return args(parser.I64, parser.I64), args(parser.BOOL)
 	// 189
 	case "great_eq_i128":
-		return args(parser.I128, parser.I128), args(parser.U8)
+		return args(parser.I128, parser.I128), args(parser.BOOL)
 	// 190
 	case "u8_to_u16":
 		return args(parser.U8), args(parser.U16)
@@ -1185,88 +1124,34 @@ func argsInst(inst string) ([]parser.Typ, []parser.Typ) {
 		return args(parser.U128), args(parser.U64)
 	// 210
 	case "load_u8":
-		return args(parser.U64), args(parser.U8)
+		return args(parser.ADDR), args(parser.U8)
 	// 211
 	case "load_u16":
-		return args(parser.U64), args(parser.U16)
+		return args(parser.ADDR), args(parser.U16)
 	// 212
 	case "load_u32":
-		return args(parser.U64), args(parser.U32)
+		return args(parser.ADDR), args(parser.U32)
 	// 213
 	case "load_u64":
-		return args(parser.U64), args(parser.U64)
+		return args(parser.ADDR), args(parser.U64)
 	// 214
 	case "load_u128":
-		return args(parser.U64), args(parser.U128)
+		return args(parser.ADDR), args(parser.U128)
 	// 215
 	case "store_u8":
-		return args(parser.U64, parser.U8), args()
+		return args(parser.ADDR, parser.U8), args()
 	// 216
 	case "store_u16":
-		return args(parser.U64, parser.U16), args()
+		return args(parser.ADDR, parser.U16), args()
 	// 217
 	case "store_u32":
-		return args(parser.U64, parser.U32), args()
+		return args(parser.ADDR, parser.U32), args()
 	// 218
 	case "store_u64":
-		return args(parser.U64, parser.U64), args()
+		return args(parser.ADDR, parser.U64), args()
 	// 219
 	case "store_u128":
-		return args(parser.U64, parser.U128), args()
-	// 220
-	case "jump_imm":
-		return args(), args()
-	// 221
-	case "jump_imm_f":
-		return args(), args()
-	// 222
-	case "jump_imm_b":
-		return args(), args()
-	// 224
-	case "sleep_imm":
-		return args(), args()
-	// 225
-	case "branch_imm":
-		return args(parser.U8), args()
-	// 226
-	case "branch_imm_f":
-		return args(parser.U8), args()
-	// 227
-	case "branch_imm_b":
-		return args(parser.U8), args()
-	// 229
-	case "call_imm":
-		return args(), args()
-	// 230
-	case "load_imm_u8":
-		return args(), args(parser.U8)
-	// 231
-	case "load_imm_u16":
-		return args(), args(parser.U16)
-	// 232
-	case "load_imm_u32":
-		return args(), args(parser.U32)
-	// 233
-	case "load_imm_u64":
-		return args(), args(parser.U64)
-	// 234
-	case "load_imm_u128":
-		return args(), args(parser.U128)
-	// 235
-	case "store_imm_u8":
-		return args(parser.U8), args()
-	// 236
-	case "store_imm_u16":
-		return args(parser.U16), args()
-	// 237
-	case "store_imm_u32":
-		return args(parser.U32), args()
-	// 238
-	case "store_imm_u64":
-		return args(parser.U64), args()
-	// 239
-	case "store_imm_u128":
-		return args(parser.U128), args()
+		return args(parser.ADDR, parser.U128), args()
 	// 250
 	case "debug":
 		return args(), args()

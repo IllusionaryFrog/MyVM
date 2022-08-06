@@ -87,7 +87,7 @@ func (f *Fun) checkStackCall(c *Ctx, stack []parser.Typ, inputs []parser.Typ, ou
 
 func (f *Fun) checkStackIfel(c *Ctx, stack []parser.Typ, ifel *parser.If) []parser.Typ {
 	stack = f.checkStackExprs(c, stack, ifel.Con)
-	err, stack := c.stackPrefix(stack, parser.U8)
+	err, stack := c.stackPrefix(stack, parser.BOOL)
 	if err {
 		panic(fmt.Sprintf("the if in '%s' does not have a valid condition stack", f.makeFunIdent(c)))
 	}
@@ -107,10 +107,10 @@ func (f *Fun) checkStackExprs(c *Ctx, stack []parser.Typ, exprs []parser.Expr) [
 		call := expr.AsCall()
 		number := expr.AsNumber()
 		str := expr.AsString()
-		char := expr.AsChar()
 		ifel := expr.AsIf()
 		unwrap := expr.AsUnwrap()
 		wrap := expr.AsWrap()
+		addr := expr.AsAddr()
 		if ident != nil {
 			ident := ident.Content
 			let := f.info.lets[ident]
@@ -124,8 +124,6 @@ func (f *Fun) checkStackExprs(c *Ctx, stack []parser.Typ, exprs []parser.Expr) [
 			stack = append(stack, number.Typ)
 		} else if str != nil {
 			stack = append(stack, parser.STRING)
-		} else if char != nil {
-			stack = append(stack, parser.CHAR)
 		} else if ifel != nil {
 			stack = f.checkStackIfel(c, stack, ifel)
 		} else if unwrap != nil {
@@ -142,6 +140,8 @@ func (f *Fun) checkStackExprs(c *Ctx, stack []parser.Typ, exprs []parser.Expr) [
 				panic(fmt.Sprintf("can't wrap stack in '%s'", f.makeFunIdent(c)))
 			}
 			stack = append(nstack, wrap.Typ)
+		} else if addr != nil {
+			stack = append(stack, parser.ADDR)
 		} else {
 			panic("unreachable")
 		}
@@ -167,7 +167,7 @@ func (f *Fun) checkStackCallSimple(c *Ctx, stack int, inputs []parser.Typ, outpu
 
 func (f *Fun) checkStackIfelSimple(c *Ctx, stack int, ifel *parser.If) int {
 	stack = f.checkStackExprsSimple(c, stack, ifel.Con)
-	err, stack := stackPrefixSimple(c, stack, parser.U8)
+	err, stack := stackPrefixSimple(c, stack, parser.BOOL)
 	if err {
 		panic(fmt.Sprintf("the if in '%s' does not have a valid condition stack", f.makeFunIdent(c)))
 	}
@@ -186,10 +186,10 @@ func (f *Fun) checkStackExprsSimple(c *Ctx, stack int, exprs []parser.Expr) int 
 		call := expr.AsCall()
 		number := expr.AsNumber()
 		str := expr.AsString()
-		char := expr.AsChar()
 		ifel := expr.AsIf()
 		unwrap := expr.AsUnwrap()
 		wrap := expr.AsWrap()
+		addr := expr.AsAddr()
 		if ident != nil {
 			ident := ident.Content
 			let := f.info.lets[ident]
@@ -203,14 +203,14 @@ func (f *Fun) checkStackExprsSimple(c *Ctx, stack int, exprs []parser.Expr) int 
 			stack += number.Typ.Size(c.types)
 		} else if str != nil {
 			stack += parser.STRING.Size(c.types)
-		} else if char != nil {
-			stack += parser.CHAR.Size(c.types)
 		} else if ifel != nil {
 			stack = f.checkStackIfelSimple(c, stack, ifel)
 		} else if unwrap != nil {
 			panic(fmt.Sprintf("can't unwrap in simple type check fun '%s'", f.makeFunIdent(c)))
 		} else if wrap != nil {
 			panic(fmt.Sprintf("can't wrap in simple type check fun '%s'", f.makeFunIdent(c)))
+		} else if addr != nil {
+			stack += 8
 		} else {
 			panic("unreachable")
 		}

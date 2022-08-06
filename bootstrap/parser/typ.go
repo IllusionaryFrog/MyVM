@@ -43,13 +43,13 @@ type Builtin string
 
 func (b Builtin) LoadSizes(map[string]*Type) []int {
 	switch b {
-	case U8, I8, CHAR:
+	case U8, I8, BOOL:
 		return []int{1}
 	case U16, I16:
 		return []int{2}
 	case U32, I32:
 		return []int{4}
-	case U64, I64:
+	case U64, I64, ADDR:
 		return []int{8}
 	case U128, I128:
 		return []int{16}
@@ -66,13 +66,13 @@ func (b Builtin) String(_ map[string]*Type) string {
 
 func (b Builtin) Size(_ map[string]*Type) int {
 	switch b {
-	case U8, I8, CHAR:
+	case U8, I8, BOOL:
 		return 1
 	case U16, I16:
 		return 2
 	case U32, I32:
 		return 4
-	case U64, I64:
+	case U64, I64, ADDR:
 		return 8
 	case U128, I128, STRING:
 		return 16
@@ -85,7 +85,7 @@ func (b Builtin) Sub(_ map[string]*Type) []Typ {
 	switch b {
 	case U8:
 		return []Typ{I8}
-	case I8:
+	case I8, BOOL:
 		return []Typ{U8}
 	case U16:
 		return []Typ{I16}
@@ -97,14 +97,12 @@ func (b Builtin) Sub(_ map[string]*Type) []Typ {
 		return []Typ{U32}
 	case U64:
 		return []Typ{I64}
-	case I64:
+	case I64, ADDR:
 		return []Typ{U64}
 	case U128:
 		return []Typ{I128}
 	case I128:
 		return []Typ{U128}
-	case CHAR:
-		return []Typ{U8}
 	case STRING:
 		return []Typ{U64, U64}
 	default:
@@ -155,7 +153,8 @@ const (
 	I128 Builtin = "I128"
 
 	STRING Builtin = "STRING"
-	CHAR   Builtin = "CHAR"
+	BOOL   Builtin = "BOOL"
+	ADDR   Builtin = "ADDR"
 )
 
 type Block struct {
@@ -174,10 +173,10 @@ type Expr interface {
 	AsCall() *Call
 	AsNumber() *Number
 	AsString() *String
-	AsChar() *Char
 	AsIf() *If
 	AsUnwrap() *Unwrap
 	AsWrap() *Wrap
+	AsAddr() *Addr
 }
 
 type DefaultExpr struct{}
@@ -202,15 +201,15 @@ func (e DefaultExpr) AsString() *String {
 	return nil
 }
 
-func (e DefaultExpr) AsChar() *Char {
-	return nil
-}
-
 func (e *DefaultExpr) AsIf() *If {
 	return nil
 }
 
 func (e *DefaultExpr) AsUnwrap() *Unwrap {
+	return nil
+}
+
+func (e *DefaultExpr) AsAddr() *Addr {
 	return nil
 }
 
@@ -246,15 +245,6 @@ func (e *String) AsString() *String {
 	return e
 }
 
-type Char struct {
-	DefaultExpr
-	Content string
-}
-
-func (e *Char) AsChar() *Char {
-	return e
-}
-
 type If struct {
 	DefaultExpr
 	Con   []Expr
@@ -280,5 +270,15 @@ type Wrap struct {
 }
 
 func (e *Wrap) AsWrap() *Wrap {
+	return e
+}
+
+type Addr struct {
+	DefaultExpr
+	Ident *Ident
+	Call  *Call
+}
+
+func (e *Addr) AsAddr() *Addr {
 	return e
 }

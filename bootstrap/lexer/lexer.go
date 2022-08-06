@@ -7,7 +7,7 @@ import (
 
 var splitters = [...]string{
 	" ", "\t", "\r", "\n",
-	":", ";", ",", "=", "#", "\"", "'",
+	":", ";", ",", "\"", "//",
 	"(", ")", "{", "}",
 }
 
@@ -97,43 +97,6 @@ func (l *Lexer) string() string {
 	panic("no end of string")
 }
 
-func (l *Lexer) char() string {
-	var buf string
-	start := l.cursor
-	for ; l.cursor < len(l.input); l.cursor++ {
-		char := l.input[l.cursor]
-		switch char {
-		case '\'':
-			l.cursor++
-			return buf + l.input[start:l.cursor-1]
-		case '\\':
-			if l.cursor+2 >= len(l.input) {
-				panic("no end of char")
-			}
-			buf += l.input[start:l.cursor]
-			l.cursor++
-			start = l.cursor + 1
-			escaped := l.input[l.cursor]
-			switch escaped {
-			case '\\':
-				buf += "\\"
-			case 'n':
-				buf += "\n"
-			case 'r':
-				buf += "\r"
-			case 't':
-				buf += "\t"
-			case '\'':
-				buf += "'"
-			default:
-				panic(fmt.Sprintf("can't escape '%s' in a char", string(char)))
-			}
-		default:
-		}
-	}
-	panic("no end of char")
-}
-
 func (l *Lexer) ConsumePeek() {
 	l.peeked = nil
 }
@@ -170,8 +133,6 @@ func (l *Lexer) RawNext() Token {
 		token.Typ = SEMICOLON
 	case ",":
 		token.Typ = COMMA
-	case "=":
-		token.Typ = EQUALS
 	case "(":
 		token.Typ = LPAREN
 	case ")":
@@ -180,15 +141,12 @@ func (l *Lexer) RawNext() Token {
 		token.Typ = LBRACE
 	case "}":
 		token.Typ = RBRACE
-	case "#":
+	case "//":
 		token.Typ = IGNORED
 		l.skipComment()
 	case "\"":
 		token.Typ = STRING
 		token.Content = l.string()
-	case "'":
-		token.Typ = CHAR
-		token.Content = l.char()
 	case "fun":
 		token.Typ = FUN
 	case "let":
@@ -199,12 +157,14 @@ func (l *Lexer) RawNext() Token {
 		token.Typ = ELSE
 	case "import":
 		token.Typ = IMPORT
-	case "unwrap":
-		token.Typ = UNWRAP
 	case "type":
 		token.Typ = TYPE
-	case "wrap":
+	case ".unwrap":
+		token.Typ = UNWRAP
+	case ".wrap":
 		token.Typ = WRAP
+	case ".addr":
+		token.Typ = ADDR
 	default:
 		if isNumber(content) {
 			token.Typ = NUMBER
