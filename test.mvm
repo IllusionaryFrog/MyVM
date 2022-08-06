@@ -1,7 +1,7 @@
 
 import "core/prelude.mvm";
 
-let msg1: string "Hey123\n";
+let msg1: string ":)\n";
 
 type Ptr(u64);
 
