@@ -227,6 +227,7 @@ func (f *Fun) sizeOfExprs(c *Ctx, exprs []parser.Expr) uint64 {
 		unwrap := expr.AsUnwrap()
 		wrap := expr.AsWrap()
 		addr := expr.AsAddr()
+		ret := expr.AsReturn()
 		if ident != nil {
 			ident := ident.Content
 			let := f.info.lets[ident]
@@ -291,11 +292,18 @@ func (f *Fun) sizeOfExprs(c *Ctx, exprs []parser.Expr) uint64 {
 				ident := c.makeFunIdent(call.Ident.Content, call.Inputs, call.Outputs)
 				fun := c.funs[ident]
 				if fun == nil {
-					panic(fmt.Sprintf("unknown fun '%s'", ident))
+					panic(fmt.Sprintf("unknown fun '%s' in '%s'", ident, f.makeFunIdent(c)))
 				}
-				fun.getInfo(c)
+				if fun.getInfo(c).inline {
+					panic(fmt.Sprintf("can't get .addr of inline fun '%s' in '%s'", ident, f.makeFunIdent(c)))
+				}
 			}
 			size += 1 + 8
+		} else if ret != nil {
+			if f.info.inline {
+				panic(fmt.Sprintf("can't .return in inline fun '%s'", f.makeFunIdent(c)))
+			}
+			size += 1
 		} else {
 			panic("unreachable")
 		}
@@ -523,6 +531,7 @@ func (f *Fun) compileExprs(c *Ctx, exprs []parser.Expr) []uint8 {
 		unwrap := expr.AsUnwrap()
 		wrap := expr.AsWrap()
 		addr := expr.AsAddr()
+		ret := expr.AsReturn()
 		if ident != nil {
 			ident := ident.Content
 			let := f.info.lets[ident]
@@ -625,6 +634,8 @@ func (f *Fun) compileExprs(c *Ctx, exprs []parser.Expr) []uint8 {
 			buf := []uint8{13, 0, 0, 0, 0, 0, 0, 0, 0}
 			putUvarint(buf[1:], pos)
 			bytes = append(bytes, buf...)
+		} else if ret != nil {
+			bytes = append(bytes, 3)
 		} else {
 			panic("unreachable")
 		}

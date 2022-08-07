@@ -27,7 +27,26 @@ func stackPrefixSimple(c *Ctx, stack int, typs ...parser.Typ) (bool, int) {
 	return false, stack - typs_len
 }
 
+func containsNever(ts []parser.Typ) bool {
+	for _, t := range ts {
+		if t.IsNever() {
+			return true
+		}
+	}
+	return false
+}
+
 func (f *Fun) typeCheck(c *Ctx, simple bool) {
+	if containsNever(f.fun.Inputs) {
+		panic(fmt.Sprintf("the never type can't be used as an input argument in '%s'", f.makeFunIdent(c)))
+	}
+	if containsNever(f.fun.Outputs) && len(f.fun.Outputs) != 1 {
+		panic(fmt.Sprintf("the never type has to be the only output of '%s'", f.makeFunIdent(c)))
+	}
+
+	var ret bool
+	var never bool
+
 	if simple {
 		f.typeCheckSimple(c)
 	} else {
@@ -37,14 +56,23 @@ func (f *Fun) typeCheck(c *Ctx, simple bool) {
 		} else {
 			for _, let := range f.fun.Block.Lets {
 				stackl := len(stack)
-				stack = f.checkStackExprs(c, stack, let.Exprs)
+				never, ret, stack = f.checkStackExprs(c, stack, let.Exprs)
+				if ret {
+					panic(fmt.Sprintf("the let in fun '%s' does not have a valid stack", f.makeFunIdent(c)))
+				}
+				if never {
+					return
+				}
 				err, nstack := c.stackPrefix(stack, let.Typ)
 				if err || stackl < len(nstack) {
 					panic(fmt.Sprintf("the let in fun '%s' does not have a valid stack", f.makeFunIdent(c)))
 				}
 				stack = nstack
 			}
-			stack = f.checkStackExprs(c, stack, f.fun.Block.Exprs)
+			never, _, stack = f.checkStackExprs(c, stack, f.fun.Block.Exprs)
+			if never {
+				return
+			}
 		}
 		err, rest := c.stackPrefix(stack, f.fun.Outputs...)
 		if err || len(rest) != 0 {
@@ -54,6 +82,8 @@ func (f *Fun) typeCheck(c *Ctx, simple bool) {
 }
 
 func (f *Fun) typeCheckSimple(c *Ctx) {
+	var ret bool
+	var never bool
 	stack := c.typsSize(f.fun.Inputs)
 
 	if f.info.asm {
@@ -61,14 +91,23 @@ func (f *Fun) typeCheckSimple(c *Ctx) {
 	} else {
 		for _, let := range f.fun.Block.Lets {
 			stackl := stack
-			stack = f.checkStackExprsSimple(c, stack, let.Exprs)
+			never, ret, stack = f.checkStackExprsSimple(c, stack, let.Exprs)
+			if ret {
+				panic(fmt.Sprintf("the let in fun '%s' does not have a valid stack", f.makeFunIdent(c)))
+			}
+			if never {
+				return
+			}
 			err, nstack := stackPrefixSimple(c, stack, let.Typ)
 			if err || stackl < nstack {
 				panic(fmt.Sprintf("the let in fun '%s' does not have a valid stack", f.makeFunIdent(c)))
 			}
 			stack = nstack
 		}
-		stack = f.checkStackExprsSimple(c, stack, f.fun.Block.Exprs)
+		never, _, stack = f.checkStackExprsSimple(c, stack, f.fun.Block.Exprs)
+		if never {
+			return
+		}
 	}
 	err, stack := stackPrefixSimple(c, stack, f.fun.Outputs...)
 
@@ -85,22 +124,45 @@ func (f *Fun) checkStackCall(c *Ctx, stack []parser.Typ, inputs []parser.Typ, ou
 	return append(stack, outputs...)
 }
 
-func (f *Fun) checkStackIfel(c *Ctx, stack []parser.Typ, ifel *parser.If) []parser.Typ {
-	stack = f.checkStackExprs(c, stack, ifel.Con)
+func (f *Fun) checkStackIfel(c *Ctx, stack []parser.Typ, ifel *parser.If) (bool, bool, []parser.Typ) {
+	never, ret, stack := f.checkStackExprs(c, stack, ifel.Con)
+	if ret {
+		panic(fmt.Sprintf("the if in '%s' does not have a valid condition stack", f.makeFunIdent(c)))
+	}
+	if never {
+		return true, false, []parser.Typ{}
+	}
 	err, stack := c.stackPrefix(stack, parser.BOOL)
 	if err {
 		panic(fmt.Sprintf("the if in '%s' does not have a valid condition stack", f.makeFunIdent(c)))
 	}
-	iStack := f.checkStackExprs(c, stack, ifel.Exprs)
-	eStack := f.checkStackExprs(c, stack, ifel.Else)
+	iNever, ret, iStack := f.checkStackExprs(c, stack, ifel.Exprs)
+	if ret {
+		return iNever, true, iStack
+	}
+	eNever, ret, eStack := f.checkStackExprs(c, stack, ifel.Else)
+	if ret {
+		return eNever, true, eStack
+	}
+	if iNever {
+		if eNever {
+			return true, false, []parser.Typ{}
+		}
+		return false, false, eStack
+	}
+	if eNever {
+		return false, false, iStack
+	}
 	err, rstack := c.stackPrefix(iStack, eStack...)
 	if err || len(rstack) != 0 {
 		panic(fmt.Sprintf("the if in '%s' does not have a valid expression stack", f.makeFunIdent(c)))
 	}
-	return iStack
+	return false, false, iStack
 }
 
-func (f *Fun) checkStackExprs(c *Ctx, stack []parser.Typ, exprs []parser.Expr) []parser.Typ {
+func (f *Fun) checkStackExprs(c *Ctx, stack []parser.Typ, exprs []parser.Expr) (bool, bool, []parser.Typ) {
+	var r bool
+	var never bool
 	for i := 0; i < len(exprs); i++ {
 		expr := exprs[i]
 		ident := expr.AsIdent()
@@ -111,6 +173,7 @@ func (f *Fun) checkStackExprs(c *Ctx, stack []parser.Typ, exprs []parser.Expr) [
 		unwrap := expr.AsUnwrap()
 		wrap := expr.AsWrap()
 		addr := expr.AsAddr()
+		ret := expr.AsReturn()
 		if ident != nil {
 			ident := ident.Content
 			let := f.info.lets[ident]
@@ -119,13 +182,22 @@ func (f *Fun) checkStackExprs(c *Ctx, stack []parser.Typ, exprs []parser.Expr) [
 			}
 			stack = append(stack, let.let.Typ)
 		} else if call != nil {
+			if containsNever(call.Outputs) {
+				return true, false, []parser.Typ{}
+			}
 			stack = f.checkStackCall(c, stack, call.Inputs, call.Outputs)
 		} else if number != nil {
 			stack = append(stack, number.Typ)
 		} else if str != nil {
 			stack = append(stack, parser.STRING)
 		} else if ifel != nil {
-			stack = f.checkStackIfel(c, stack, ifel)
+			never, r, stack = f.checkStackIfel(c, stack, ifel)
+			if r {
+				return never, true, stack
+			}
+			if never {
+				return true, false, []parser.Typ{}
+			}
 		} else if unwrap != nil {
 			if len(stack) != 0 {
 				last := len(stack) - 1
@@ -142,11 +214,13 @@ func (f *Fun) checkStackExprs(c *Ctx, stack []parser.Typ, exprs []parser.Expr) [
 			stack = append(nstack, wrap.Typ)
 		} else if addr != nil {
 			stack = append(stack, parser.U64)
+		} else if ret != nil {
+			return false, true, stack
 		} else {
 			panic("unreachable")
 		}
 	}
-	return stack
+	return false, false, stack
 }
 
 func (c *Ctx) typsSize(typs []parser.Typ) int {
@@ -165,21 +239,44 @@ func (f *Fun) checkStackCallSimple(c *Ctx, stack int, inputs []parser.Typ, outpu
 	return stack + c.typsSize(outputs)
 }
 
-func (f *Fun) checkStackIfelSimple(c *Ctx, stack int, ifel *parser.If) int {
-	stack = f.checkStackExprsSimple(c, stack, ifel.Con)
+func (f *Fun) checkStackIfelSimple(c *Ctx, stack int, ifel *parser.If) (bool, bool, int) {
+	never, ret, stack := f.checkStackExprsSimple(c, stack, ifel.Con)
+	if ret {
+		panic(fmt.Sprintf("the if in '%s' does not have a valid condition stack", f.makeFunIdent(c)))
+	}
+	if never {
+		return true, false, 0
+	}
 	err, stack := stackPrefixSimple(c, stack, parser.BOOL)
 	if err {
 		panic(fmt.Sprintf("the if in '%s' does not have a valid condition stack", f.makeFunIdent(c)))
 	}
-	iStack := f.checkStackExprsSimple(c, stack, ifel.Exprs)
-	eStack := f.checkStackExprsSimple(c, stack, ifel.Else)
-	if err || iStack != eStack {
+	iNever, ret, iStack := f.checkStackExprsSimple(c, stack, ifel.Exprs)
+	if ret {
+		return iNever, true, iStack
+	}
+	eNever, ret, eStack := f.checkStackExprsSimple(c, stack, ifel.Else)
+	if ret {
+		return eNever, true, eStack
+	}
+	if iNever {
+		if eNever {
+			return true, false, 0
+		}
+		return false, false, eStack
+	}
+	if eNever {
+		return false, false, iStack
+	}
+	if iStack != eStack {
 		panic(fmt.Sprintf("the if in '%s' does not have a valid expression stack", f.makeFunIdent(c)))
 	}
-	return iStack
+	return false, false, iStack
 }
 
-func (f *Fun) checkStackExprsSimple(c *Ctx, stack int, exprs []parser.Expr) int {
+func (f *Fun) checkStackExprsSimple(c *Ctx, stack int, exprs []parser.Expr) (bool, bool, int) {
+	var r bool
+	var never bool
 	for i := 0; i < len(exprs); i++ {
 		expr := exprs[i]
 		ident := expr.AsIdent()
@@ -190,6 +287,7 @@ func (f *Fun) checkStackExprsSimple(c *Ctx, stack int, exprs []parser.Expr) int 
 		unwrap := expr.AsUnwrap()
 		wrap := expr.AsWrap()
 		addr := expr.AsAddr()
+		ret := expr.AsReturn()
 		if ident != nil {
 			ident := ident.Content
 			let := f.info.lets[ident]
@@ -198,22 +296,33 @@ func (f *Fun) checkStackExprsSimple(c *Ctx, stack int, exprs []parser.Expr) int 
 			}
 			stack += let.let.Typ.Size(c.types)
 		} else if call != nil {
+			if containsNever(call.Outputs) {
+				return true, false, 0
+			}
 			stack = f.checkStackCallSimple(c, stack, call.Inputs, call.Outputs)
 		} else if number != nil {
 			stack += number.Typ.Size(c.types)
 		} else if str != nil {
 			stack += parser.STRING.Size(c.types)
 		} else if ifel != nil {
-			stack = f.checkStackIfelSimple(c, stack, ifel)
+			never, r, stack = f.checkStackIfelSimple(c, stack, ifel)
+			if r {
+				return never, true, stack
+			}
+			if never {
+				return true, false, 0
+			}
 		} else if unwrap != nil {
 			panic(fmt.Sprintf("can't unwrap in simple type check fun '%s'", f.makeFunIdent(c)))
 		} else if wrap != nil {
 			panic(fmt.Sprintf("can't wrap in simple type check fun '%s'", f.makeFunIdent(c)))
 		} else if addr != nil {
 			stack += 8
+		} else if ret != nil {
+			return false, true, stack
 		} else {
 			panic("unreachable")
 		}
 	}
-	return stack
+	return false, false, stack
 }

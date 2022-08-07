@@ -150,6 +150,8 @@ func parseTyp(l *lexer.Lexer) Typ {
 		return STRING
 	case "bool":
 		return BOOL
+	case "!":
+		return NEVER
 	default:
 		return &Custom{Ident: ident.Content}
 	}
@@ -208,6 +210,9 @@ func parseExprs(l *lexer.Lexer) []Expr {
 			exprs = append(exprs, parseWrap(l))
 		case lexer.ADDR:
 			exprs = append(exprs, parseAddr(l))
+		case lexer.RETURN:
+			l.ConsumePeek()
+			exprs = append(exprs, &Return{})
 		default:
 			return exprs
 		}
@@ -253,7 +258,9 @@ func parseIf(l *lexer.Lexer) *If {
 		l.ConsumePeek()
 		els = parseExprs(l)
 	}
-	expect(l, lexer.SEMICOLON)
+	if l.Peek().Typ == lexer.SEMICOLON {
+		l.ConsumePeek()
+	}
 	return &If{Con: con, Exprs: exprs, Else: els}
 }
 

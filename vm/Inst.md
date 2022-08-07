@@ -2,10 +2,10 @@
 # Inst
 
 - 000: `nop`        (:)
-- 001: `halt`       (:)
+- 001: `halt`       (:!)
 - 002: `call`       (u64:)
 - 003: `return`     (:)
-- 004: `inter`      (:)
+- 004: `inter`      (:!)
 - 005: `alloc`      (u64:u64)
 - 006: `read`       (string:u64)
 - 007: `write`      (string:u64)

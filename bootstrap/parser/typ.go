@@ -60,6 +60,7 @@ type Typ interface {
 	Size(*Types) int
 	Sub(*Types) []Typ
 	LoadSizes(*Types) []int
+	IsNever() bool
 }
 
 type Custom struct {
@@ -67,6 +68,10 @@ type Custom struct {
 }
 
 type Builtin string
+
+func (b Builtin) IsNever() bool {
+	return b == NEVER
+}
 
 func (b Builtin) LoadSizes(*Types) []int {
 	switch b {
@@ -141,6 +146,10 @@ type Type struct {
 	Fields []Typ
 }
 
+func (c *Custom) IsNever() bool {
+	return false
+}
+
 func (t *Custom) String(ts *Types) string {
 	return ts.Get(t.Ident).Ident.Content
 }
@@ -179,6 +188,7 @@ const (
 
 	STRING Builtin = "STRING"
 	BOOL   Builtin = "BOOL"
+	NEVER  Builtin = "NEVER"
 )
 
 type Block struct {
@@ -201,6 +211,7 @@ type Expr interface {
 	AsUnwrap() *Unwrap
 	AsWrap() *Wrap
 	AsAddr() *Addr
+	AsReturn() *Return
 }
 
 type DefaultExpr struct{}
@@ -234,6 +245,10 @@ func (e *DefaultExpr) AsUnwrap() *Unwrap {
 }
 
 func (e *DefaultExpr) AsAddr() *Addr {
+	return nil
+}
+
+func (e *DefaultExpr) AsReturn() *Return {
 	return nil
 }
 
@@ -304,5 +319,13 @@ type Addr struct {
 }
 
 func (e *Addr) AsAddr() *Addr {
+	return e
+}
+
+type Return struct {
+	DefaultExpr
+}
+
+func (e *Return) AsReturn() *Return {
 	return e
 }

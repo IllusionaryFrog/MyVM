@@ -165,6 +165,8 @@ func (l *Lexer) RawNext() Token {
 		token.Typ = WRAP
 	case ".addr":
 		token.Typ = ADDR
+	case ".return":
+		token.Typ = RETURN
 	default:
 		if isNumber(content) {
 			token.Typ = NUMBER

@@ -531,7 +531,7 @@ func argsInst(inst string) ([]parser.Typ, []parser.Typ) {
 		return args(), args()
 	// 001
 	case "halt":
-		return args(), args()
+		return args(), args(parser.NEVER)
 	// 002
 	case "call":
 		return args(parser.U64), args()
@@ -540,7 +540,7 @@ func argsInst(inst string) ([]parser.Typ, []parser.Typ) {
 		return args(), args()
 	// 004
 	case "inter":
-		return args(), args()
+		return args(), args(parser.NEVER)
 	// 005
 	case "alloc":
 		return args(parser.U64), args(parser.U64)
