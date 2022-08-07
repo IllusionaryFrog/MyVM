@@ -126,11 +126,8 @@ func (f *Fun) checkStackCall(c *Ctx, stack []parser.Typ, inputs []parser.Typ, ou
 
 func (f *Fun) checkStackIfel(c *Ctx, stack []parser.Typ, ifel *parser.If) (bool, bool, []parser.Typ) {
 	never, ret, stack := f.checkStackExprs(c, stack, ifel.Con)
-	if ret {
+	if never || ret {
 		panic(fmt.Sprintf("the if in '%s' does not have a valid condition stack", f.makeFunIdent(c)))
-	}
-	if never {
-		return true, false, []parser.Typ{}
 	}
 	err, stack := c.stackPrefix(stack, parser.BOOL)
 	if err {
@@ -160,6 +157,23 @@ func (f *Fun) checkStackIfel(c *Ctx, stack []parser.Typ, ifel *parser.If) (bool,
 	return false, false, iStack
 }
 
+func (f *Fun) checkStackWhile(c *Ctx, stack []parser.Typ, while *parser.While) (bool, []parser.Typ) {
+	never, ret, stack := f.checkStackExprs(c, stack, while.Con)
+	if ret || never {
+		panic(fmt.Sprintf("the while in '%s' does not have a valid condition stack", f.makeFunIdent(c)))
+	}
+	err, stack := c.stackPrefix(stack, parser.BOOL)
+	if err {
+		panic(fmt.Sprintf("the while in '%s' does not have a valid condition stack", f.makeFunIdent(c)))
+	}
+	never, ret, wStack := f.checkStackExprs(c, stack, while.Exprs)
+	err, rStack := c.stackPrefix(stack, wStack...)
+	if ret || err || len(rStack) != 0 {
+		panic(fmt.Sprintf("the while in '%s' does not have a valid expression stack", f.makeFunIdent(c)))
+	}
+	return never, wStack
+}
+
 func (f *Fun) checkStackExprs(c *Ctx, stack []parser.Typ, exprs []parser.Expr) (bool, bool, []parser.Typ) {
 	var r bool
 	var never bool
@@ -170,6 +184,7 @@ func (f *Fun) checkStackExprs(c *Ctx, stack []parser.Typ, exprs []parser.Expr) (
 		number := expr.AsNumber()
 		str := expr.AsString()
 		ifel := expr.AsIf()
+		while := expr.AsWhile()
 		unwrap := expr.AsUnwrap()
 		wrap := expr.AsWrap()
 		addr := expr.AsAddr()
@@ -195,6 +210,11 @@ func (f *Fun) checkStackExprs(c *Ctx, stack []parser.Typ, exprs []parser.Expr) (
 			if r {
 				return never, true, stack
 			}
+			if never {
+				return true, false, []parser.Typ{}
+			}
+		} else if while != nil {
+			never, stack = f.checkStackWhile(c, stack, while)
 			if never {
 				return true, false, []parser.Typ{}
 			}
@@ -274,6 +294,22 @@ func (f *Fun) checkStackIfelSimple(c *Ctx, stack int, ifel *parser.If) (bool, bo
 	return false, false, iStack
 }
 
+func (f *Fun) checkStackWhileSimple(c *Ctx, stack int, while *parser.While) (bool, int) {
+	never, ret, stack := f.checkStackExprsSimple(c, stack, while.Con)
+	if ret || never {
+		panic(fmt.Sprintf("the while in '%s' does not have a valid condition stack", f.makeFunIdent(c)))
+	}
+	err, stack := stackPrefixSimple(c, stack, parser.BOOL)
+	if err {
+		panic(fmt.Sprintf("the while in '%s' does not have a valid condition stack", f.makeFunIdent(c)))
+	}
+	never, ret, wStack := f.checkStackExprsSimple(c, stack, while.Exprs)
+	if ret || err || wStack != 0 {
+		panic(fmt.Sprintf("the while in '%s' does not have a valid expression stack", f.makeFunIdent(c)))
+	}
+	return never, wStack
+}
+
 func (f *Fun) checkStackExprsSimple(c *Ctx, stack int, exprs []parser.Expr) (bool, bool, int) {
 	var r bool
 	var never bool
@@ -284,6 +320,7 @@ func (f *Fun) checkStackExprsSimple(c *Ctx, stack int, exprs []parser.Expr) (boo
 		number := expr.AsNumber()
 		str := expr.AsString()
 		ifel := expr.AsIf()
+		while := expr.AsWhile()
 		unwrap := expr.AsUnwrap()
 		wrap := expr.AsWrap()
 		addr := expr.AsAddr()
@@ -309,6 +346,11 @@ func (f *Fun) checkStackExprsSimple(c *Ctx, stack int, exprs []parser.Expr) (boo
 			if r {
 				return never, true, stack
 			}
+			if never {
+				return true, false, 0
+			}
+		} else if while != nil {
+			never, stack = f.checkStackWhileSimple(c, stack, while)
 			if never {
 				return true, false, 0
 			}

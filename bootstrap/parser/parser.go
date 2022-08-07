@@ -213,6 +213,8 @@ func parseExprs(l *lexer.Lexer) []Expr {
 		case lexer.RETURN:
 			l.ConsumePeek()
 			exprs = append(exprs, &Return{})
+		case lexer.WHILE:
+			exprs = append(exprs, parseWhile(l))
 		default:
 			return exprs
 		}
@@ -252,16 +254,28 @@ func parseIf(l *lexer.Lexer) *If {
 	expect(l, lexer.LPAREN)
 	con := parseExprs(l)
 	expect(l, lexer.RPAREN)
+	expect(l, lexer.LBRACE)
 	exprs := parseExprs(l)
+	expect(l, lexer.RBRACE)
 	els := []Expr{}
 	if l.Peek().Typ == lexer.ELSE {
 		l.ConsumePeek()
+		expect(l, lexer.LBRACE)
 		els = parseExprs(l)
-	}
-	if l.Peek().Typ == lexer.SEMICOLON {
-		l.ConsumePeek()
+		expect(l, lexer.RBRACE)
 	}
 	return &If{Con: con, Exprs: exprs, Else: els}
+}
+
+func parseWhile(l *lexer.Lexer) *While {
+	expect(l, lexer.WHILE)
+	expect(l, lexer.LPAREN)
+	con := parseExprs(l)
+	expect(l, lexer.RPAREN)
+	expect(l, lexer.LBRACE)
+	exprs := parseExprs(l)
+	expect(l, lexer.RBRACE)
+	return &While{Con: con, Exprs: exprs}
 }
 
 func parseIdentExpr(l *lexer.Lexer) Expr {

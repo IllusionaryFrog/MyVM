@@ -224,6 +224,7 @@ func (f *Fun) sizeOfExprs(c *Ctx, exprs []parser.Expr) uint64 {
 		number := expr.AsNumber()
 		str := expr.AsString()
 		ifel := expr.AsIf()
+		while := expr.AsWhile()
 		unwrap := expr.AsUnwrap()
 		wrap := expr.AsWrap()
 		addr := expr.AsAddr()
@@ -266,6 +267,10 @@ func (f *Fun) sizeOfExprs(c *Ctx, exprs []parser.Expr) uint64 {
 			size += f.sizeOfExprs(c, ifel.Con) + 1 + 8
 			size += f.sizeOfExprs(c, ifel.Else) + 1 + 8
 			size += f.sizeOfExprs(c, ifel.Exprs)
+		} else if while != nil {
+			size += f.sizeOfExprs(c, while.Con) + 1 + 8
+			size += 1 + 8
+			size += f.sizeOfExprs(c, while.Exprs) + 1 + 8
 		} else if unwrap != nil {
 			if !(f.info.unsafe || f.info.safe) {
 				panic(fmt.Sprintf("fun '%s' can't call unsafe .unwrap", f.makeFunIdent(c)))
@@ -528,6 +533,7 @@ func (f *Fun) compileExprs(c *Ctx, exprs []parser.Expr) []uint8 {
 		number := expr.AsNumber()
 		str := expr.AsString()
 		ifel := expr.AsIf()
+		while := expr.AsWhile()
 		unwrap := expr.AsUnwrap()
 		wrap := expr.AsWrap()
 		addr := expr.AsAddr()
@@ -613,6 +619,22 @@ func (f *Fun) compileExprs(c *Ctx, exprs []parser.Expr) []uint8 {
 			putUvarint(buf[1:], f.sizeOfExprs(c, ifel.Exprs)+9)
 			bytes = append(bytes, buf...)
 			bytes = append(bytes, f.compileExprs(c, ifel.Exprs)...)
+		} else if while != nil {
+			bytes = append(bytes, f.compileExprs(c, while.Con)...)
+
+			buf := []uint8{226, 0, 0, 0, 0, 0, 0, 0, 0}
+			putUvarint(buf[1:], 18)
+			bytes = append(bytes, buf...)
+
+			buf = []uint8{221, 0, 0, 0, 0, 0, 0, 0, 0}
+			putUvarint(buf[1:], f.sizeOfExprs(c, while.Exprs)+18)
+			bytes = append(bytes, buf...)
+
+			bytes = append(bytes, f.compileExprs(c, while.Exprs)...)
+
+			buf = []uint8{222, 0, 0, 0, 0, 0, 0, 0, 0}
+			putUvarint(buf[1:], f.sizeOfExprs(c, while.Exprs)+f.sizeOfExprs(c, while.Con)+18)
+			bytes = append(bytes, buf...)
 		} else if unwrap != nil {
 		} else if wrap != nil {
 		} else if addr != nil {

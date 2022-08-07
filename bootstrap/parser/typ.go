@@ -212,6 +212,7 @@ type Expr interface {
 	AsWrap() *Wrap
 	AsAddr() *Addr
 	AsReturn() *Return
+	AsWhile() *While
 }
 
 type DefaultExpr struct{}
@@ -249,6 +250,10 @@ func (e *DefaultExpr) AsAddr() *Addr {
 }
 
 func (e *DefaultExpr) AsReturn() *Return {
+	return nil
+}
+
+func (e *DefaultExpr) AsWhile() *While {
 	return nil
 }
 
@@ -292,6 +297,16 @@ type If struct {
 }
 
 func (e *If) AsIf() *If {
+	return e
+}
+
+type While struct {
+	DefaultExpr
+	Con   []Expr
+	Exprs []Expr
+}
+
+func (e *While) AsWhile() *While {
 	return e
 }
 

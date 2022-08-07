@@ -29,6 +29,7 @@ const (
 	WRAP   Typ = "WRAP"
 	ADDR   Typ = "ADDR"
 	RETURN Typ = "RETURN"
+	WHILE  Typ = "WHILE"
 
 	IDENT Typ = "IDENT"
 )

@@ -167,6 +167,8 @@ func (l *Lexer) RawNext() Token {
 		token.Typ = ADDR
 	case ".return":
 		token.Typ = RETURN
+	case "while":
+		token.Typ = WHILE
 	default:
 		if isNumber(content) {
 			token.Typ = NUMBER

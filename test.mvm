@@ -15,6 +15,11 @@ fun{safe} main(:) {
 
     5u64 to(u64:Ptr) to(Ptr:u64) drop(u64:)
 
+    0u64 while (.(u64:u64,u64) 5u64 <(u64,u64:bool)) {
+        "YEP\n" print(string:)
+        ++(u64:u64)
+    } drop(u64:)
+
     (msg1 print(string:))
     msg2 print(string:)
 }
