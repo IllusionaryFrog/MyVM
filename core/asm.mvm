@@ -5,7 +5,7 @@ fun{unsafe, inline, asm} .asm.nop(:) {
 }
 
 // 001
-fun{unsafe, inline, asm} .asm.halt(:) {
+fun{unsafe, inline, asm} .asm.halt(:!) {
     "halt"
 }
 
@@ -20,7 +20,7 @@ fun{unsafe, inline, asm} .asm.return(:) {
 }
 
 // 004
-fun{unsafe, inline, asm} .asm.inter(:) {
+fun{unsafe, inline, asm} .asm.inter(:!) {
     "inter"
 }
 

@@ -1,0 +1,4 @@
+
+fun todo(:!) {
+    "TODO" panic(string:!)
+}

@@ -1,0 +1,9 @@
+
+import "../core/prelude.mvm";
+
+fun main(:) {
+    if ("test" "test" ==(string,string:bool))
+        "true" print(string:)
+    else
+        "false" print(string:);
+}

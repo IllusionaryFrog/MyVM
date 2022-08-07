@@ -1,0 +1,113 @@
+
+//
+// drops string value
+//
+fun{safe, stc, inline} drop(string:) {
+    .asm.drop(u128:)
+}
+
+//
+// swaps two string values
+//
+fun{safe, stc, inline} swap(string,string:string,string) {
+    .asm.swap(u128:)
+}
+
+//
+// rotates three string values,
+// moving the third value to the front
+//
+fun{safe, stc, inline} rotate(string,string,string:string,string,string) {
+    .asm.rotate(u128,u128,u128:u128,u128,u128)
+}
+
+//
+// duplicates string value
+//
+fun{safe, stc, inline} .(string:string,string) {
+    .asm.dup(u128:u128,u128)
+}
+
+//
+// duplicates second string to the front
+//
+fun{safe, stc, inline} ..(string,string:string,string,string) {
+    .asm.over(u128,u128:u128,u128,u128)
+}
+
+//
+// length of the string
+//
+fun{safe, inline} len(string:u64) {
+    .unwrap .asm.swap(u64,u64:u64,u64) .asm.drop(u64:)
+}
+
+//
+// checks if a string starts with another string
+//
+fun starts_with(string,string:bool) {
+    let p: string;
+
+    if (
+        .(string:string,string) len(string:u64)
+        p                       len(string:u64)
+            >(u64,u64:bool)
+    ) drop(string:) false(:bool) .return;
+
+    if (
+        .(string:string,string) to(string:u64,u64) drop(u64:)
+        p                       to(string:u64,u64) drop(u64:)
+            ==(u64,u64:bool)
+    ) drop(string:) true(:bool) .return;
+
+    todo(:!)
+}
+
+//
+// checks if two string values are equal
+//
+fun ==(string,string:bool) {
+    let s: string;
+
+    if (
+        .(string:string,string) len(string:u64)
+        s                       len(string:u64)
+            !=(u64,u64:bool)
+    ) drop(string:) false(:bool) .return;
+
+    s starts_with(string,string:bool)
+}
+
+//
+// checks if two string values are not equal
+//
+fun{inline} !=(string,string:bool) {
+    ==(string, string: bool) !(bool:bool)
+}
+
+//
+// converts a string to a u64, u64 (ptr, len)
+//
+fun{safe, stc, inline} to(string:u64,u64) {}
+
+//
+// converts a u64, u64 (ptr, len) to a string
+//
+// SAFETY:
+// ptr and len have to be valid
+// and have to exist forever (never dropped)
+//
+fun{unsafe, stc, inline} to(u64,u64:string) {}
+
+//
+// prints the string,
+// panics if the vm does not print the entire string
+//
+fun{safe} print(string:) {
+    let len: u64 .(string:string,string) len(string:u64);
+
+    .asm.write(string:u64)
+
+    if (len !=(u64,u64:bool))
+        "error printing string" panic(string:!);
+}

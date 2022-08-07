@@ -1,22 +1,24 @@
 
 import "asm.mvm";
 import "bool.mvm";
+import "utils.mvm";
+import "panic.mvm";
+import "string.mvm";
 import "num/prelude.mvm";
-import "string/prelude.mvm";
 
 fun{unsafe} .start(string:) {
     let args: string;
 
-    .addr(.ih(:))
+    .addr(.ih(:!))
     .asm.pop.ih(u64:)
 
-    4000u64
+    0x1000u64
     .asm.dup(u64:u64,u64)
     .asm.alloc(u64:u64)
     .asm.add(u64,u64:u64)
     .asm.pop.sp(u64:)
 
-    1000u64
+    0x400u64
     .asm.dup(u64:u64,u64)
     .asm.alloc(u64:u64)
     .asm.add(u64,u64:u64)
@@ -29,7 +31,9 @@ fun{unsafe} .start(string:) {
     main(:)
 }
 
-fun{unsafe} .ih(:) {
-    .asm.debug(:)
-    .asm.halt(:)
+fun{unsafe} .ih(:!) {
+    .asm.push.ir(:i8)
+    if (0i8 <(i8,i8:bool)) "machine interrupt"
+    else "user interrupt";
+    panic(string:!)
 }

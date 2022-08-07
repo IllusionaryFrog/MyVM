@@ -1,0 +1,7 @@
+
+fun{safe} panic(string:!) {
+    "\nPANIC: "
+    .asm.write(string:u64) .asm.drop(u64:)
+    .asm.write(string:u64) .asm.drop(u64:)
+    .asm.halt(:!)
+}

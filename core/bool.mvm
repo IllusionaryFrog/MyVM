@@ -3,7 +3,7 @@
 // bool value true
 //
 fun{safe, stc, inline} true(:bool) {
-    255u8
+    0xffu8
 }
 
 //
@@ -52,22 +52,22 @@ fun{safe, stc, inline} ..(bool,bool:bool,bool,bool) {
 //
 // nots bool value
 //
-fun{safe, stc, inline} !(bool,bool:bool) {
-    .asm.xor(u8,u8:u8)
+fun{safe, stc, inline} !(bool:bool) {
+    0xffu8 .asm.xor(u8,u8:u8)
 }
 
 //
 // checks if two bool values are equal
 //
 fun{safe, stc, inline} ==(bool,bool:bool) {
-    .asm.eq(u8,u8:u8)
+    .asm.eq(u8,u8:bool)
 }
 
 //
 // checks if two bool values are not equal
 //
 fun{safe, stc, inline} !=(bool,bool:bool) {
-    .asm.not.eq(u8,u8:u8)
+    .asm.not.eq(u8,u8:bool)
 }
 
 //
