@@ -74,14 +74,14 @@ fun{safe, stc, inline} !=(bool,bool:bool) {
 // checks if two bool values are true
 //
 fun{inline} &&(bool,bool:bool) {
-    if () else drop(bool:) false(:bool);
+    if () {} else { drop(bool:) false(:bool) }
 }
 
 //
 // checks if one of the two bool values are true
 //
 fun{inline} ||(bool,bool:bool) {
-    if () drop(bool:) true(:bool) else;
+    if () { drop(bool:) true(:bool) }
 }
 
 //

@@ -33,7 +33,11 @@ fun{unsafe} .start(string:) {
 
 fun{unsafe} .ih(:!) {
     .asm.push.ir(:i8)
-    if (0i8 <(i8,i8:bool)) "machine interrupt"
-    else "user interrupt";
+    if (0i8 <(i8,i8:bool)) {
+        "machine interrupt"
+    }
+    else {
+        "user interrupt"
+    }
     panic(string:!)
 }

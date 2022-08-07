@@ -2,8 +2,20 @@
 import "../core/prelude.mvm";
 
 fun main(:) {
-    if ("test" "test" ==(string,string:bool))
-        "true" print(string:)
-    else
-        "false" print(string:);
+    if ("atest" "btest" ==(string,string:bool)) {
+        "true\n"
+    } else {
+        "false\n"
+    }
+    print(string:)
+
+    "abcd" 3u64 split(string,u64:string,string)
+    print(string:)
+    "\n----\n" print(string:)
+    print(string:)
+
+    "\n\n" print(string:)
+
+    "01234567" 1u64 5u64 range(string,u64,u64:string)
+    print(string:)
 }

@@ -10,7 +10,7 @@ fun{safe, stc, inline} drop(string:) {
 // swaps two string values
 //
 fun{safe, stc, inline} swap(string,string:string,string) {
-    .asm.swap(u128:)
+    .asm.swap(u128,u128:u128,u128)
 }
 
 //
@@ -36,31 +36,67 @@ fun{safe, stc, inline} ..(string,string:string,string,string) {
 }
 
 //
-// length of the string
+// length of the string,
 //
 fun{safe, inline} len(string:u64) {
     .unwrap .asm.swap(u64,u64:u64,u64) .asm.drop(u64:)
 }
 
 //
+// length of the string,
+// not consuming the string
+//
+fun{safe, stc, inline} len(string:string,u64) {
+    .(u64:u64,u64)
+}
+
+//
 // checks if a string starts with another string
 //
-fun starts_with(string,string:bool) {
+fun{safe} starts_with(string,string:bool) {
     let p: string;
+    let s: string;
 
     if (
-        .(string:string,string) len(string:u64)
-        p                       len(string:u64)
-            >(u64,u64:bool)
-    ) drop(string:) false(:bool) .return;
+        s len(string:u64)
+        p len(string:u64)
+            <(u64,u64:bool)
+    ) {
+        false(:bool) .return
+    }
 
     if (
-        .(string:string,string) to(string:u64,u64) drop(u64:)
-        p                       to(string:u64,u64) drop(u64:)
+        s to(string:u64,u64) drop(u64:)
+        p to(string:u64,u64) drop(u64:)
             ==(u64,u64:bool)
-    ) drop(string:) true(:bool) .return;
+    ) {
+        true(:bool) .return
+    }
 
-    todo(:!)
+    p len(string:u64)
+    0u64 while (
+        ..(u64,u64:u64,u64,u64)
+        ..(u64,u64:u64,u64,u64)
+            !=(u64,u64:bool)
+    ) {
+        .(u64:u64,u64)
+        p to(string:u64,u64) drop(u64:)
+            +(u64,u64:u64)
+                .asm.load(u64:u8)
+        .(u64:u64,u64)
+        s to(string:u64,u64) drop(u64:)
+            +(u64,u64:u64)
+                .asm.load(u64:u8)
+
+        if (!=(u8,u8:bool)) {
+            drop(u64:) drop(u64:)
+            false(:bool) .return
+        }
+
+        ++(u64:u64)
+    } drop(u64:) drop(u64:)
+
+    true(:bool)
 }
 
 //
@@ -70,10 +106,12 @@ fun ==(string,string:bool) {
     let s: string;
 
     if (
-        .(string:string,string) len(string:u64)
-        s                       len(string:u64)
+        len(string:string,u64)
+        s len(string:u64)
             !=(u64,u64:bool)
-    ) drop(string:) false(:bool) .return;
+    ) {
+        drop(string:) false(:bool) .return
+    }
 
     s starts_with(string,string:bool)
 }
@@ -83,6 +121,74 @@ fun ==(string,string:bool) {
 //
 fun{inline} !=(string,string:bool) {
     ==(string, string: bool) !(bool:bool)
+}
+
+//
+// returns part of a string,
+// dependent on the given range
+//
+// panics if the range is not within the string
+//
+fun{safe, stc} range(string,u64,u64:string) {
+    .(u128:u128,u128)
+
+    if (>(u64,u64:bool)) {
+        "the lower bound has to be greater or equal to the upper bound" panic(string:!)
+    }
+
+    ..(u128,u128:u128,u128,u128)
+    swap(u64,u64:u64,u64) drop(u64:)
+    ..(u64,u64:u64,u64,u64)
+
+    if (<(u64,u64:bool)) {
+        "the upper bound has to be less or equal to the length of the string" panic(string:!)
+    }
+
+    range_unchecked(string,u64,u64:string)
+}
+
+//
+// returns part of a string,
+// dependent on the given range
+//
+// SAFETY:
+// lower bound is less or equal to upper bound
+// upper bound is less or equal to length of the string
+//
+fun{unsafe, stc} range_unchecked(string,u64,u64:string) {
+    ..(u64,u64:u64,u64,u64) -(u64,u64:u64)
+    swap(u128,u128:u128,u128) drop(u64:)
+    rotate(u64,u64,u64:u64,u64,u64) +(u64,u64:u64)
+    swap(u64,u64:u64,u64)
+}
+
+//
+// splits a string at an index,
+// returning the prefix and suffix
+//
+// panics if the index is greater then the length
+//
+fun{safe, stc} split(string,u64:string,string) {
+    .(u64:u64,u64) ..(string,string:string,string,string) len(string:u64)
+    if (>(u64,u64:bool)) {
+        "the index has to be less or equal to the length of the string" panic(string:!)
+    }
+    split_unchecked(string,u64:string,string)
+}
+
+//
+// splits a string at an index,
+// returning the prefix and suffix
+//
+// SAFETY:
+// the index is less or equal to the length
+//
+fun{unsafe} split_unchecked(string,u64:string,string) {
+    let idx: u64;
+    let s: string;
+
+    s 0u64 idx range_unchecked(string,u64,u64:string)
+    s idx s len(string:u64) range_unchecked(string,u64,u64:string)
 }
 
 //
@@ -100,7 +206,8 @@ fun{safe, stc, inline} to(string:u64,u64) {}
 fun{unsafe, stc, inline} to(u64,u64:string) {}
 
 //
-// prints the string,
+// prints the string
+//
 // panics if the vm does not print the entire string
 //
 fun{safe} print(string:) {
@@ -108,6 +215,7 @@ fun{safe} print(string:) {
 
     .asm.write(string:u64)
 
-    if (len !=(u64,u64:bool))
-        "error printing string" panic(string:!);
+    if (len !=(u64,u64:bool)) {
+        "error printing string" panic(string:!)
+    }
 }
