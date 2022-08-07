@@ -88,14 +88,14 @@ fun{safe, stc, inline} >>>(i8,u8:i8) {
 // checks if two i8 values are equal
 //
 fun{safe, inline} ==(i8,i8:bool) {
-    .asm.eq(i8,i8:i8)
+    .asm.eq(i8,i8:bool)
 }
 
 //
 // checks if two i8 values are not equal
 //
 fun{safe, inline} !=(i8,i8:bool) {
-    .asm.not.eq(i8,i8:i8)
+    .asm.not.eq(i8,i8:bool)
 }
 
 //
